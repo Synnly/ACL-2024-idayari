@@ -9,7 +9,8 @@
         "express": "^4.21.0",
         "sequelize": "^6.37.4",
         "http-errors": "^2.0.0",
-        "morgan": "^1.10.0"
+        "morgan": "^1.10.0",
+        "mysql2": "^3.11.3"
     },
     "type": "module",
     "contributors": [
