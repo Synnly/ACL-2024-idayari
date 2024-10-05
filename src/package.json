@@ -2,7 +2,9 @@
     "name": "ayari",
     "version": "1.0.0",
     "description": "Gestionnaire d'agendas",
+    "main" : "server.js",
     "scripts": {
+        "db" : "node database.js",
         "start": "node server.js"
     },
     "dependencies": {
