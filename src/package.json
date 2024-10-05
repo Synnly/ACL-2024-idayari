@@ -1,0 +1,23 @@
+{
+    "name": "ayari",
+    "version": "1.0.0",
+    "description": "Gestionnaire d'agendas",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.21.0",
+        "sequelize": "^6.37.4",
+        "http-errors": "^2.0.0",
+        "morgan": "^1.10.0"
+    },
+    "type": "module",
+    "contributors": [
+        "FERNANDES DOS SANTOS Emanuel",
+        "LAGARDE Tristan",
+        "AIACHI Morade",
+        "CUNY Mederic",
+        "MAVOUNGOU Franck",
+        "BASUALDO Lautaro"
+    ]
+}
