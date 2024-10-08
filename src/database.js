@@ -1,5 +1,6 @@
 import { Sequelize } from "sequelize";
 import User from "./model/User.js";
+import Agenda from "./model/Agenda.js";
 
 const user = 'mysql';
 const host = "synnly.com:3306";
@@ -14,6 +15,8 @@ await sequelize.authenticate(); // Si connexion impossible le script quitte ici
 
 // synchronise avec la bdd, crée la table si elle n'existe pas encore
 await User.initTable(sequelize);
-await User.sync();
+await Agenda.initTable(sequelize);
 
+await User.sync();
+await Agenda.sync();
 export default sequelize;
