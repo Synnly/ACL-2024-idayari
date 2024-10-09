@@ -3,14 +3,14 @@ import {DataTypes, Model} from "sequelize";
 export default class Agenda extends Model {
 
     static initTable = (sequelize) => Agenda.init({
-        idUser: {
+        id: {
             type: DataTypes.INTEGER,
+            autoIncrement: true,
             primaryKey: true,
+            onDelete: 'CASCADE'
         },
         nom: {
             type: DataTypes.STRING,
-            unique: true,
-            primaryKey: true,
         },
     },
     {sequelize, timestamps: false, tableName: "Agendas"});

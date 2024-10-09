@@ -1,5 +1,7 @@
 import User from "./model/User.js";
 import sequelize from "./database.js";
+import Agenda from "./model/Agenda.js";
+import UserAgendaAccess from "./model/UserAgendaAccess.js";
 
 let currentId = 0;
 
@@ -23,6 +25,26 @@ export async function inscriptionPOST(req, res) {
         else{
             res.redirect('inscription', 400);
         }
+    }
+}
+
+export function creationAgendaGET(req, res) { res.render("creerAgenda") }
+export async function creationAgendaPOST(req, res) {
+    try {
+        const usr = await User.findByPk(1);
+        const agenda = await Agenda.create({
+            nom: "testAgenda"
+        });
+        console.log(agenda);
+        const userAgendaAccess = await UserAgendaAccess.create({
+            idUser: usr.id,
+            idAgenda: agenda.id,
+            idOwner: usr.id,
+        })
+        res.redirect('/');
+    }
+    catch (_){
+        res.redirect('/creerAgenda');
     }
 }
 
