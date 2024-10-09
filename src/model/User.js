@@ -19,10 +19,6 @@ export default class User extends Model {
                 type: DataTypes.STRING,
                 unique: true,
             },
-            email: {
-                type: DataTypes.STRING,
-                unique: true,
-            },
             hashedPassword: {
                 type: DataTypes.TEXT,
             },
