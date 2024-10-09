@@ -31,16 +31,19 @@ export async function inscriptionPOST(req, res) {
 export function creationAgendaGET(req, res) { res.render("creerAgenda") }
 export async function creationAgendaPOST(req, res) {
     try {
-        const usr = await User.findByPk(1);
+        //TODO : QUAND LA CONNEXION SERA IMPLEMENTEE, CHERCHER L'UTILISATEUR CONNECTE
+        const usr = await User.create({username: "test", hashedPassword: "345678909876545678"});
+
         const agenda = await Agenda.create({
-            nom: "testAgenda"
+            nom: req.body.nom
         });
-        console.log(agenda);
-        const userAgendaAccess = await UserAgendaAccess.create({
+
+        await UserAgendaAccess.create({
             idUser: usr.id,
             idAgenda: agenda.id,
             idOwner: usr.id,
         })
+
         res.redirect('/');
     }
     catch (_){

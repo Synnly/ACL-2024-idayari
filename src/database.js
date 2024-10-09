@@ -30,8 +30,8 @@ await User.initTable(sequelize);
 await Agenda.initTable(sequelize);
 await UserAgendaAccess.initTable(sequelize);
 
-await UserAgendaAccess.sync();
 await User.sync();
 await Agenda.sync();
+await UserAgendaAccess.sync();
 
 export default sequelize;
