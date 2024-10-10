@@ -16,7 +16,8 @@
         "jsonwebtoken": "^9.0.2",
         "morgan": "^1.10.0",
         "mysql2": "^3.11.3",
-        "sequelize": "^6.37.4"
+        "sequelize": "^6.37.4",
+        "dotenv": "^16.4.5"
     },
     "type": "module",
     "contributors": [
