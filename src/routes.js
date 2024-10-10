@@ -6,6 +6,46 @@ let currentId = 0;
 function getNewId() { return ++currentId; }
 
 export function index(req, res) { res.render("index"); }
+export function modifierInfosPersoGET(req, res) {
+     res.render("infos_perso", {errMsg:""});
+}
+export async function modifierInfosPersoPOST(req, res){
+    try {
+            const user = await User.findOne({
+            where : {
+                username: req.body.user_username_change_info
+            }
+        })
+        if (user) {
+            res.render('infos_perso', { errMsg: "Vous ne pouvez pas chosir cet username !" });
+        }
+        else {
+            const username = req.body.user_username_change_info;
+            const password = req.body.user_password_change_info;
+            const lastUsername = "Mettre l'ancien username ici"
+            if(username !== '' || password !== ''){
+                let data = {};
+                if(username !== ''){
+                    data.username = username;
+                }
+                if(password !== ''){
+                    data.password = password;
+                }
+            //     if(Object.keys(data).length > 0){ Me manque les infos du compte connecté
+            //         await User.update(data, {
+            //             where: {
+            //                 username : lastUsername
+            //             }
+            //         });
+            //     }
+            }
+            res.render('infos_perso', { errMsg: "Les modifications se sont bien effectuées" });
+        }
+    }catch (e){
+        res.render('infos_perso', { errMsg: "erreur" + e });
+    }
+}
+
 export function inscriptionGET(req, res) { res.render("inscription", {errMsg:""}) }
 export async function inscriptionPOST(req, res) {
     try {
