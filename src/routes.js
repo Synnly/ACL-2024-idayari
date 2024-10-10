@@ -17,22 +17,15 @@ export function inscriptionGET(req, res) {
   res.render("inscription", { errMsg: "" });
 }
 export async function inscriptionPOST(req, res) {
-  //console.log(req);
-  console.log(req.body.user_username);
-  console.log(req.body.user_email);
-  console.log(req.body.user_password);
-
   try {
     const usr = await User.create({
       username: req.body.user_username,
       hashedPassword: User.hashPassowrd(req.body.user_password),
     });
-    console.log("Utilisateur créé avec succès :", usr.toJSON());
     //Pour que le server authenthifie l'utilisateur à partir du cookie
     saveAuthentificationCookie(usr, res);
     res.redirect("/");
   } catch (e) {
-    console.log("Le nom de l'erreur", e);
     if (e.name === "SequelizeUniqueConstraintError") {
       res.render("inscription", {
         errMsg: "Un compte existe déjà avec cette combinaison username/email",
@@ -51,6 +44,31 @@ export function getThread(req, res, next) {
   } else {
     res.send(threadView(thread));
   }
+}
+//Pour se diriger à la page de connexion
+export function connexionGET(req, res, next) {
+  res.render("connexion", { errMsg: "" });
+}
+//Pour traiter le formulaire de connexion
+export async function connexionPOST(req, res, next) {
+  let username = req.body.username;
+  let password = User.hashPassowrd(req.body.password);
+
+  const user = await User.findOne({
+    where: { username: username, hashedPassword: password },
+  });
+  if (user === null) {
+    res.render("connexion", {
+      errMsg: "Le nom et lidentifiant ne correspondent pas",
+    });
+  } else {
+    saveAuthentificationCookie(user, res);
+    res.redirect("/");
+  }
+}
+export function deconnexion(req, res, next) {
+  res.clearCookie("accessToken");
+  res.redirect("/");
 }
 export function authenticate(req, res, next) {
   try {
@@ -71,7 +89,6 @@ export function createJWT(user) {
 }
 export function saveAuthentificationCookie(savedUser, res) {
   let token = createJWT({ id: savedUser.id, username: savedUser.username }); //On crée le token représentant notre user
-  console.log("Test du createJWT");
   res.cookie("accessToken", token, { httpOnly: true });
 }
 

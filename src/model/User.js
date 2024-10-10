@@ -20,10 +20,6 @@ export default class User extends Model {
           type: DataTypes.STRING,
           unique: true,
         },
-        email: {
-          type: DataTypes.STRING,
-          unique: true,
-        },
         hashedPassword: {
           type: DataTypes.TEXT,
         },
@@ -39,7 +35,6 @@ export default class User extends Model {
    * @returns {string} Le haché en hexadécimal
    */
   static hashPassowrd = (password) => {
-    return password;
-    //return crypto.createHash("sha256").update(password).digest("hex");
+    return crypto.createHash("sha256").update(password).digest("hex");
   };
 }
