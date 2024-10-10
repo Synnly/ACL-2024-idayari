@@ -28,7 +28,7 @@ export async function inscriptionPOST(req, res) {
   } catch (e) {
     if (e.name === "SequelizeUniqueConstraintError") {
       res.render("inscription", {
-        errMsg: "Un compte existe déjà avec cette combinaison username/email",
+        errMsg: "Un compte existe déjà avec ce nom d'utilisateur !",
       });
     } else {
       res.redirect("/inscription");
@@ -59,7 +59,7 @@ export async function connexionPOST(req, res, next) {
   });
   if (user === null) {
     res.render("connexion", {
-      errMsg: "Le nom et lidentifiant ne correspondent pas",
+      errMsg: "Identifiant et/ou mot de passe invalides !",
     });
   } else {
     saveAuthentificationCookie(user, res);
