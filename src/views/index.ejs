@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Index</title>
-    </head>
-    <body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Index</title>
+  </head>
+  <body>
     <h1>Idayari</h1>
+    <% if (locals.user) { %>
+    <p>Bienvenue utilisateur : <%= locals.user.username %></p>
+    <div>
+      <a href="/" class="button">Se déconnecter (en cours)</a>
+    </div>
+    <%} else{ %>
+    <div>
+      <a href="/" class="button">Se Connecter (en cours)</a>
+    </div>
+
+    <%} %>
     <p>Ceci est l'index.</p>
-    </body>
+  </body>
 </html>
