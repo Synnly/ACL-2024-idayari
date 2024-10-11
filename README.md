@@ -1,7 +1,7 @@
 # Idayari
 
 ## Description
-Idayari est une application web qui permet de gérer des agendas, créer des rendez-vous et les partager.
+Idayari est une application web qui permet de créer des agendas.
 
 ## Installation
 ```bash
