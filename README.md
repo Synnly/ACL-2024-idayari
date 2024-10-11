@@ -10,6 +10,7 @@ npm install && npm start
 
 ## Fonctionnalités
 - Création de compte
+    - À partir d'un nom d'utilisateur et d'un mot de passe
 - Authentification
 - Création d'agendas
 
