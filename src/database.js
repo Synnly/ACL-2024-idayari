@@ -2,6 +2,8 @@ import { Sequelize } from "sequelize";
 import User from "./model/User.js";
 import Agenda from "./model/Agenda.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
+import RendezVous from "./model/RendezVous.js";
+import AgendaRendezVous from "./model/AgendaRendezVous.js";
 
 const user = "mysql";
 const host = "synnly.com:3306";
@@ -18,7 +20,14 @@ await sequelize.authenticate(); // Si connexion impossible le script quitte ici
 User.initTable(sequelize);
 Agenda.initTable(sequelize);
 UserAgendaAccess.initTable(sequelize);
+RendezVous.initTable(sequelize);
+AgendaRendezVous.initTable(sequelize);
 
+User.belongsToMany(Agenda, {through: UserAgendaAccess});
+Agenda.belongsToMany(User, {through: UserAgendaAccess});
+
+Agenda.belongsToMany(RendezVous, {through: AgendaRendezVous});
+RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous});
 // Nettoyage de la BD.
 // Oui c'est débile mais pour une raison qui m'échappe ni
 // sequelize.drop() ni sequelize.dropAllSchemas() fonctionne ¯\_(ツ)_/¯
@@ -28,8 +37,10 @@ UserAgendaAccess.initTable(sequelize);
 // await Agenda.drop();
 
 // si on a des modifications de la structure des tables
-// await User.sync({alter: true});
-// await Agenda.sync({alter: true});
-// await UserAgendaAccess.sync({alter: true});
+await User.sync({alter: true});
+await Agenda.sync({alter: true});
+await UserAgendaAccess.sync({alter: true});
+await RendezVous.sync();
+await AgendaRendezVous.sync();
 
 export default sequelize;

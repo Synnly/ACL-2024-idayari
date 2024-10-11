@@ -7,7 +7,6 @@ export default class Agenda extends Model {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
-            onDelete: 'CASCADE'
         },
         nom: {
             type: DataTypes.STRING,
