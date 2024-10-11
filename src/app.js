@@ -4,6 +4,7 @@ import createError from "http-errors";
 import morgan from "morgan";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
+import {creationAgendaGET} from "./routes.js";
 
 export const app = express();
 
@@ -24,7 +25,8 @@ app
   .post("/connexion", routes.connexionPOST)
   .get("/inscription", routes.inscriptionGET)
   .post("/inscription", routes.inscriptionPOST)
-  .get("/threads/:threadId/", routes.getThread)
+  .get("/creerAgenda", routes.creationAgendaGET)
+  .post("/creerAgenda", routes.creationAgendaPOST)
   .use((req, res, next) => next(createError(404)))
   .use((err, req, res, next) => {
     res

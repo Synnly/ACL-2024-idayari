@@ -1,5 +1,8 @@
 import User from "./model/User.js";
 import sequelize from "./database.js";
+import Agenda from "./model/Agenda.js";
+import UserAgendaAccess from "./model/UserAgendaAccess.js";
+
 import dotenv from "dotenv"; //Import qui permet la manipulation des variables d'environnement
 import jwt from "jsonwebtoken";
 dotenv.config(); // Récupère et parse le fichier .env pour récupérer clé SECRET
@@ -34,6 +37,29 @@ export async function inscriptionPOST(req, res) {
       res.redirect("/inscription");
     }
   }
+}
+
+export function creationAgendaGET(req, res) { res.render("creerAgenda") }
+export async function creationAgendaPOST(req, res) {
+    try {
+        //TODO : QUAND LA CONNEXION SERA IMPLEMENTEE, CHERCHER L'UTILISATEUR CONNECTE
+        const usr = await User.create({username: "test", hashedPassword: "345678909876545678"});
+
+        const agenda = await Agenda.create({
+            nom: req.body.nom
+        });
+
+        await UserAgendaAccess.create({
+            idUser: usr.id,
+            idAgenda: agenda.id,
+            idOwner: usr.id,
+        })
+
+        res.redirect('/');
+    }
+    catch (_){
+        res.redirect('/creerAgenda');
+    }
 }
 
 export function getThread(req, res, next) {
