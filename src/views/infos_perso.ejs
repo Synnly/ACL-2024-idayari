@@ -6,6 +6,7 @@
     <title>Informations personnelles</title>
     <script>
         function sendData() {
+            document.getElementById('hidden_password_confirmation').value = document.getElementById('password_change_info_confirmation').value;
             document.getElementById('mainForm').submit();
         }
 
@@ -54,7 +55,7 @@
                                 <label for="confirmationpswd_change_info">Confirmer le mot de passe</label>
                                 <input id="confirmationpswd_change_info" type="password" name="user_confirmationpswd_change_info" onblur="verifierMdp()"><br>
                                 <div id="errorMessage"></div><br>
-
+                                <input type="hidden" id="hidden_password_confirmation" name="user_password_change_info_confirmation_hidden">
                                 <input type="submit" id="changeInfoSubmit" onclick="return showConfirmChanges()">
                             </form>
 

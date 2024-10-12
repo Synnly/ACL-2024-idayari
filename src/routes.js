@@ -15,7 +15,11 @@ function getNewId() {
 
 export function index(req, res) { res.render("index"); }
 export function modifierInfosPersoGET(req, res) {
-     res.render("infos_perso", {errMsg:""});
+    if(res.locals.user){
+        res.render("infos_perso", {errMsg:""});
+    } else {
+        res.render("connexion", {errMsg: ""});
+    }
 }
 export async function modifierInfosPersoPOST(req, res){
     try {
@@ -30,28 +34,56 @@ export async function modifierInfosPersoPOST(req, res){
         else {
             const username = req.body.user_username_change_info;
             const password = req.body.user_password_change_info;
-            const lastUsername = "Mettre l'ancien username ici"
-            if(username !== '' || password !== ''){
-                let data = {};
+            const lastUsername = res.locals.user.username;
+            const user = await User.findOne({
+                where: {
+                    username: lastUsername
+                }
+            });
+            const lastPassword = user.hashedPassword;
+            let hasUsernameChanged = false;
+            let hasPasswordChanged = false;
+            let data = {};
+            const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
+            if(username !== '' || password !== '' && lastPassword === User.hashPassowrd(passwordConfirm)){
+               
                 if(username !== ''){
                     data.username = username;
+                    hasUsernameChanged = true;
                 }
                 if(password !== ''){
-                    data.password = password;
+                    data.hashedPassword = User.hashPassowrd(password);
+                    hasPasswordChanged = true;
                 }
-            //     if(Object.keys(data).length > 0){ Me manque les infos du compte connecté
-            //         await User.update(data, {
-            //             where: {
-            //                 username : lastUsername
-            //             }
-            //         });
-            //     }
+                if(Object.keys(data).length > 0){
+                    await User.update(data, {
+                        where: {
+                            username : lastUsername
+                        }
+                    });
+                }
+            }
+            if (hasUsernameChanged && hasPasswordChanged) {
+                let updatedUser = await User.findOne({ where: { username: username } });
+                updatedUser.hashedPassword = data.hashedPassword;
+                console.log("1 " + updatedUser.username, updatedUser.hashedPassword);
+                saveAuthentificationCookie(updatedUser, res);
+
+            } else if (hasUsernameChanged) {
+                const updatedUser = {id: user.id, username: data.username, hashedPassword: lastPassword};
+                console.log("2 " + updatedUser.username, updatedUser.hashedPassword);
+                saveAuthentificationCookie(updatedUser, res);
+
+            } else if (hasPasswordChanged) {
+                const updatedUser = {id: user.id, username: user.username, hashedPassword: data.hashedPassword};
+                console.log("3 " + updatedUser.username, updatedUser.hashedPassword);
+                saveAuthentificationCookie(updatedUser, res);
             }
             res.render('infos_perso', { errMsg: "Les modifications se sont bien effectuées" });
         }
-    }catch (e){
-        res.render('infos_perso', { errMsg: "erreur" + e });
-    }
+    }catch (error){
+        console.error(`Erreur : ${error.message}\n Ligne : ${error.stack}`);
+        res.render('infos_perso', { errMsg: `Une erreur s'est produite : ${error.message}` });    }
 }
 
 export function inscriptionGET(req, res) { res.render("inscription", {errMsg:""}) }
