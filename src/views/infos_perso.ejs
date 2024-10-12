@@ -12,14 +12,14 @@
 
         function verifierMdp() {
             const mdp1 = document.getElementById("password_change_info").value;
-            const mdp2 = document.getElementById("confirmationpswd_change_info").value 
+            const mdp2 = document.getElementById("confirmationpswd_change_info").value
 
             if (mdp1 !== mdp2) {
                 document.getElementById("changeInfoSubmit").disabled = true;
                 document.getElementById("errorMessage").textContent = "Mots de passe différents";
                 return false;
             }
-            
+
             document.getElementById("changeInfoSubmit").disabled = false;
             document.getElementById("errorMessage").textContent = "";
             return true;
@@ -50,22 +50,26 @@
 
 
                                 <label for="password_change_info">Mot de passe</label>
-                                <input id="password_change_info" type="password" name="user_password_change_info" onblur="verifierMdp()"><br>
+                                <input id="password_change_info" type="password" name="user_password_change_info"
+                                    onblur="verifierMdp()"><br>
 
                                 <label for="confirmationpswd_change_info">Confirmer le mot de passe</label>
-                                <input id="confirmationpswd_change_info" type="password" name="user_confirmationpswd_change_info" onblur="verifierMdp()"><br>
+                                <input id="confirmationpswd_change_info" type="password"
+                                    name="user_confirmationpswd_change_info" onblur="verifierMdp()"><br>
                                 <div id="errorMessage"></div><br>
-                                <input type="hidden" id="hidden_password_confirmation" name="user_password_change_info_confirmation_hidden">
+                                <input type="hidden" id="hidden_password_confirmation"
+                                    name="user_password_change_info_confirmation_hidden">
                                 <input type="submit" id="changeInfoSubmit" onclick="return showConfirmChanges()">
                             </form>
 
                             <div style="display: none;" id="confirm_password">
-                                <h1>Confirmation de modification des données</h1>                             
+                                <h1>Confirmation de modification des données</h1>
 
                                 <label for="password_change_info">Mot de passe</label>
                                 <input id="password_change_info_confirmation" type="password"
                                     name="user_password_change_info_confirmation" required><br>
-                                <button type="submit" id="changeInfoSubmitComfirmation" onclick="verifierMdp() && sendData()">envoyer
+                                <button type="submit" id="changeInfoSubmitComfirmation"
+                                    onclick="verifierMdp() && sendData()">envoyer
                                 </button>
                                 <button type="button" onclick="hideConfirmChanges()">Annuler</button>
 
@@ -75,9 +79,3 @@
 </body>
 
 </html>
-
-<!-- -recup mdp du l'utilisateur connecter,
--si c'est le même que dans password_change_info_confirmation alors
-    - si oui envoyer les nouvelles données à la bd
-    sinon afficher erreur
-sinon afficher erreur -->
