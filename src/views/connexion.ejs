@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Connexion</title>
+  </head>
+  <body>
+    <body>
+      <h3>Connexion</h3>
+      <% if(locals.user) { %>
+      <p>Vous êtes déja connecté : <%= locals.user.username %></p>
+      <% }else {%> 
+        <form method="post">
+            <label for="username">Username</label>
+            <input id="username" type="text" name="username" required /><br />
+    
+            <label for="password">Mot de passe</label>
+            <input id="password" type="password" name="password" required />
+            <br>
+    
+            <input type="submit" id="connexionSubmit" />
+          </form>
+        <% }%>
+        <% if(errMsg != null || errMsg !== "") { %>
+            <% "<p>" %><%= errMsg %><% "</p>" %>
+            <% }%>
+
+      
+  </body>
+</html>

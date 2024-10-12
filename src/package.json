@@ -2,19 +2,22 @@
     "name": "idayari",
     "version": "1.0.0",
     "description": "Gestionnaire d'agendas",
-    "main" : "server.js",
+    "main": "server.js",
     "scripts": {
-        "db" : "node database.js",
+        "db": "node database.js",
         "start": "node server.js"
     },
     "dependencies": {
-        "express": "^4.21.0",
+        "cookie-parser": "^1.4.7",
+        "crypto": "^1.0.1",
         "ejs": "^3.1.10",
-        "sequelize": "^6.37.4",
+        "express": "^4.21.0",
         "http-errors": "^2.0.0",
+        "jsonwebtoken": "^9.0.2",
         "morgan": "^1.10.0",
         "mysql2": "^3.11.3",
-        "crypto": "^1.0.1"
+        "sequelize": "^6.37.4",
+        "dotenv": "^16.4.5"
     },
     "type": "module",
     "contributors": [
