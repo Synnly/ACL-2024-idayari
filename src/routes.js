@@ -1,24 +1,25 @@
 import User from "./model/User.js";
-import sequelize from "./database.js";
 import Agenda from "./model/Agenda.js";
+import { sequelize } from "./database.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
 
 import dotenv from "dotenv"; //Import qui permet la manipulation des variables d'environnement
 import jwt from "jsonwebtoken";
 dotenv.config(); // Récupère et parse le fichier .env pour récupérer clé SECRET
 
-let currentId = 0;
-
-function getNewId() {
-  return ++currentId;
-}
-
 export function index(req, res) {
   res.render("index");
 }
+
 export function inscriptionGET(req, res) {
-  res.render("inscription", { errMsg: "" });
+  if (!res.locals.user) {
+    res.render("inscription", { errMsg: null });
+  } else {
+    // on reste où on est
+    res.redirect("/");
+  }
 }
+
 export async function inscriptionPOST(req, res) {
   try {
     const usr = await User.create({
@@ -29,52 +30,49 @@ export async function inscriptionPOST(req, res) {
     saveAuthentificationCookie(usr, res);
     res.redirect("/");
   } catch (e) {
-    if (e.name === "SequelizeUniqueConstraintError") {
-      res.render("inscription", {
-        errMsg: "Un compte existe déjà avec ce nom d'utilisateur !",
-      });
-    } else {
-      res.redirect("/inscription");
-    }
+    res.render("inscription", {
+      errMsg: e.name === "SequelizeUniqueConstraintError" ? "Un compte existe déjà avec ce nom d'utilisateur !" : "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+    });
   }
 }
 
-export function creationAgendaGET(req, res) { res.render("creerAgenda") }
+export function creationAgendaGET(req, res) { 
+  if (res.locals.user) {
+    res.render("creerAgenda", { errMsg: null });
+  } else {
+    res.redirect("/");
+  }
+}
+
 export async function creationAgendaPOST(req, res) {
     try {
-        //TODO : QUAND LA CONNEXION SERA IMPLEMENTEE, CHERCHER L'UTILISATEUR CONNECTE
-        const usr = await User.create({username: "test", hashedPassword: "345678909876545678"});
-
         const agenda = await Agenda.create({
             nom: req.body.nom
         });
 
         await UserAgendaAccess.create({
-            idUser: usr.id,
+            idUser: res.locals.id,
             idAgenda: agenda.id,
-            idOwner: usr.id,
+            idOwner: res.locals.id,
         })
-
         res.redirect('/');
     }
-    catch (_){
-        res.redirect('/creerAgenda');
+    catch (e){
+      res.render("creerAgenda", {
+        errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+      });
     }
 }
 
-export function getThread(req, res, next) {
-  const id = req.params.threadId;
-  const thread = forum.threads.find((thread) => thread.id == id);
-  if (!thread) {
-    next(createError(404));
-  } else {
-    res.send(threadView(thread));
-  }
-}
 //Pour se diriger à la page de connexion
 export function connexionGET(req, res, next) {
-  res.render("connexion", { errMsg: "" });
+  if (!res.locals.user) {
+    res.render("connexion", { errMsg: null });
+  } else {
+    res.redirect("/");
+  }
 }
+
 //Pour traiter le formulaire de connexion
 export async function connexionPOST(req, res, next) {
   let username = req.body.username;
@@ -96,6 +94,7 @@ export function deconnexion(req, res, next) {
   res.clearCookie("accessToken");
   res.redirect("/");
 }
+
 export function authenticate(req, res, next) {
   try {
     let token = req.cookies.accessToken; // ou alors req.cookies['accessToken'];
@@ -105,6 +104,7 @@ export function authenticate(req, res, next) {
   } catch {}
   next();
 }
+
 //A partir d'ici fonction pour l'authentification
 export function createJWT(user) {
   return jwt.sign(
@@ -113,6 +113,7 @@ export function createJWT(user) {
     { expiresIn: "1h" } //Durée de 1h
   );
 }
+
 export function saveAuthentificationCookie(savedUser, res) {
   let token = createJWT({ id: savedUser.id, username: savedUser.username }); //On crée le token représentant notre user
   res.cookie("accessToken", token, { httpOnly: true });

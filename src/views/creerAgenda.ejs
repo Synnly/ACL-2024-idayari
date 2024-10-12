@@ -2,31 +2,20 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <script>
-            function hideForm(){
-                document.getElementById("formAgenda").hidden = true;
-                document.getElementById("buttonAgenda").hidden = false;
-                document.getElementById("annulerAgenda").hidden = true;
-            }
-
-            function showForm(){
-                document.getElementById("formAgenda").hidden = false;
-                document.getElementById("buttonAgenda").hidden = true;
-                document.getElementById("annulerAgenda").hidden = false;
-            }
-        </script>
-        <title>Index</title>
+        <title>Idayari</title>
     </head>
     <body>
     <h1>Idayari</h1>
-    <button id="buttonAgenda" onclick="showForm()">Créer agenda</button>
-    <form method="post" id="formAgenda" hidden>
+    <form method="POST" action="/creerAgenda">
         <label for="nom">Nom de l'agenda</label>
-        <input id="nom" type="text" name="nom">
+        <input type="text" name="nom" required>
 
         <input type="submit">
 
-        <button id="annulerAgenda" onclick="hideForm()">Annuler</button>
+        <a href="/" type="button">Annuler</a>
     </form>
+    <% if (errMsg) { %>
+        <% "<p>" %><%= errMsg %><% "</p>" %>
+        <% }%>
     </body>
 </html>
