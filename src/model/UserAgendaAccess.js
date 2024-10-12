@@ -23,7 +23,6 @@ export default class UserAgendaAccess extends Model {
                 model: 'Agendas',
                 key: 'id',
                 uniqueKey: 'idAgenda',
-                constraints: false,
             },
             onDelete: 'CASCADE'
         },

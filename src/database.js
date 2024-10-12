@@ -23,11 +23,11 @@ UserAgendaAccess.initTable(sequelize);
 RendezVous.initTable(sequelize);
 AgendaRendezVous.initTable(sequelize);
 
-User.belongsToMany(Agenda, {through: UserAgendaAccess});
-Agenda.belongsToMany(User, {through: UserAgendaAccess});
+// User.belongsToMany(Agenda, {through: UserAgendaAccess});
+// Agenda.belongsToMany(User, {through: UserAgendaAccess});
 
-Agenda.belongsToMany(RendezVous, {through: AgendaRendezVous});
-RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous});
+Agenda.belongsToMany(RendezVous, {through: AgendaRendezVous, foreignKey: "idAgenda"});
+RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRendezVous"});
 // Nettoyage de la BD.
 // Oui c'est débile mais pour une raison qui m'échappe ni
 // sequelize.drop() ni sequelize.dropAllSchemas() fonctionne ¯\_(ツ)_/¯
@@ -37,10 +37,10 @@ RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous});
 // await Agenda.drop();
 
 // si on a des modifications de la structure des tables
-await User.sync({alter: true});
-await Agenda.sync({alter: true});
-await UserAgendaAccess.sync({alter: true});
-await RendezVous.sync();
-await AgendaRendezVous.sync();
+// await User.sync({alter: true});
+// await Agenda.sync({alter: true});
+// await UserAgendaAccess.sync({alter: true});
+// await RendezVous.sync({alter: true});
+// await AgendaRendezVous.sync({force: true});
 
 export default sequelize;
