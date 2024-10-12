@@ -13,7 +13,7 @@ export function index(req, res) {
 
 export function inscriptionGET(req, res) {
   if (!res.locals.user) {
-    res.render("inscription", { errMsg: null });
+    res.render("inscription");
   } else {
     // on reste où on est
     res.redirect("/");
@@ -38,7 +38,7 @@ export async function inscriptionPOST(req, res) {
 
 export function creationAgendaGET(req, res) { 
   if (res.locals.user) {
-    res.render("creerAgenda", { errMsg: null });
+    res.render("creerAgenda");
   } else {
     res.redirect("/");
   }
@@ -67,7 +67,7 @@ export async function creationAgendaPOST(req, res) {
 //Pour se diriger à la page de connexion
 export function connexionGET(req, res, next) {
   if (!res.locals.user) {
-    res.render("connexion", { errMsg: null });
+    res.render("connexion");
   } else {
     res.redirect("/");
   }

@@ -24,7 +24,7 @@
 </head>
 <body>
     <h3>Création de compte</h3>
-    <% if (errMsg) { %>
+    <% if (locals.errMsg) { %>
     <% "<p>" %><%= errMsg %><% "</p>" %>
     <% }%>
     <form method="post">
