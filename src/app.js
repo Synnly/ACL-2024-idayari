@@ -3,6 +3,7 @@ import express from "express";
 import createError from "http-errors";
 import morgan from "morgan";
 import { fileURLToPath } from "url"
+import {creationAgendaGET} from "./routes.js";
 
 export const app = express();
 
@@ -19,6 +20,10 @@ app
     .post("/infos_perso", routes.modifierInfosPersoPOST)
     .get("/inscription", routes.inscriptionGET)
     .post("/inscription", routes.inscriptionPOST)
+
+    .get("/creerAgenda", routes.creationAgendaGET)
+    .post("/creerAgenda", routes.creationAgendaPOST)
+
     .get("/threads/:threadId/", routes.getThread)
     .use((req, res, next) => next(createError(404)))
     .use((err, req, res, next) => {
