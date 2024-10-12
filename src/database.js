@@ -23,8 +23,8 @@ UserAgendaAccess.initTable(sequelize);
 RendezVous.initTable(sequelize);
 AgendaRendezVous.initTable(sequelize);
 
-// User.belongsToMany(Agenda, {through: UserAgendaAccess});
-// Agenda.belongsToMany(User, {through: UserAgendaAccess});
+User.belongsToMany(Agenda, {through: UserAgendaAccess, foreignKey: "idAgenda"});
+Agenda.belongsToMany(User, {through: UserAgendaAccess, foreignKey: "idUser"});
 
 Agenda.belongsToMany(RendezVous, {through: AgendaRendezVous, foreignKey: "idAgenda"});
 RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRendezVous"});
