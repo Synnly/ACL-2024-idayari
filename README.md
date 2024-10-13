@@ -12,12 +12,12 @@ npm install && npm start
 - Création de compte
     - À partir d'un nom d'utilisateur et d'un mot de passe
 - Authentification
-- Création d'agendas
+- Création d'agendas (pas encore dispo)
 
 ## Auteurs
 - FERNANDES DOS SANTOS Emanuel (Synnly)
-- LAGARDE Tristan 
-- AIACHI Morade
-- CUNY Mederic
+- LAGARDE Tristan (Niuub)
+- AIACHI Morade (radmoparker)
+- CUNY Mederic (CMederic)
 - MAVOUNGOU Franck (Outsider1010)
-- BASUALDO Lautaro
+- BASUALDO Lautaro (Lautaro Basualdo)
