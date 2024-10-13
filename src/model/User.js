@@ -29,6 +29,14 @@ export default class User extends Model {
       // "tableName: "Users" indique le nom de la table dans la bdd
       { sequelize, timestamps: false, tableName: "Users" }
     );
+  
+  /* Accès aux fonctions suivantes :
+    * getAgendas() : retourne (une promesse) de tous les agendas qui l'utilisateur peut voir
+                    (inclut les agendas partagés)
+    * getMyAgendas() : retourne uniquement les agendas créés par cet utilisateur
+    * équivalent avec set/add...
+  */
+ 
   /**
    * Hache le mot de passe avec SHA265
    * @param password Le mot de passe
