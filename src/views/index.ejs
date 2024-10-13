@@ -9,11 +9,12 @@
     <% if (locals.user) { %>
     <p>Vous êtes connecté : <%= locals.user.username %></p>
     <div>
-      <a href="/deconnexion" class="button">Se déconnecter</a>
+      <a href="/deconnexion">Se déconnecter</a>
+      <a href="/rendezvous/new">Créer un rendez-vous</a>
     </div>
     <%} else{ %>
     <div>
-      <a href="/connexion" class="button">Se Connecter</a>
+      <a href="/connexion">Se Connecter</a>
     </div>
 
     <%} %>

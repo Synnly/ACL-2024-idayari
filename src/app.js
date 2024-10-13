@@ -27,6 +27,8 @@ app
   .post("/inscription", routes.inscriptionPOST)
   .get("/creerAgenda", routes.creationAgendaGET)
   .post("/creerAgenda", routes.creationAgendaPOST)
+  .get("/rendezvous/new", routes.creationRendezVousGET)
+  .post("/rendezvous/new", routes.creationRendezVousPOST)
   .use((req, res, next) => next(createError(404)))
   .use((err, req, res, next) => {
     res
