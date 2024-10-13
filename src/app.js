@@ -4,7 +4,8 @@ import createError from "http-errors";
 import morgan from "morgan";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
-import {creationAgendaGET} from "./routes.js";
+import { authenticate } from "./token.js";
+
 
 export const app = express();
 
@@ -13,13 +14,12 @@ app.set("view engine", "ejs");
 
 app
   .use(cookieParser()) //Permet de gérer les cookies dans req.cookie
-  .use(routes.authenticate)
+  .use(authenticate)
   .use(morgan("dev"))
   .use(express.static(fileURLToPath(new URL("./public", import.meta.url))))
   .use(express.json())
   .use(express.urlencoded({ extended: false }))
   .get("/", routes.index)
-  .get("/deconnexion", routes.deconnexion)
   .get("/deconnexion", routes.deconnexion)
   .get("/connexion", routes.connexionGET)
   .post("/connexion", routes.connexionPOST)
