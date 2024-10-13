@@ -45,17 +45,17 @@
                     <% }%>
                         <div>
                             <form method="post" id="mainForm">
-                                <label for="username_change_info">Username</label>
-                                <input id="username_change_info" type="text" name="user_username_change_info"><br>
+                                <label for="username_change_info">Nom d'utilisateur</label>
+                                <input id="username_change_info" type="text" name="user_username_change_info" placeholder="<%= locals.user.username%>"><br>
 
 
                                 <label for="password_change_info">Mot de passe</label>
                                 <input id="password_change_info" type="password" name="user_password_change_info"
-                                    onblur="verifierMdp()"><br>
+                                    onblur="verifierMdp()" placeholder="**********"><br>
 
                                 <label for="confirmationpswd_change_info">Confirmer le mot de passe</label>
                                 <input id="confirmationpswd_change_info" type="password"
-                                    name="user_confirmationpswd_change_info" onblur="verifierMdp()"><br>
+                                    name="user_confirmationpswd_change_info" onblur="verifierMdp()" placeholder="**********"><br>
                                 <div id="errorMessage"></div><br>
                                 <input type="hidden" id="hidden_password_confirmation"
                                     name="user_password_change_info_confirmation_hidden">
