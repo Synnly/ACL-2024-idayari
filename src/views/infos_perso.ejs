@@ -4,97 +4,64 @@
 <head>
     <meta charset="UTF-8">
     <title>Informations personnelles</title>
-    <script>
-        function sendData() {
-            if (document.getElementById('password_change_info_confirmation').value !== '') {
-                document.getElementById('hidden_password_confirmation').value = document.getElementById('password_change_info_confirmation').value;
-                document.getElementById('mainForm').submit();
-                return true;
-            }
-            document.getElementById("information_confirmation").textContent = "Veuillez saisir votre mot de passe de confirmation";
-            return false;
-        }
-
-        function verifierMdp() {
-            const mdp1 = document.getElementById("password_change_info").value;
-            const mdp2 = document.getElementById("confirmationpswd_change_info").value
-
-            if (mdp1 !== mdp2) {
-                document.getElementById("changeInfoSubmit").disabled = true;
-                document.getElementById("errorMessage").textContent = "Mots de passe différents";
-                return false;
-            }
-
-            document.getElementById("changeInfoSubmit").disabled = false;
-            document.getElementById("errorMessage").textContent = "";
-            return true;
-        }
-
-        function showConfirmChanges() {
-            document.getElementById('confirm_password').style.display = 'block';
-            return false;
-        }
-        function hideConfirmChanges() {
-            document.getElementById('confirm_password').style.display = 'none';
-        }
-
-        function back() {
-            window.history.back();
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("password_change_info_confirmation").addEventListener("input", () => {
-                console.log("zzzzzz");
-                document.getElementById("information_confirmation").innerText = "";
-            });
-        });
-    </script>
 </head>
 
 <body>
     <a href="" class="button" onclick="back()">Retour</a>
     <h1>Informations personnelles</h1>
-    <% if(errMsg !=null || errMsg !=="" ) { %>
-        <% "<p>" %>
-            <%= errMsg %>
-                <% "</p>" %>
-                    <% }%>
-                        <div>
-                            <form method="post" id="mainForm">
-                                <label for="username_change_info">Nom d'utilisateur</label>
-                                <input id="username_change_info" type="text" name="user_username_change_info"
-                                    placeholder="<%= locals.user.username%>"><br>
+    <% if(errMsg !=null || errMsg !=="" ) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
+    <div>
+        <form method="post" id="mainForm" style="display: flex; flex-direction: column; gap: 10px;">
+            <div>
+                <label for="username_change_info">Nom d'utilisateur</label>
+                <input id="username_change_info" type="text" name="user_username_change_info"
+                placeholder="<%= locals.user.username%>">
+            </div>
 
+            <div>
+                <label for="password_change_info">Mot de passe</label>
+                <input id="password_change_info" type="password" name="user_password_change_info"
+                placeholder="**********">
+            </div>
 
-                                <label for="password_change_info">Mot de passe</label>
-                                <input id="password_change_info" type="password" name="user_password_change_info"
-                                    onblur="verifierMdp()" placeholder="**********"><br>
+            <div>
+                <label for="confirmationpswd_change_info">Confirmer le mot de passe</label>
+                <input id="confirmationpswd_change_info" type="password"
+                name="user_confirmationpswd_change_info" placeholder="**********">
+            </div>
 
-                                <label for="confirmationpswd_change_info">Confirmer le mot de passe</label>
-                                <input id="confirmationpswd_change_info" type="password"
-                                    name="user_confirmationpswd_change_info" onblur="verifierMdp()"
-                                    placeholder="**********"><br>
-                                <div id="errorMessage"></div><br>
-                                <input type="hidden" id="hidden_password_confirmation"
-                                    name="user_password_change_info_confirmation_hidden">
-                                <input type="submit" id="changeInfoSubmit" onclick="return showConfirmChanges()">
-                            </form>
+            <div id="errorMessage"></div>
+            <input type="hidden" id="hidden_password_confirmation"
+                name="user_password_change_info_confirmation_hidden">
+                
+            <div>
+                <button type="button" id="changeInfoSubmit" onclick="return showConfirmChanges()" >Valider</button>
+            </div>
+        </form>
 
-                            <div style="display: none;" id="confirm_password">
-                                <h1>Confirmation de modification des données</h1>
+        <div style="display: none;" id="confirm_password">
+            <h1>Confirmation de modification des données</h1>
 
-                                <label for="password_change_info">Mot de passe</label>
-                                <input id="password_change_info_confirmation" type="password"
-                                    name="user_password_change_info_confirmation" required><br>
-                                <p id="information_confirmation"></p>
-                                <button type="submit" id="changeInfoSubmitComfirmation"
-                                    onclick="verifierMdp() && sendData()">envoyer
-                                </button>
-                                <button type="button" onclick="hideConfirmChanges()">Annuler</button>
+            <div>
+                <label for="password_change_info">Mot de passe</label>
+                <input id="password_change_info_confirmation" type="password"
+                name="user_password_change_info_confirmation" required>
+            </div>
+           
+            <span id="information_confirmation"></span>
 
-                            </div>
-                        </div>
+           <div>
+            <button type="submit" id="changeInfoSubmitComfirmation"
+                onclick="return sendData()">envoyer
+            </button>
 
+            <button type="button" onclick="hideConfirmChanges()">
+                Annuler
+            </button>
+           </div>
+        </div>
+    </div>
+    <script src="/js/infos_perso.js"></script>
 </body>
 
 </html>
