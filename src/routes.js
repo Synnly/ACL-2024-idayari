@@ -20,7 +20,7 @@ export function modifierInfosPersoGET(req, res) {
 	if (res.locals.user) {
 		res.render('infos_perso', { errMsg: '' });
 	} else {
-		res.render('connexion', { errMsg: '' });
+		res.redirect('connexion');
 	}
 }
 export async function modifierInfosPersoPOST(req, res) {
