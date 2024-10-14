@@ -6,6 +6,7 @@ import UserAgendaAccess from "./model/UserAgendaAccess.js";
 import { saveAuthentificationCookie } from "./token.js";
 import AgendaRendezVous from "./model/AgendaRendezVous.js";
 import { ValidationError } from "sequelize";
+import ejs from "ejs";
 
 export async function index(req, res) {
   if (res.locals.user) {
@@ -14,7 +15,9 @@ export async function index(req, res) {
     });
     res.locals.agendas = await user.getAgendas();
   }
-  res.render("index");
+  // récuperer les rendez-vous sont acynchrones donc pour permettre cela dans le ejs
+  const html = await ejs.renderFile("views/index.ejs", res.locals, {async:true});
+  res.send(html);
 }
 
 export function inscriptionGET(req, res) {
