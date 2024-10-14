@@ -107,3 +107,20 @@ export function deconnexion(req, res, next) {
   res.clearCookie("accessToken");
   res.redirect("/");
 }
+
+export function creationRendezVousGET(req, res) {
+  if (res.locals.user) {
+    const user = User.findOne({
+      where: { id: res.locals.user.id }
+    });
+    // on utilisera "User.getMyAgendas()" mais pas dispo à cause de l'implémentation actuelle
+    res.render("rendezVous", { agendas: [] });
+  } else {
+    res.redirect("/");
+  }
+}
+
+export function creationRendezVousPOST(req, res) {
+  // besoin du modèle RendezVous
+  res.redirect("/");
+}

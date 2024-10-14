@@ -13,10 +13,10 @@
     <p>Bienvenue, <%= locals.user.username %>.</p>
     <div>
       <a href="/creerAgenda">Créer un agenda</a>
+      <a href="/rendezvous/new">Ajouter un rendez-vous</a>
     </div>
     <div>
       <h2>Vos agendas</h2>
-      <% console.log(locals.user); %>
       <% for (const agenda of locals.agendas) { %>
         <h3><%= agenda.nom %></h3>
         <% } %>
