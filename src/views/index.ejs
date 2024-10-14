@@ -8,18 +8,18 @@
     <h1>Idayari</h1>
     <% if (locals.user) { %>
     <div>
-      <a href="/deconnexion" class="button">Se déconnecter</a>
+      <a href="/deconnexion">Se déconnecter</a>
     </div>
     <p>Bienvenue, <%= locals.user.username %>.</p>
     <div>
       <a href="/creerAgenda" class="button">Créer un agenda</a>
+      <a href="/rendezvous/new">Ajouter un rendez-vous</a>
     </div>
     <%} else{ %>
     <div>
       <a href="/connexion" class="button">Se Connecter</a>
       <a href="/inscription" class="button">S'inscrire</a>
     </div>
-
     <%} %>
   </body>
 </html>

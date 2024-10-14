@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Creation Rendez-Vous</title>
+</head>
+<body>
+    <h3>Nouveau Rendez-vous</h3>
+    <form method="post">
+        <label for="titre">Titre : </label>
+        <input type="text" name="titre" required><br><br>
+
+        <label for="lieu">Lieu : </label>
+        <input type="text" name="lieu"><br><br>
+
+        <label for="desc">Description : </label><br>
+        <textArea name="desc"></textArea><br><br>
+
+        <label for="dateDebut">Du </label>
+        <input type="datetime-local" name="dateDebut"><br>
+
+        <label for="dateFin">Au </label>
+        <input type="datetime-local" name="dateFin" required><br>
+
+        <% if (agendas.length > 0) { %>
+            <br>
+            <label for="agenda">Agenda(s) où ajouter le rendez-vous :</label><br>
+            <select name="agenda" multiple required>
+                <% for (const agenda of agendas) { %>
+                    <option><%= agenda.nom %></option>
+                <% } %>
+            </select><br><br>
+        <% } else { %>
+            <p>Vous n'avez pas d'agendas. Veuillez <a href="/creerAgenda">créer des agendas</a> afin de pouvoir créer des rendez-vous.</p>
+        <% } %>
+        <input type="submit" value="Envoyer" <%= agendas.length === 0 ? "disabled" : "" %>>
+    </form>
+</body>
+</html>
