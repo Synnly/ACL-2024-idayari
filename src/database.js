@@ -23,11 +23,19 @@ UserAgendaAccess.initTable(sequelize);
 RendezVous.initTable(sequelize);
 AgendaRendezVous.initTable(sequelize);
 
-User.belongsToMany(Agenda, {through: UserAgendaAccess, foreignKey: "idAgenda"});
-Agenda.belongsToMany(User, {through: UserAgendaAccess, foreignKey: "idUser"});
+// répertorie qui peut voir quel agenda *uniquement*
+User.belongsToMany(Agenda, {through: UserAgendaAccess, foreignKey: "idUser"});
+Agenda.belongsToMany(User, {through: UserAgendaAccess, foreignKey: "idAgenda"});
 
+// répertorie qui possède quel agenda
+// ajoute un champ idOwner à Agendas
+Agenda.belongsTo(User, { as: "owner", foreignKey: "idOwner"});
+User.hasMany(Agenda, { as: "myAgendas", foreignKey: "idOwner" });
+
+// répertorie les agendas et rendez-vous
 Agenda.belongsToMany(RendezVous, {through: AgendaRendezVous, foreignKey: "idAgenda"});
 RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRendezVous"});
+
 // Nettoyage de la BD.
 // Oui c'est débile mais pour une raison qui m'échappe ni
 // sequelize.drop() ni sequelize.dropAllSchemas() fonctionne ¯\_(ツ)_/¯
@@ -39,7 +47,7 @@ RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRend
 // si on a des modifications de la structure des tables
 // await User.sync({alter: true});
 // await Agenda.sync({alter: true});
-// await UserAgendaAccess.sync({alter: true});
+// await UserAgendaAccess.sync({force: true});
 // await RendezVous.sync({alter: true});
 // await AgendaRendezVous.sync({force: true});
 
