@@ -8,18 +8,24 @@
     <h1>Idayari</h1>
     <% if (locals.user) { %>
     <div>
-      <a href="/deconnexion" class="button">Se déconnecter</a>
+      <a href="/deconnexion">Se déconnecter</a>
     </div>
     <p>Bienvenue, <%= locals.user.username %>.</p>
     <div>
-      <a href="/creerAgenda" class="button">Créer un agenda</a>
+      <a href="/creerAgenda">Créer un agenda</a>
+    </div>
+    <div>
+      <h2>Vos agendas</h2>
+      <% console.log(locals.user); %>
+      <% for (const agenda of locals.agendas) { %>
+        <h3><%= agenda.nom %></h3>
+        <% } %>
     </div>
     <%} else{ %>
     <div>
-      <a href="/connexion" class="button">Se Connecter</a>
-      <a href="/inscription" class="button">S'inscrire</a>
+      <a href="/connexion">Se Connecter</a>
+      <a href="/inscription">S'inscrire</a>
     </div>
-
     <%} %>
   </body>
 </html>
