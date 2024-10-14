@@ -45,75 +45,73 @@ export function modifierInfosPersoGET(req, res) {
 export async function modifierInfosPersoPOST(req, res) {
 	try {
 		//On cherche si un utilisateur avec cette username existe déjà s'il veut le changer, si oui on le préviens
-		if (req.body.user_username_change_info !== '') {
+		const user = await User.findOne({
+			where: {
+				username: req.body.user_username_change_info,
+			},
+		});
+
+		if (user) {
+			return res.render('infos_perso', { errMsg: 'Vous ne pouvez pas chosir cet username !' });
+		} else {
+			//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
+			const username = req.body.user_username_change_info;
+			const password = req.body.user_password_change_info;
+			const lastUsername = res.locals.user.username;
+
 			const user = await User.findOne({
 				where: {
-					username: req.body.user_username_change_info,
+					username: lastUsername,
 				},
 			});
-			if (user) {
-				return res.render('infos_perso', { errMsg: 'Vous ne pouvez pas chosir cet username !' });
-			} else {
-				//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
-				const username = req.body.user_username_change_info;
-				const password = req.body.user_password_change_info;
-				const lastUsername = res.locals.user.username;
 
-				const user = await User.findOne({
-					where: {
-						username: lastUsername,
-					},
-				});
+			const lastPassword = user.hashedPassword;
+			let hasUsernameChanged = false;
+			let hasPasswordChanged = false;
+			let data = {};
+			const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
 
-				const lastPassword = user.hashedPassword;
-				let hasUsernameChanged = false;
-				let hasPasswordChanged = false;
-				let data = {};
-				const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
-
-				/* Si le formulaire est pas vide oet que le mdp de confirmation est correct on effectue les
+			/* Si le formulaire est pas vide oet que le mdp de confirmation est correct on effectue les
 			modification de la bdd sinon on le préviens du problème */
 
-				if ((username !== '' || password !== '') && lastPassword === User.hashPassowrd(passwordConfirm)) {
-					if (username !== '') {
-						data.username = username;
-						hasUsernameChanged = true;
-					}
-					if (password !== '') {
-						data.hashedPassword = User.hashPassowrd(password);
-						hasPasswordChanged = true;
-					}
-					if (Object.keys(data).length > 0) {
-						await User.update(data, {
-							where: {
-								username: lastUsername,
-							},
-						});
-					}
-
-					//On regarde qu'est ce qui à changer et on modifie la bdd en fonction
-					if (hasUsernameChanged && hasPasswordChanged) {
-						let updatedUser = await User.findOne({ where: { username: username } });
-						updatedUser.hashedPassword = data.hashedPassword;
-						saveAuthentificationCookie(updatedUser, res);
-					} else if (hasUsernameChanged) {
-						const updatedUser = { id: user.id, username: data.username, hashedPassword: lastPassword };
-						saveAuthentificationCookie(updatedUser, res);
-					} else if (hasPasswordChanged) {
-						const updatedUser = { id: user.id, username: user.username, hashedPassword: data.hashedPassword };
-						saveAuthentificationCookie(updatedUser, res);
-					}
-					return res.render('infos_perso', { errMsg: 'Les modifications se sont bien effectuées.' });
+			if ((username !== '' || password !== '') && lastPassword === User.hashPassowrd(passwordConfirm)) {
+				if (username !== '') {
+					data.username = username;
+					hasUsernameChanged = true;
+				}
+				if (password !== '') {
+					data.hashedPassword = User.hashPassowrd(password);
+					hasPasswordChanged = true;
+				}
+				if (Object.keys(data).length > 0) {
+					await User.update(data, {
+						where: {
+							username: lastUsername,
+						},
+					});
 				}
 
-				//Si le mdp de confirmation est incorrect alors on le prévient
-				if (lastPassword !== User.hashPassowrd(passwordConfirm)) {
-					return res.render('infos_perso', { errMsg: 'Le mot de passe est incorrect.' });
+				//On regarde qu'est ce qui à changer et on modifie la bdd en fonction
+				if (hasUsernameChanged && hasPasswordChanged) {
+					let updatedUser = await User.findOne({ where: { username: username } });
+					updatedUser.hashedPassword = data.hashedPassword;
+					saveAuthentificationCookie(updatedUser, res);
+				} else if (hasUsernameChanged) {
+					const updatedUser = { id: user.id, username: data.username, hashedPassword: lastPassword };
+					saveAuthentificationCookie(updatedUser, res);
+				} else if (hasPasswordChanged) {
+					const updatedUser = { id: user.id, username: user.username, hashedPassword: data.hashedPassword };
+					saveAuthentificationCookie(updatedUser, res);
 				}
-
-				//Si le formulaire est vide on le prévient
-				return res.render('infos_perso', { errMsg: "Aucunes modifications n'est effectué car le formulaire était vide." });
+				return res.redirect('/infos_perso');
 			}
+
+			//Si le mdp de confirmation est incorrect alors on le prévient
+			if (lastPassword !== User.hashPassowrd(passwordConfirm)) {
+				return res.render('infos_perso', { errMsg: 'Le mot de passe est incorrect.' });
+			}
+			//Si le formulaire est vide on le prévient
+			return res.render('infos_perso', { errMsg: "Aucunes modifications n'est effectué car le formulaire était vide." });
 		}
 	} catch (error) {
 		return res.render('infos_perso', { errMsg: "Une erreur s'est produite" });
