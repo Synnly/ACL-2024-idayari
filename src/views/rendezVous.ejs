@@ -6,34 +6,39 @@
 </head>
 <body>
     <h3>Nouveau Rendez-vous</h3>
+    <% if (locals.errMsgs) { %>
+        <% for (const errMsg of errMsgs) { %>
+            <p>ERREUR : <%= errMsg %></p>
+        <% } %>
+    <% }%>
     <form method="post">
         <label for="titre">Titre : </label>
-        <input type="text" name="titre" required><br><br>
+        <input type="text" name="titre" <%= locals.titre ? `value=${locals.titre}` : ''%> required><br><br>
 
         <label for="lieu">Lieu : </label>
-        <input type="text" name="lieu"><br><br>
+        <input type="text" name="lieu" <%= locals.lieu ? `value=${locals.lieu}` : ''%> ><br><br>
 
         <label for="desc">Description : </label><br>
-        <textArea name="desc"></textArea><br><br>
+        <textArea name="desc" <%= locals.desc ? `value=${locals.desc}` : ''%>></textArea><br><br>
 
         <label for="dateDebut">Du </label>
-        <input type="datetime-local" name="dateDebut"><br>
+        <input type="datetime-local" name="dateDebut" <%= locals.dateDebut ? `value=${locals.dateDebut}` : ''%> required><br>
 
         <label for="dateFin">Au </label>
-        <input type="datetime-local" name="dateFin" required><br>
+        <input type="datetime-local" name="dateFin" <%= locals.dateFin ? `value=${locals.dateFin}` : ''%> required><br>
 
-        <% if (agendas.length > 0) { %>
+        <% if (locals.agendas && agendas.length > 0) { %>
             <br>
-            <label for="agenda">Agenda(s) où ajouter le rendez-vous :</label><br>
-            <select name="agenda" multiple required>
+            <label for="agendas">Agenda(s) où ajouter le rendez-vous :</label><br>
+            <select name="agendas" multiple required>
                 <% for (const agenda of agendas) { %>
-                    <option><%= agenda.nom %></option>
+                    <option value="<%= agenda.id %>"><%= agenda.nom %></option>
                 <% } %>
             </select><br><br>
         <% } else { %>
             <p>Vous n'avez pas d'agendas. Veuillez <a href="/creerAgenda">créer des agendas</a> afin de pouvoir créer des rendez-vous.</p>
         <% } %>
-        <input type="submit" value="Envoyer" <%= agendas.length === 0 ? "disabled" : "" %>>
+        <input type="submit" value="Envoyer" <%= locals.agendas && agendas.length === 0 ? "disabled" : "" %>>
     </form>
 </body>
 </html>
