@@ -12,13 +12,19 @@
     </div>
     <p>Bienvenue, <%= locals.user.username %>.</p>
     <div>
-      <a href="/creerAgenda" class="button">Créer un agenda</a>
+      <a href="/creerAgenda">Créer un agenda</a>
       <a href="/rendezvous/new">Ajouter un rendez-vous</a>
+    </div>
+    <div>
+      <h2>Vos agendas</h2>
+      <% for (const agenda of locals.agendas) { %>
+        <h3><%= agenda.nom %></h3>
+        <% } %>
     </div>
     <%} else{ %>
     <div>
-      <a href="/connexion" class="button">Se Connecter</a>
-      <a href="/inscription" class="button">S'inscrire</a>
+      <a href="/connexion">Se Connecter</a>
+      <a href="/inscription">S'inscrire</a>
     </div>
     <%} %>
   </body>

@@ -4,7 +4,15 @@ import { sequelize } from "./database.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
 import { saveAuthentificationCookie } from "./token.js";
 
-export function index(req, res) {
+export async function index(req, res) {
+  if (res.locals.user) {
+    const user = await User.findOne({
+      where: { id: res.locals.user.id },
+    });
+    const agendas = await user.getAgendas();
+    res.render("index", { agendas: agendas });
+    return;
+  }
   res.render("index");
 }
 
@@ -45,7 +53,8 @@ export async function creationAgendaPOST(req, res) {
   let agenda = null;
     try {
       agenda = await Agenda.create({
-          nom: req.body.nom
+          nom: req.body.nom,
+          idOwner: res.locals.user.id
       });
     } catch (e) {
       res.render("creerAgenda", {
@@ -55,12 +64,12 @@ export async function creationAgendaPOST(req, res) {
     }
     try {
       await UserAgendaAccess.create({
-            idUser: res.locals.id,
-            idAgenda: agenda.id,
-            idOwner: res.locals.id,
-        })
-        res.redirect('/');
+        idUser: res.locals.user.id,
+        idAgenda: agenda.id
+      })
+      res.redirect('/');
     } catch (e){
+      console.log(e);
       await agenda.destroy();
       res.render("creerAgenda", {
         errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
