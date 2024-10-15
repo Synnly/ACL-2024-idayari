@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Informations personnelles</title>
+</head>
+
+<body>
+    <a href="" class="button" onclick="back()">Retour</a>
+    <h1>Informations personnelles</h1>
+    <% if(errMsg !=null || errMsg !=="" ) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
+    <div>
+        <form method="post" id="mainForm" style="display: flex; flex-direction: column; gap: 10px;">
+            <div>
+                <label for="username_change_info">Nom d'utilisateur</label>
+                <input id="username_change_info" type="text" name="user_username_change_info"
+                placeholder="<%= locals.user.username%>">
+            </div>
+
+            <div>
+                <label for="password_change_info">Mot de passe</label>
+                <input id="password_change_info" type="password" name="user_password_change_info"
+                placeholder="**********">
+            </div>
+
+            <div>
+                <label for="confirmationpswd_change_info">Confirmer le mot de passe</label>
+                <input id="confirmationpswd_change_info" type="password"
+                name="user_confirmationpswd_change_info" placeholder="**********">
+            </div>
+
+            <div id="errorMessage"></div>
+            <input type="hidden" id="hidden_password_confirmation"
+                name="user_password_change_info_confirmation_hidden">
+                
+            <div>
+                <button type="button" id="changeInfoSubmit" onclick="return showConfirmChanges()" >Valider</button>
+            </div>
+        </form>
+
+        <div style="display: none;" id="confirm_password">
+            <h1>Confirmation de modification des données</h1>
+
+            <div>
+                <label for="password_change_info">Mot de passe</label>
+                <input id="password_change_info_confirmation" type="password"
+                name="user_password_change_info_confirmation" required>
+            </div>
+           
+            <span id="information_confirmation"></span>
+
+           <div>
+            <button type="submit" id="changeInfoSubmitComfirmation"
+                onclick="return sendData()">envoyer
+            </button>
+
+            <button type="button" onclick="hideConfirmChanges()">
+                Annuler
+            </button>
+           </div>
+        </div>
+    </div>
+    <script src="/js/infos_perso.js"></script>
+</body>
+
+</html>
