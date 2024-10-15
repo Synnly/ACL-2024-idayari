@@ -4,6 +4,7 @@ import RendezVous from "./model/RendezVous.js";
 import { sequelize } from "./database.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
 import { saveAuthentificationCookie } from "./token.js";
+import Token from "./model/Token.js"
 
 import AgendaRendezVous from "./model/AgendaRendezVous.js";
 import { ValidationError } from "sequelize";
@@ -66,19 +67,15 @@ export function modifierInfosPersoGET(req, res) {
  * @param {object} req - Requête express, informations sur la requête HTTP.
  * @param {object} res - Response express pour le client.
  * @returns {void} un template avec un message pour chaque cas
- * @example si son nouveau nom d'utilisateur est déjà utilisé on ne change pas les infos dans la bdd et on le prévient
- * @example si le mdp de confirmation est incorrect on ne change pas les infos dans la bdd et on le prévient
- * @example si le formulaire est vide on le prévient
- * @example sinon si tout est bon on effectue les modifications dans la bdd est on le prévient
+ * si son nouveau nom d'utilisateur est déjà utilisé on ne change pas les infos dans la bdd et on le prévient
+ * si le mdp de confirmation est incorrect on ne change pas les infos dans la bdd et on le prévient
+ * si le formulaire est vide on le prévient
+ * sinon si tout est bon on effectue les modifications dans la bdd est on le prévient
  */
 export async function modifierInfosPersoPOST(req, res) {
 	try {
 		//On cherche si un utilisateur avec cette username existe déjà s'il veut le changer, si oui on le préviens
-		const user = await User.findOne({
-			where: {
-				username: req.body.user_username_change_info,
-			},
-		});
+		const user = await User.findOne({where: {username: req.body.user_username_change_info}});
 
 		if (user) {
 			return res.render('infos_perso', { errMsg: 'Vous ne pouvez pas chosir cet username !' });
@@ -88,11 +85,7 @@ export async function modifierInfosPersoPOST(req, res) {
 			const password = req.body.user_password_change_info;
 			const lastUsername = res.locals.user.username;
 
-			const user = await User.findOne({
-				where: {
-					username: lastUsername,
-				},
-			});
+			const user = await User.findOne({where: {username: lastUsername}});
 
 			const lastPassword = user.hashedPassword;
 			let hasUsernameChanged = false;
@@ -112,26 +105,15 @@ export async function modifierInfosPersoPOST(req, res) {
 					data.hashedPassword = User.hashPassowrd(password);
 					hasPasswordChanged = true;
 				}
-				if (Object.keys(data).length > 0) {
-					await User.update(data, {
-						where: {
-							username: lastUsername,
-						},
-					});
-				}
+				
+				await User.update(data, {where: {username: lastUsername }});
 
-				//On regarde qu'est ce qui à changer et on modifie la bdd en fonction
-				if (hasUsernameChanged && hasPasswordChanged) {
-					let updatedUser = await User.findOne({ where: { username: username } });
-					updatedUser.hashedPassword = data.hashedPassword;
-					saveAuthentificationCookie(updatedUser, res);
-				} else if (hasUsernameChanged) {
-					const updatedUser = { id: user.id, username: data.username, hashedPassword: lastPassword };
-					saveAuthentificationCookie(updatedUser, res);
-				} else if (hasPasswordChanged) {
-					const updatedUser = { id: user.id, username: user.username, hashedPassword: data.hashedPassword };
-					saveAuthentificationCookie(updatedUser, res);
-				}
+				let updatedUser = {
+					id: user.id,
+					username: hasUsernameChanged ? data.username : user.username,
+					hashedPassword: hasPasswordChanged ? data.hashedPassword : lastPassword,
+				};
+				saveAuthentificationCookie(updatedUser, res);
 				return res.redirect('/infos_perso');
 			}
 
@@ -208,7 +190,7 @@ export async function connexionPOST(req, res, next) {
 		res.redirect('/');
 	}
 }
-export function deconnexion(req, res, next) {
+export async function deconnexion(req, res, next) {
   await Token.deleteToken(req.cookies.accessToken);
 	res.clearCookie('accessToken');
 	res.redirect('/');

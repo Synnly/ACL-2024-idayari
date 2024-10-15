@@ -54,3 +54,5 @@ export function saveAuthentificationCookie(savedUser, res) {
   Dans les différents templates, on a qu'a vérifier comme dans cette exemple : 
   <% if (locals.user) { %>
       <p>Vous êtes connecté : <%= locals.user.username %></p>
+
+      */
