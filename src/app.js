@@ -1,16 +1,16 @@
-import * as routes from "./routes.js";
-import express from "express";
-import createError from "http-errors";
-import morgan from "morgan";
-import { fileURLToPath } from "url";
-import cookieParser from "cookie-parser";
+import * as routes from './routes.js';
+import express from 'express';
+import createError from 'http-errors';
+import morgan from 'morgan';
+import { fileURLToPath } from 'url';
+import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
-
+import { creationAgendaGET } from './routes.js';
 
 export const app = express();
 
-app.set("views", fileURLToPath(new URL("./views", import.meta.url)));
-app.set("view engine", "ejs");
+app.set('views', fileURLToPath(new URL('./views', import.meta.url)));
+app.set('view engine', 'ejs');
 
 app
   .use(cookieParser()) //Permet de gérer les cookies dans req.cookie
@@ -29,6 +29,8 @@ app
   .post("/creerAgenda", routes.creationAgendaPOST)
   .get("/rendezvous/new", routes.creationRendezVousGET)
   .post("/rendezvous/new", routes.creationRendezVousPOST)
+  .get('/infos_perso', routes.modifierInfosPersoGET)
+	.post('/infos_perso', routes.modifierInfosPersoPOST)
   .use((req, res, next) => next(createError(404)))
   .use((err, req, res, next) => {
     res

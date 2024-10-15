@@ -4,20 +4,21 @@
     "description": "Gestionnaire d'agendas",
     "main": "server.js",
     "scripts": {
-        "db": "node database.js",
-        "start": "node server.js"
+        "db": "nodemon database.js",
+        "start": "nodemon server.js"
     },
     "dependencies": {
         "cookie-parser": "^1.4.7",
         "crypto": "^1.0.1",
+        "dotenv": "^16.4.5",
         "ejs": "^3.1.10",
         "express": "^4.21.0",
         "http-errors": "^2.0.0",
         "jsonwebtoken": "^9.0.2",
         "morgan": "^1.10.0",
         "mysql2": "^3.11.3",
-        "sequelize": "^6.37.4",
-        "dotenv": "^16.4.5"
+        "nodemon": "^3.1.7",
+        "sequelize": "^6.37.4"
     },
     "type": "module",
     "contributors": [
