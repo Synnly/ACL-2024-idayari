@@ -1,10 +1,15 @@
-import * as routes from './routes.js';
 import express from 'express';
 import createError from 'http-errors';
 import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
+import {index} from "./routes/index.js";
+import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
+import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
+import {creationAgendaGET, creationAgendaPOST} from "./routes/creationAgenda.js";
+import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous.js";
+import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
 export const app = express();
 
@@ -18,24 +23,24 @@ app
     .use(express.static(fileURLToPath(new URL("./public", import.meta.url))))
     .use(express.json())
     .use(express.urlencoded({ extended: false }))
-    .get("/", routes.index)
+    .get("/", index)
 
-    .get("/deconnexion", routes.deconnexion)
+    .get("/deconnexion", deconnexion)
 
-    .get("/connexion", routes.connexionGET)
-    .post("/connexion", routes.connexionPOST)
+    .get("/connexion", connexionGET)
+    .post("/connexion", connexionPOST)
 
-    .get("/inscription", routes.inscriptionGET)
-    .post("/inscription", routes.inscriptionPOST)
+    .get("/inscription", inscriptionGET)
+    .post("/inscription", inscriptionPOST)
 
-    .get("/creerAgenda", routes.creationAgendaGET)
-    .post("/creerAgenda", routes.creationAgendaPOST)
+    .get("/creerAgenda", creationAgendaGET)
+    .post("/creerAgenda", creationAgendaPOST)
 
-    .get("/rendezvous/new", routes.creationRendezVousGET)
-    .post("/rendezvous/new", routes.creationRendezVousPOST)
+    .get("/rendezvous/new", creationRendezVousGET)
+    .post("/rendezvous/new", creationRendezVousPOST)
 
-    .get('/infos_perso', routes.modifierInfosPersoGET)
-    .post('/infos_perso', routes.modifierInfosPersoPOST)
+    .get('/infos_perso', modifierInfosPersoGET)
+    .post('/infos_perso', modifierInfosPersoPOST)
 
     .use((req, res, next) => next(createError(404)))
     .use((err, req, res, next) => {
