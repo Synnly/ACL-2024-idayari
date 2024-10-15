@@ -3,6 +3,10 @@ import sequelize from "../database.js";
 
 export default class Token extends Model {
 
+    /**
+     * Crée la table Tokens dans la base de données
+     * @param sequelize L'instance **ouverte** de sequelize
+     */
     static initTable = (sequelize) =>{
         Token.init(
             {

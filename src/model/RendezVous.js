@@ -1,7 +1,10 @@
 import {DataTypes, Model} from "sequelize";
 
 export default class RendezVous extends Model {
-
+    /**
+     * Crée la table RendezVous dans la base de données
+     * @param sequelize L'instance **ouverte** de sequelize
+     */
     static initTable = (sequelize) => RendezVous.init({
         id: {
             type: DataTypes.INTEGER,
