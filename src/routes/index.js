@@ -12,9 +12,7 @@ export async function index(req, res) {
     const valid = await Token.checkValidity(req, res);
 
     if (valid && res.locals.user) {
-        const user = await User.findOne({
-            where: { id: res.locals.user.id },
-        });
+        const user = await User.getById(res.locals.user.id);
         res.locals.agendas = await user.getAgendas();
     }
     // récuperer les rendez-vous sont acynchrones donc pour permettre cela dans le ejs

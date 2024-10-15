@@ -40,7 +40,10 @@ export default class User extends Model {
      * @param password Le mot de passe
      * @returns {string} Le haché en hexadécimal
      */
-    static hashPassowrd = (password) => {
+    static hashPassowrd (password) {
         return crypto.createHash("sha256").update(password).digest("hex");
+    }
+    static async getById(id){
+        return User.findOne({where: { id: id }});
     };
 }
