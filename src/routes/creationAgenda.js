@@ -1,5 +1,6 @@
 import UserAgendaAccess from "../model/UserAgendaAccess.js";
 import Token from "../model/Token.js";
+import Agenda from "../model/Agenda.js";
 
 /**
  * Traite la requête GET sur /creerAgenda.
@@ -24,7 +25,7 @@ export async function creationAgendaGET(req, res) {
  */
 export async function creationAgendaPOST(req, res) {
     const valid = await Token.checkValidity(req, res);
-    if(valid){
+    if(!valid){
         res.redirect('/')
     }
 

@@ -31,7 +31,7 @@ export async function modifierInfosPersoGET(req, res) {
  */
 export async function modifierInfosPersoPOST(req, res) {
     const valid = await Token.checkValidity(req, res);
-    if(valid){
+    if(!valid){
         res.redirect('/')
     }
 
@@ -77,9 +77,11 @@ export async function modifierInfosPersoPOST(req, res) {
                     saveAuthentificationCookie(updatedUser, res);
                 } else if (hasUsernameChanged) {
                     const updatedUser = { id: user.id, username: data.username, hashedPassword: lastPassword };
+                    await Token.deleteToken(req.cookies.accessToken);
                     saveAuthentificationCookie(updatedUser, res);
                 } else if (hasPasswordChanged) {
                     const updatedUser = { id: user.id, username: user.username, hashedPassword: data.hashedPassword };
+                    await Token.deleteToken(req.cookies.accessToken);
                     saveAuthentificationCookie(updatedUser, res);
                 }
                 return res.redirect('/infos_perso');

@@ -29,7 +29,7 @@ export async function creationRendezVousGET(req, res) {
  */
 export async function creationRendezVousPOST(req, res) {
     const valid = await Token.checkValidity(req, res);
-    if(valid){
+    if(!valid){
         res.redirect('/')
     }
 
