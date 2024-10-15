@@ -1,5 +1,6 @@
 import User from "../model/User.js";
 import {saveAuthentificationCookie} from "../token.js";
+import Token from "../model/Token.js";
 
 /**
  * Affiche le template des informations personnelles de l'utilisateur
@@ -8,8 +9,10 @@ import {saveAuthentificationCookie} from "../token.js";
  * @param {object} res - Response express pour le client.
  * @returns {void} retourne rien, fais un rendu d'un template.
  */
-export function modifierInfosPersoGET(req, res) {
-    if (res.locals.user) {
+export async function modifierInfosPersoGET(req, res) {
+    const valid = await Token.checkValidity(req, res);
+
+    if (valid && res.locals.user) {
         res.render('infos_perso');
     } else {
         res.redirect('connexion');
@@ -27,6 +30,11 @@ export function modifierInfosPersoGET(req, res) {
  * @example sinon si tout est bon on effectue les modifications dans la bdd est on le prévient
  */
 export async function modifierInfosPersoPOST(req, res) {
+    const valid = await Token.checkValidity(req, res);
+    if(valid){
+        res.redirect('/')
+    }
+
     try {
         //On cherche si un utilisateur avec cette username existe déjà s'il veut le changer, si oui on le préviens
         const user = await User.findOne({where: {username: req.body.user_username_change_info}});
