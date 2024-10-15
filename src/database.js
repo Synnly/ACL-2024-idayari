@@ -2,6 +2,8 @@ import { Sequelize } from "sequelize";
 import User from "./model/User.js";
 import Agenda from "./model/Agenda.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
+import RendezVous from "./model/RendezVous.js";
+import AgendaRendezVous from "./model/AgendaRendezVous.js";
 
 const user = "mysql";
 const host = "synnly.com:3306";
@@ -18,6 +20,21 @@ await sequelize.authenticate(); // Si connexion impossible le script quitte ici
 User.initTable(sequelize);
 Agenda.initTable(sequelize);
 UserAgendaAccess.initTable(sequelize);
+RendezVous.initTable(sequelize);
+AgendaRendezVous.initTable(sequelize);
+
+// répertorie qui peut voir quel agenda *uniquement*
+User.belongsToMany(Agenda, {through: UserAgendaAccess, foreignKey: "idUser"});
+Agenda.belongsToMany(User, {through: UserAgendaAccess, foreignKey: "idAgenda"});
+
+// répertorie qui possède quel agenda
+// ajoute un champ idOwner à Agendas
+Agenda.belongsTo(User, { as: "owner", foreignKey: "idOwner"});
+User.hasMany(Agenda, { as: "myAgendas", foreignKey: "idOwner" });
+
+// répertorie les agendas et rendez-vous
+Agenda.belongsToMany(RendezVous, {through: AgendaRendezVous, foreignKey: "idAgenda"});
+RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRendezVous"});
 
 // Nettoyage de la BD.
 // Oui c'est débile mais pour une raison qui m'échappe ni
@@ -30,6 +47,8 @@ UserAgendaAccess.initTable(sequelize);
 // si on a des modifications de la structure des tables
 // await User.sync({alter: true});
 // await Agenda.sync({alter: true});
-// await UserAgendaAccess.sync({alter: true});
+// await UserAgendaAccess.sync({force: true});
+// await RendezVous.sync({alter: true});
+// await AgendaRendezVous.sync({force: true});
 
 export default sequelize;
