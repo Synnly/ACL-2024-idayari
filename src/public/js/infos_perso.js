@@ -77,8 +77,10 @@ document.getElementById('confirmationpswd_change_info').addEventListener('input'
     let changeInfoSubmit = document.getElementById('changeInfoSubmit');
     let password_change_info = document.getElementById('password_change_info');
 
-	if (event.target.value === '') {
+	if (event.target.value === '' && password_change_info.value !== '') {
 		errorMessage.textContent = '';
+		hideConfirmChanges();
+		changeInfoSubmit.disabled = true;
 	} else if (event.target.value !== password_change_info.value) {
 		changeInfoSubmit.disabled = true;
 		errorMessage.textContent = 'Mots de passe différents';
