@@ -59,7 +59,7 @@ function createJWT(user) {
  * @param res La réponse
  */
 export function saveAuthentificationCookie(savedUser, res) {
-    let token = createJWT({ id: savedUser.id, username: savedUser.username }); //On crée le token représentant notre user
+    let token = createJWT(savedUser); //On crée le token représentant notre user
     res.cookie("accessToken", token, { httpOnly: true });
 }
 
