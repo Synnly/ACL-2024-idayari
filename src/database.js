@@ -4,6 +4,7 @@ import Agenda from "./model/Agenda.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
 import RendezVous from "./model/RendezVous.js";
 import AgendaRendezVous from "./model/AgendaRendezVous.js";
+import Token from "./model/Token.js";
 
 const user = "mysql";
 const host = "synnly.com:3306";
@@ -22,6 +23,7 @@ Agenda.initTable(sequelize);
 UserAgendaAccess.initTable(sequelize);
 RendezVous.initTable(sequelize);
 AgendaRendezVous.initTable(sequelize);
+Token.initTable(sequelize);
 
 // répertorie qui peut voir quel agenda *uniquement*
 User.belongsToMany(Agenda, {through: UserAgendaAccess, foreignKey: "idUser"});
@@ -36,6 +38,10 @@ User.hasMany(Agenda, { as: "myAgendas", foreignKey: "idOwner" });
 Agenda.belongsToMany(RendezVous, {through: AgendaRendezVous, foreignKey: "idAgenda"});
 RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRendezVous"});
 
+// Cookies et leur propriétaire
+Token.belongsTo(User, {as: "owner", foreignKey: "idOwner"});
+User.hasMany(Token, {as: "myTokens", foreignKey: "idOwner"});
+
 // Nettoyage de la BD.
 // Oui c'est débile mais pour une raison qui m'échappe ni
 // sequelize.drop() ni sequelize.dropAllSchemas() fonctionne ¯\_(ツ)_/¯
@@ -43,6 +49,7 @@ RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRend
 // await UserAgendaAccess.drop();
 // await User.drop();
 // await Agenda.drop();
+// await Token.drop();
 
 // si on a des modifications de la structure des tables
 // await User.sync({alter: true});
@@ -50,5 +57,6 @@ RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRend
 // await UserAgendaAccess.sync({force: true});
 // await RendezVous.sync({alter: true});
 // await AgendaRendezVous.sync({force: true});
+// await Token.sync({alter: true});
 
 export default sequelize;

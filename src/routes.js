@@ -4,6 +4,7 @@ import RendezVous from "./model/RendezVous.js";
 import { sequelize } from "./database.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
 import { saveAuthentificationCookie } from "./token.js";
+
 import AgendaRendezVous from "./model/AgendaRendezVous.js";
 import { ValidationError } from "sequelize";
 import ejs from "ejs";
@@ -21,28 +22,28 @@ export async function index(req, res) {
 }
 
 export function inscriptionGET(req, res) {
-  if (!res.locals.user) {
-    res.render("inscription");
-  } else {
-    // on reste où on est
-    res.redirect("/");
-  }
+    if (!res.locals.user) {
+        res.render("inscription");
+    } else {
+        // on reste où on est
+        res.redirect("/");
+    }
 }
 
 export async function inscriptionPOST(req, res) {
-  try {
-    const usr = await User.create({
-      username: req.body.user_username,
-      hashedPassword: User.hashPassowrd(req.body.user_password),
-    });
-    //Pour que le server authenthifie l'utilisateur à partir du cookie
-    saveAuthentificationCookie(usr, res);
-    res.redirect("/");
-  } catch (e) {
-    res.render("inscription", {
-      errMsg: e.name === "SequelizeUniqueConstraintError" ? "Un compte existe déjà avec ce nom d'utilisateur !" : "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
-    });
-  }
+    try {
+        const usr = await User.create({
+            username: req.body.user_username,
+            hashedPassword: User.hashPassowrd(req.body.user_password),
+        });
+        //Pour que le server authenthifie l'utilisateur à partir du cookie
+        saveAuthentificationCookie(usr, res);
+        res.redirect("/");
+    } catch (e) {
+        res.render("inscription", {
+            errMsg: e.name === "SequelizeUniqueConstraintError" ? "Un compte existe déjà avec ce nom d'utilisateur !" : "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+        });
+    }
 }
 
 /**
@@ -155,17 +156,17 @@ export function creationAgendaGET(req, res) {
 }
 
 export async function creationAgendaPOST(req, res) {
-  let agenda = null;
+    let agenda = null;
     try {
       agenda = await Agenda.create({
           nom: req.body.nom,
           idOwner: res.locals.user.id
       });
     } catch (e) {
-      res.render("creerAgenda", {
-        errMsg: "Une erreur est inattendue survenue. Veuillez réessayer plus tard.",
-      });
-      return
+        res.render("creerAgenda", {
+            errMsg: "Une erreur est inattendue survenue. Veuillez réessayer plus tard.",
+        });
+        return
     }
     try {
       await UserAgendaAccess.create({
@@ -174,20 +175,20 @@ export async function creationAgendaPOST(req, res) {
       })
       res.redirect('/');
     } catch (e){
-      await agenda.destroy();
-      res.render("creerAgenda", {
-        errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
-      });
+        await agenda.destroy();
+        res.render("creerAgenda", {
+            errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+        });
     }
 }
 
 //Pour se diriger à la page de connexion
 export function connexionGET(req, res, next) {
-  if (!res.locals.user) {
-    res.render("connexion");
-  } else {
-    res.redirect("/");
-  }
+    if (!res.locals.user) {
+        res.render("connexion");
+    } else {
+        res.redirect("/");
+    }
 }
 
 //Pour traiter le formulaire de connexion
@@ -208,6 +209,7 @@ export async function connexionPOST(req, res, next) {
 	}
 }
 export function deconnexion(req, res, next) {
+  await Token.deleteToken(req.cookies.accessToken);
 	res.clearCookie('accessToken');
 	res.redirect('/');
 }

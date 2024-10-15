@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv"; //Import qui permet la manipulation des variables d'environnement
+import dotenv from "dotenv";
+import sequelize from "./database.js";
+import Token from "./model/Token.js"; //Import qui permet la manipulation des variables d'environnement
 
 dotenv.config(); // Récupère et parse le fichier .env pour récupérer clé SECRET
 
@@ -20,11 +22,23 @@ export function authenticate(req, res, next) {
 
 //A partir d'ici fonction pour l'authentification
 function createJWT(user) {
-  return jwt.sign(
-    { id: user.id, username: user.username }, // données à crypter
-    process.env.SECRET, //Clé de chiffrement dans .env
-    { expiresIn: "1h" } //Durée de 1h
-  );
+    const salt = crypto.getRandomValues(new Uint32Array(1))[0]; // Génération d'un sel aléatoire
+    let token = jwt.sign(
+        { id: user.id, username: user.username, salt: salt }, // données à crypter
+        process.env.SECRET, //Clé de chiffrement dans .env
+        { expiresIn: "1h" } //Durée de 1h
+    );
+
+    let expDate = new Date();
+    expDate.setHours(expDate.getHours() - expDate.getTimezoneOffset()/60 + 1);  // Durée de 1h
+
+    Token.create({
+        string: token,
+        expirationDate: expDate,
+        idOwner: user.id,
+        salt: salt
+    });
+    return token
 }
 
 export function saveAuthentificationCookie(savedUser, res) {
@@ -40,4 +54,3 @@ export function saveAuthentificationCookie(savedUser, res) {
   Dans les différents templates, on a qu'a vérifier comme dans cette exemple : 
   <% if (locals.user) { %>
       <p>Vous êtes connecté : <%= locals.user.username %></p>
-    */
