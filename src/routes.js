@@ -282,7 +282,7 @@ export async function creationRendezVousPOST(req, res) {
         });
         try {
             let agendas = req.body.agendas;
-            if (! agendas instanceof Object) {
+            if (! (agendas instanceof Object)) {
                 agendas = [agendas];
             }
             for (const agenda_id of agendas) {
