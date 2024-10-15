@@ -17,9 +17,19 @@
     </div>
     <div>
       <h2>Vos agendas</h2>
-      <% for (const agenda of locals.agendas) { %>
-        <h3><%= agenda.nom %></h3>
-        <% } %>
+      <ul>
+        <% for (const agenda of locals.agendas) { %>
+          <li>
+            <h3><%= agenda.nom %></h3>
+          <ul>
+            <% const rendezVous = await agenda.getRendezVous(); %>
+            <% for (const rv of rendezVous) { %>
+              <li><%= rv.titre %></li>
+              <% } %>
+          </ul>
+          </li>
+          <% } %>
+      </ul>
     </div>
     <div>
       <a href="/infos_perso" class="button">Mes informations personnelles</a>

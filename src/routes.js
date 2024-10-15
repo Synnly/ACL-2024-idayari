@@ -1,19 +1,23 @@
 import User from "./model/User.js";
 import Agenda from "./model/Agenda.js";
+import RendezVous from "./model/RendezVous.js";
 import { sequelize } from "./database.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
 import { saveAuthentificationCookie } from "./token.js";
+import AgendaRendezVous from "./model/AgendaRendezVous.js";
+import { ValidationError } from "sequelize";
+import ejs from "ejs";
 
 export async function index(req, res) {
   if (res.locals.user) {
     const user = await User.findOne({
       where: { id: res.locals.user.id },
     });
-    const agendas = await user.getAgendas();
-    res.render("index", { agendas: agendas });
-    return;
+    res.locals.agendas = await user.getAgendas();
   }
-  res.render("index");
+  // récuperer les rendez-vous sont acynchrones donc pour permettre cela dans le ejs
+  const html = await ejs.renderFile("views/index.ejs", res.locals, {async:true});
+  res.send(html);
 }
 
 export function inscriptionGET(req, res) {
@@ -170,7 +174,6 @@ export async function creationAgendaPOST(req, res) {
       })
       res.redirect('/');
     } catch (e){
-      console.log(e);
       await agenda.destroy();
       res.render("creerAgenda", {
         errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
@@ -209,19 +212,60 @@ export function deconnexion(req, res, next) {
 	res.redirect('/');
 }
 
-export function creationRendezVousGET(req, res) {
+export async function creationRendezVousGET(req, res) {
   if (res.locals.user) {
-    const user = User.findOne({
+    const user = await User.findOne({
       where: { id: res.locals.user.id }
     });
-    // on utilisera "User.getMyAgendas()" mais pas dispo à cause de l'implémentation actuelle
-    res.render("rendezVous", { agendas: [] });
+    res.render("rendezVous", { agendas: await user.getMyAgendas() });
   } else {
     res.redirect("/");
   }
 }
 
-export function creationRendezVousPOST(req, res) {
-  // besoin du modèle RendezVous
-  res.redirect("/");
+export async function creationRendezVousPOST(req, res) {
+  	let rendezVous = null;
+  	let errMsgs = [];
+  	try {
+    	rendezVous = await RendezVous.create({
+        	titre: req.body.titre,
+        	lieu: req.body.lieu ?? null,
+        	desc: req.body.desc ?? null,
+        	dateDebut: Date.parse(req.body.dateDebut),
+        	dateFin: Date.parse(req.body.dateFin),
+    	});
+		try {
+			let agendas = req.body.agendas;
+			if (! agendas instanceof Object) {
+			  	agendas = [agendas];
+			}
+			for (const agenda_id of agendas) {
+			  	await AgendaRendezVous.create({
+					idAgenda: +agenda_id,
+					idRendezVous: rendezVous.id
+			  	})
+			}
+		} catch (e) {
+			await rendezVous.destroy();
+			rendezVous = null;
+			errMsgs = ["Une erreur est inattendue survenue. Veuillez réessayer plus tard."];
+		}
+  	} catch (e) {
+    	if (e instanceof ValidationError) {
+		errMsgs = e.errors.map(x => x.message);
+    	} else {
+        	errMsgs = ["Une erreur est inattendue survenue. Veuillez réessayer plus tard."];
+    	}
+  	}
+  	// si rendezVous = null alors on a pas réussi à créer les lignes
+	if (!rendezVous) {
+		const user = await User.findOne({
+			where: { id: res.locals.user.id }
+		});
+		res.render("rendezVous", { errMsgs: errMsgs, agendas: await user.getMyAgendas(),
+			titre: req.body.titre, lieu: req.body.lieu, desc: req.body.desc, dateDebut: req.body.dateDebut, dateFin: req.body.dateFin
+		});
+	} else {
+		res.redirect("/");
+	}
 }
