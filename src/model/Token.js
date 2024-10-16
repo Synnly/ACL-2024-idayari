@@ -3,6 +3,10 @@ import sequelize from "../database.js";
 
 export default class Token extends Model {
 
+    /**
+     * Crée la table Tokens dans la base de données
+     * @param sequelize L'instance **ouverte** de sequelize
+     */
     static initTable = (sequelize) =>{
         Token.init(
             {
@@ -39,16 +43,14 @@ export default class Token extends Model {
     }
 
     /**
-     * Supprime le token s'il n'est plus valide, ainsi que le cookie associé<br>
-     * Utilisation dans une route :<br>
-     * `await Token.checkValidity(req, res).then((valid) => (valid ? pageConnecté : index ou connection))`
+     * Supprime le token s'il n'est plus valide, ainsi que le cookie associé
+     * @example await Token.checkValidity(req, res).then((valid) => (valid ? pageConnecté : index ou connection))
      * @param req La requete
      * @param res La reponse
      * @returns {Promise<boolean>} Faux s'il a été supprimé, vrai sinon
      */
     static async checkValidity(req, res){
         if(req.cookies.accessToken) {
-            console.log(req.cookies.accessToken);
             const token = await Token.findOne({where: {string: req.cookies.accessToken}});
             if(!token){ // Token pas trouvé
                 res.clearCookie("accessToken");

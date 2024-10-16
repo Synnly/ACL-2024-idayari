@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Informations personnelles</title>
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
 </head>
 
 <body>
     <a href="" class="button" onclick="back()">Retour</a>
     <h1>Informations personnelles</h1>
-    <% if(errMsg !=null || errMsg !=="" ) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
+    <% if(locals.errMsg) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
     <div>
         <form method="post" id="mainForm" style="display: flex; flex-direction: column; gap: 10px;">
             <div>

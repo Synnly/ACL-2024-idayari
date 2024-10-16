@@ -1,7 +1,10 @@
 import {DataTypes, Model} from "sequelize";
 
 export default class Agenda extends Model {
-
+    /**
+     * Crée la table Agendas dans la base de données
+     * @param sequelize L'instance **ouverte** de sequelize
+     */
     static initTable = (sequelize) => Agenda.init(
         {
             id: {
