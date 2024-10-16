@@ -44,7 +44,14 @@
             %>
 
             %>
-              <li><%= rv.titre %> | Du <%= deb %> au <%= fin %> | à : <%= rv.lieu %> | raison : <%= rv.description%></li>
+              <li><%= rv.titre %> | Du <%= deb %> au <%= fin %>
+                <% if (rv.lieu && rv.lieu.trim() !== "") { %>
+                  | à : <%= rv.lieu %>
+                <% } %>
+                <% if (rv.description && rv.description.trim() !== "") { %>
+                  | raison : <%= rv.description%>
+                <% } %>
+                 </li>
 
               <% } %>
           </ul>
