@@ -3,7 +3,6 @@ const messageErreur = document.getElementById("messageErreur");
 const boiteDialog = document.getElementById("viewDialogCreationAgenda");
 const divDialog = document.getElementById("divDialogCreerAgenda");
 const boutonOuvreDialog = document.getElementById("ouvreDialogCreationAgenda");
-//const champNomAgendaDialog = document.getElementById("nomA");
 
 boutonOuvreDialog.addEventListener("click", ()=>{
     divDialog.hidden = false;
@@ -22,7 +21,7 @@ boutonFermerDialog.addEventListener("click", ()=>{
 const formulaireAgenda = document.getElementById("formulaireAgenda");
 formulaireAgenda.addEventListener("submit", async(e)=>{
     e.preventDefault();
-    const dataFormulaire = new FormData(formulaireAgenda);
+    //const dataFormulaire = new FormData(formulaireAgenda);
     //const nom = dataFormulaire.get("nom");
     const champNom = document.getElementById("nom");
     const nom = champNom.value.trim();
@@ -30,30 +29,30 @@ formulaireAgenda.addEventListener("submit", async(e)=>{
     
 
     try {
-        const x = await fetch("/creerAgenda",{
+        const infos = await fetch("/creerAgenda",{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'  
             },
             body: JSON.stringify({nom}),
         });
-        const y = await x.json();
+        const resultat = await infos.json();
 
-        if (y.success) {
+        if (resultat.success) {
             /*boiteDialog.close();
             divDialog.hidden = true;
             window.location.reload();*/
             const newAgendaItem = document.createElement('li');
-            newAgendaItem.innerHTML = `<h3>${nom}</h3>`; // Créer un nouvel élément agenda
-            document.querySelector('ul').appendChild(newAgendaItem); // Ajoute à la liste existante
+            newAgendaItem.innerHTML = `<h3>${nom}</h3>`;
+            document.querySelector('ul').appendChild(newAgendaItem);
 
             boiteDialog.close();
             divDialog.hidden = true;
         }else{
-                messageErreur.textContent = y.message;
+            messageErreur.textContent = resultat.message;
         }
     } catch (error) {
         messageErreur.textContent = "erreur dans le catch du submit creation Agenda";
-        console.error("Erreur :", error);
+        console.error("Erreur catch submit creation Agenda :", error);
     }
 });
