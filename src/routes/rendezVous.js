@@ -15,9 +15,9 @@ export async function creationRendezVousGET(req, res) {
 
     if (valid && res.locals.user) {
         const user = await User.getById(res.locals.user.id);
-        res.render("rendezVous", { agendas: await user.getMyAgendas() });
+        return res.render("rendezVous", { agendas: await user.getMyAgendas() });
     } else {
-        res.redirect("/");
+        return res.redirect("/");
     }
 }
 
@@ -29,28 +29,30 @@ export async function creationRendezVousGET(req, res) {
  */
 export async function creationRendezVousPOST(req, res) {
     const valid = await Token.checkValidity(req, res);
-    if(!valid){
-        res.redirect('/')
+    if(!valid || !res.locals.user){
+        return res.redirect('/')
     }
 
     let rendezVous = null;
     let errMsgs = [];
+    let agendas = null;
+    if (! (req.body.agendas instanceof Object)) {
+        agendas = [(+req.body.agendas)];
+    } else {
+        agendas = req.body.agendas.map(n => +n);
+    }
     try {
         rendezVous = await RendezVous.create({
             titre: req.body.titre,
-            lieu: req.body.lieu ?? null,
-            desc: req.body.desc ?? null,
+            lieu: (req.body.lieu ?? null),
+            description: (req.body.desc ?? null),
             dateDebut: Date.parse(req.body.dateDebut),
             dateFin: Date.parse(req.body.dateFin),
         });
         try {
-            let agendas = req.body.agendas;
-            if (! (agendas instanceof Object)) {
-                agendas = [agendas];
-            }
             for (const agenda_id of agendas) {
                 await AgendaRendezVous.create({
-                    idAgenda: +agenda_id,
+                    idAgenda: agenda_id,
                     idRendezVous: rendezVous.id
                 })
             }
@@ -69,10 +71,11 @@ export async function creationRendezVousPOST(req, res) {
     // si rendezVous = null alors on a pas réussi à créer les lignes
     if (!rendezVous) {
         const user = await User.getById(res.locals.user.id);
-        res.render("rendezVous", { errMsgs: errMsgs, agendas: await user.getMyAgendas(),
-            titre: req.body.titre, lieu: req.body.lieu, desc: req.body.desc, dateDebut: req.body.dateDebut, dateFin: req.body.dateFin
+        return res.render("rendezVous", { errMsgs: errMsgs, agendas: await user.getMyAgendas(),
+            titre: req.body.titre, lieu: req.body.lieu, desc: req.body.desc, dateDebut: req.body.dateDebut, dateFin: req.body.dateFin,
+            agendasSelectionnes: agendas
         });
     } else {
-        res.redirect("/");
+        return res.redirect("/");
     }
 }

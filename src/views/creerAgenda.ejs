@@ -3,12 +3,13 @@
     <head>
         <meta charset="utf-8">
         <title>Idayari</title>
+        <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
     </head>
     <body>
     <h1>Idayari</h1>
     <form method="POST" action="/creerAgenda">
         <label for="nom">Nom de l'agenda</label>
-        <input type="text" name="nom" required>
+        <input type="text" name="nom" maxlength="100" required>
 
         <input type="submit">
 

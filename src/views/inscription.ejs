@@ -3,24 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>Inscription</title>
-    <script>
-        function verifierMdp1(){
-            if(document.getElementById("confirmationpswd").value === ""){return;}
-            verifierMdp()
-        }
-
-        function verifierMdp(){
-            if(document.getElementById("password").value !== document.getElementById("confirmationpswd").value) {
-                document.getElementById("inscriptionSubmit").disabled = true;
-                document.getElementById("errorMessage").textContent = "Mots de passe différents";
-            }
-        }
-
-        function clearMessage(){
-            document.getElementById("inscriptionSubmit").disabled = false;
-            document.getElementById("errorMessage").textContent = "";
-        }
-    </script>
 </head>
 <body>
     <h3>Création de compte</h3>
@@ -29,10 +11,10 @@
     <% }%>
     <form method="post">
         <label for="username">Nom d'utilisateur</label>
-        <input id="username" type="text" name="user_username" required><br>
+        <input id="username" type="text" name="user_username" maxlength="100" required><br>
 
         <label for="password">Mot de passe</label>
-        <input id="password" type="password" name="user_password" onfocus="clearMessage()"  onblur="verifierMdp1()" required><br>
+        <input id="password" type="password" name="user_password" minlength="8" onfocus="clearMessage()"  onblur="verifierMdp1()" required><br>
 
         <label for="confirmationpswd">Confirmer le mot de passe</label>
         <input id="confirmationpswd" type="password" name="user_confirmationpswd" onfocus="clearMessage()" onblur="verifierMdp()" required><br>
@@ -40,5 +22,6 @@
 
         <input type="submit" value="Envoyer" id="inscriptionSubmit">
     </form>
+    <script src="/js/inscription.js"></script>
 </body>
 </html>

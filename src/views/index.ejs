@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Idayari</title>
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
   </head>
   <body>
     <h1>Idayari</h1>
@@ -10,18 +11,12 @@
     <div>
       <a href="/deconnexion">Se déconnecter</a>
     </div>
-
     <p>Bienvenue, <%= locals.user.username %>.</p>
-
     <div>
-      <button id="ouvreDialogCreationAgenda">Créer un agenda</button>
+      <a href="/infos_perso" class="button">Mes informations personnelles</a><br>
+      <a href="/creerAgenda">Créer un agenda</a><br>
       <a href="/rendezvous/new">Ajouter un rendez-vous</a>
     </div>
-
-    <div id="divDialogCreerAgenda" hidden>
-      <%- await include('viewDialogCreationAgenda') %>
-    </div>
-
     <div>
       <h2>Vos agendas</h2>
       <ul>
@@ -30,16 +25,41 @@
             <h3><%= agenda.nom %></h3>
           <ul>
             <% const rendezVous = await agenda.getRendezVous(); %>
-            <% for (const rv of rendezVous) { %>
-              <li><%= rv.titre %></li>
+            <% for (const rv of rendezVous) {
+              //Conversion des dates dans un format lisible
+              const dateDeb = new Date(rv.dateDebut);
+              const deb = dateDeb.toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+              const dateFin = new Date(rv.dateFin);
+              const fin = dateFin.toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            %>
+
+            %>
+              <li><%= rv.titre %> | Du <%= deb %> au <%= fin %>
+                <% if (rv.lieu && rv.lieu.trim() !== "") { %>
+                  | à : <%= rv.lieu %>
+                <% } %>
+                <% if (rv.description && rv.description.trim() !== "") { %>
+                  | description : <%= rv.description%>
+                <% } %>
+                 </li>
+
               <% } %>
           </ul>
           </li>
           <% } %>
       </ul>
-    </div>
-    <div>
-      <a href="/infos_perso" class="button">Mes informations personnelles</a>
     </div>
     <%} else{ %>
     <div>
@@ -47,6 +67,5 @@
       <a href="/inscription">S'inscrire</a>
     </div>
     <%} %>
-    <script src="/js/dialogCreationAgenda.js"></script>
   </body>
 </html>

@@ -11,9 +11,9 @@ import Agenda from "../model/Agenda.js";
 export async function creationAgendaGET(req, res) {
     const valid = await Token.checkValidity(req, res);
     if (valid && res.locals.user) {
-        res.render("creerAgenda");
+        return res.render("creerAgenda");
     } else {
-        res.redirect("/");
+        return res.redirect("/");
     }
 }
 
@@ -25,9 +25,8 @@ export async function creationAgendaGET(req, res) {
  */
 export async function creationAgendaPOST(req, res) {
     const valid = await Token.checkValidity(req, res);
-    if(!valid){
-        //res.redirect('/')
-        return res.status(401).json({ success: false, message: "User non authentifié" });
+    if(!valid || !res.locals.user){
+        return res.redirect('/')
     }
 
     let agenda = null;
@@ -36,14 +35,21 @@ export async function creationAgendaPOST(req, res) {
             nom: req.body.nom,
             idOwner: res.locals.user.id
         });
+    } catch (e) {
+        return res.render("creerAgenda", {
+            errMsg: "Une erreur est inattendue survenue. Veuillez réessayer plus tard.",
+        });
+    }
+    try {
         await UserAgendaAccess.create({
             idUser: res.locals.user.id,
             idAgenda: agenda.id
         })
-        //res.redirect('/');
-        return res.json({success: true}); 
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({ success: false, message: "Une erreur est inattendue survenue. Veuillez réessayer plus tard."});
+        return res.redirect('/');
+    } catch (e){
+        await agenda.destroy();
+        return res.render("creerAgenda", {
+            errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+        });
     }
-} 
+}
