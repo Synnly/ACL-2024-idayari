@@ -16,6 +16,9 @@ npm install && npm start
 - Création d'agendas
 - Création de rendez-vous (non récurrents)
 
+## Versions
+Sprint 1 : [v1.9.5](https://github.com/Synnly/ACL-2024-idayari/releases/tag/v1.9.5)
+
 ## Auteurs
 - FERNANDES DOS SANTOS Emanuel (Synnly)
 - LAGARDE Tristan (Niuub)
