@@ -33,7 +33,7 @@
             <label for="agendas">Agenda(s) où ajouter le rendez-vous :</label><br>
             <select name="agendas" multiple required>
                 <% for (const agenda of agendas) { %>
-                    <option value="<%= agenda.id %>" <%= agendasSelectionnes.includes(agenda.id) ? `selected` : ''%>><%= agenda.nom %></option>
+                    <option value="<%= agenda.id %>" <%= locals.agendasSelectionnes && agendasSelectionnes.includes(agenda.id) ? `selected` : ''%>><%= agenda.nom %></option>
                 <% } %>
             </select><br><br>
         <% } else { %>
