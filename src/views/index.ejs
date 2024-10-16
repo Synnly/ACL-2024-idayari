@@ -10,11 +10,26 @@
     <div>
       <a href="/deconnexion">Se déconnecter</a>
     </div>
+
     <p>Bienvenue, <%= locals.user.username %>.</p>
+
     <div>
-      <a href="/creerAgenda">Créer un agenda</a>
+      <button id="ouvreDialogCreationAgenda">Créer un agenda</button>
       <a href="/rendezvous/new">Ajouter un rendez-vous</a>
     </div>
+
+    <div id="divDialogCreerAgenda" hidden>
+      <dialog id="viewDialogCreationAgenda">
+        <form method="dialog" id="formulaireAgenda">
+            <label for="nom">Nom de l'agenda</label>
+            <input type="text" id="nom" name="nom" required>
+            <button type="submit">Créer</button>
+            <button type="button" id="fermerDialogCreationAgenda">Annuler</button>
+        </form>
+        <p id="messageErreur" style="color:purple;"></p>
+    </dialog>
+    </div>
+
     <div>
       <h2>Vos agendas</h2>
       <ul>
@@ -40,5 +55,6 @@
       <a href="/inscription">S'inscrire</a>
     </div>
     <%} %>
+    <script src="/js/dialogCreationAgenda.js"></script>
   </body>
 </html>
