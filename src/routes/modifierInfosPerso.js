@@ -1,6 +1,6 @@
-import User from '../model/User.js';
-import { saveAuthentificationCookie } from '../token.js';
-import Token from '../model/Token.js';
+import User from "../model/User.js";
+import {saveAuthentificationCookie} from "../token.js";
+import Token from "../model/Token.js";
 
 /**
  * Affiche le template des informations personnelles de l'utilisateur
@@ -33,60 +33,63 @@ export async function modifierInfosPersoPOST(req, res) {
 	const valid = await Token.checkValidity(req, res);
 	if (valid && res.locals.user) {
 		try {
-			//On cherche si un utilisateur avec cette username existe déjà s'il veut le changer, si oui on le préviens
-			const user = await User.findOne({ where: { username: req.body.user_username_change_info } });
+			let user = null;
+			if(req.body.user_username_change_info) {
+				//On cherche si un utilisateur avec cette username existe déjà s'il veut le changer, si oui on le préviens
+				user = await User.findOne({where: {username: req.body.user_username_change_info}});
+			}
 
 			if (user) {
-				return res.render('infos_perso', { errMsg: 'Vous ne pouvez pas chosir cet username !' });
+				return res.render('infos_perso', {errMsg: 'Vous ne pouvez pas chosir cet username !'});
 			} else {
-				//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
-				const username = req.body.user_username_change_info;
-				const password = req.body.user_password_change_info;
-				const lastUsername = res.locals.user.username;
+			//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
+			const username = req.body.user_username_change_info;
+			const password = req.body.user_password_change_info;
+			const lastUsername = res.locals.user.username;
 
-				const user = await User.findOne({ where: { username: lastUsername } });
 
-				const lastPassword = user.hashedPassword;
-				let hasUsernameChanged = false;
-				let hasPasswordChanged = false;
-				let data = {};
-				const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
+			const user = await User.findOne({where: {username: lastUsername}});
 
-				/* Si le formulaire est pas vide oet que le mdp de confirmation est correct on effectue les
-			modification de la bdd sinon on le préviens du problème */
+			const lastPassword = user.hashedPassword;
+			let hasUsernameChanged = false;
+			let hasPasswordChanged = false;
+			let data = {};
+			const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
 
-				if ((username !== '' || password !== '') && lastPassword === User.hashPassowrd(passwordConfirm)) {
-					if (username !== '') {
-						data.username = username;
-						hasUsernameChanged = true;
-					}
-					if (password !== '') {
-						data.hashedPassword = User.hashPassowrd(password);
-						hasPasswordChanged = true;
-					}
+			/* Si le formulaire est pas vide oet que le mdp de confirmation est correct on effectue les
+		modification de la bdd sinon on le préviens du problème */
 
-					await User.update(data, { where: { username: lastUsername } });
-
-					let updatedUser = {
-						id: user.id,
-						username: hasUsernameChanged ? data.username : user.username,
-						hashedPassword: hasPasswordChanged ? data.hashedPassword : lastPassword,
-					};
-					saveAuthentificationCookie(updatedUser, res);
-					return res.redirect('/infos_perso');
+			if ((username || password) && lastPassword === User.hashPassowrd(passwordConfirm)) {
+				if (username) {
+					data.username = username;
+					hasUsernameChanged = true;
 				}
+				if (password) {
+					data.hashedPassword = User.hashPassowrd(password);
+					hasPasswordChanged = true;
+				}
+
+				await User.update(data, {where: {username: lastUsername}});
+
+				let updatedUser = {
+					id: user.id,
+					username: hasUsernameChanged ? data.username : user.username,
+					hashedPassword: hasPasswordChanged ? data.hashedPassword : lastPassword,
+				};
+				saveAuthentificationCookie(updatedUser, res);
+				return res.redirect('/infos_perso');
+			}
 
 				//Si le mdp de confirmation est incorrect alors on le prévient
 				if (lastPassword !== User.hashPassowrd(passwordConfirm)) {
-					return res.render('infos_perso', { errMsg: 'Le mot de passe est incorrect.' });
+					return res.render('infos_perso', {errMsg: 'Le mot de passe est incorrect.'});
 				}
 				//Si le formulaire est vide on le prévient
-				return res.render('infos_perso', { errMsg: "Aucunes modifications n'est effectué car le formulaire était vide." });
+				return res.render('infos_perso', {errMsg: "Aucunes modifications n'est effectué car le formulaire était vide."});
 			}
 		} catch (error) {
-			return res.render('infos_perso', { errMsg: "Une erreur s'est produite" });
+			console.log(error)
+			return res.render('infos_perso', {errMsg: "Une erreur s'est produite"});
 		}
-	} else {
-		return res.redirect('connexion');
 	}
 }

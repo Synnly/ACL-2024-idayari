@@ -3,7 +3,7 @@
  * @returns true si tout est bon, false s'il manque le mdp de confirmation avec un message
  */
 function sendData() {
-    if (document.getElementById('password_change_info_confirmation').value !== '') {
+    if (document.getElementById('password_change_info_confirmation').value) {
         document.getElementById('hidden_password_confirmation').value = document.getElementById('password_change_info_confirmation').value;
         document.getElementById('mainForm').submit();
         return true;
@@ -20,16 +20,16 @@ function showConfirmChanges() {
 }
 
 /**
- * Cache la modale
+ * Permet de retourner à la dernière page consultée avant celle-ci
  */
-function hideConfirmChanges() {
-    document.getElementById('confirm_password').style.display = 'none';
+function back() {
+    window.history.back();
 }
 
 /**
  * Ecouteur sur la confirmation du mdp, s'il est vide pas de message à lui afficher
  */
-document.getElementById('password_change_info_confirmation').addEventListener('input', () => {
+    document.getElementById('password_change_info_confirmation').addEventListener('input', () => {
     document.getElementById('information_confirmation').innerText = '';
 });
 
@@ -43,17 +43,14 @@ document.getElementById('password_change_info_confirmation').addEventListener('i
 document.getElementById("password_change_info").addEventListener('input', function(event) {
 
     let errorMessage = document.getElementById('errorMessage');
-    let changeInfoSubmit = document.getElementById('changeInfoSubmit');
     let confirmationpswd_change_info = document.getElementById('confirmationpswd_change_info');
 
     if (event.target.value === confirmationpswd_change_info.value) {
         errorMessage.textContent = '';
-        changeInfoSubmit.disabled = false;
+        document.getElementById("changeInfoSubmitComfirmation").disabled = false;
     } else {
         errorMessage.textContent = 'Mots de passe différents';
-        changeInfoSubmit.disabled = true;
-        hideConfirmChanges();
-
+        document.getElementById("changeInfoSubmitComfirmation").disabled = true;
     }
 })
 
@@ -67,20 +64,28 @@ document.getElementById("password_change_info").addEventListener('input', functi
 document.getElementById('confirmationpswd_change_info').addEventListener('input', function (event) {
 
     let errorMessage = document.getElementById('errorMessage');
-    let changeInfoSubmit = document.getElementById('changeInfoSubmit');
     let password_change_info = document.getElementById('password_change_info');
 
-    if (event.target.value === '' && password_change_info.value !== '') {
+    if (event.target.value === '' && password_change_info.value) {
         errorMessage.textContent = '';
-        hideConfirmChanges();
-        changeInfoSubmit.disabled = true;
     } else if (event.target.value !== password_change_info.value) {
-        changeInfoSubmit.disabled = true;
         errorMessage.textContent = 'Mots de passe différents';
-        hideConfirmChanges();
+        document.getElementById("changeInfoSubmitComfirmation").disabled = true;
     } else {
-        changeInfoSubmit.disabled = false;
         errorMessage.textContent = '';
+        document.getElementById("changeInfoSubmitComfirmation").disabled = false;
     }
 });
 
+function modifyUsername(){
+    event.preventDefault()
+    showConfirmChanges();
+    document.getElementById("username_change_info").disabled = false;
+}
+
+function modifyPassword(){
+    event.preventDefault()
+    showConfirmChanges();
+    document.getElementById("password_change_info").disabled = false;
+    document.getElementById("div_confirmationpswd_change_info").style = "display: block";
+}
