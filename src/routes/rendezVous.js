@@ -35,6 +35,12 @@ export async function creationRendezVousPOST(req, res) {
 
     let rendezVous = null;
     let errMsgs = [];
+    let agendas = null;
+    if (! (req.body.agendas instanceof Object)) {
+        agendas = [(+req.body.agendas)];
+    } else {
+        agendas = req.body.agendas.map(n => +n);
+    }
     try {
         rendezVous = await RendezVous.create({
             titre: req.body.titre,
@@ -44,13 +50,9 @@ export async function creationRendezVousPOST(req, res) {
             dateFin: Date.parse(req.body.dateFin),
         });
         try {
-            let agendas = req.body.agendas;
-            if (! (agendas instanceof Object)) {
-                agendas = [agendas];
-            }
             for (const agenda_id of agendas) {
                 await AgendaRendezVous.create({
-                    idAgenda: +agenda_id,
+                    idAgenda: agenda_id,
                     idRendezVous: rendezVous.id
                 })
             }
@@ -70,7 +72,8 @@ export async function creationRendezVousPOST(req, res) {
     if (!rendezVous) {
         const user = await User.getById(res.locals.user.id);
         res.render("rendezVous", { errMsgs: errMsgs, agendas: await user.getMyAgendas(),
-            titre: req.body.titre, lieu: req.body.lieu, desc: req.body.desc, dateDebut: req.body.dateDebut, dateFin: req.body.dateFin
+            titre: req.body.titre, lieu: req.body.lieu, desc: req.body.desc, dateDebut: req.body.dateDebut, dateFin: req.body.dateFin,
+            agendasSelectionnes: agendas
         });
     } else {
         res.redirect("/");
