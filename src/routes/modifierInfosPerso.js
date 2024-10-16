@@ -13,9 +13,9 @@ export async function modifierInfosPersoGET(req, res) {
 	const valid = await Token.checkValidity(req, res);
 
 	if (valid && res.locals.user) {
-		res.render('infos_perso');
+		return res.render('infos_perso');
 	} else {
-		res.redirect('connexion');
+		return res.redirect('connexion');
 	}
 }
 
@@ -87,6 +87,6 @@ export async function modifierInfosPersoPOST(req, res) {
 			return res.render('infos_perso', { errMsg: "Une erreur s'est produite" });
 		}
 	} else {
-		res.redirect('connexion');
+		return res.redirect('connexion');
 	}
 }

@@ -15,9 +15,9 @@ export async function creationRendezVousGET(req, res) {
 
     if (valid && res.locals.user) {
         const user = await User.getById(res.locals.user.id);
-        res.render("rendezVous", { agendas: await user.getMyAgendas() });
+        return res.render("rendezVous", { agendas: await user.getMyAgendas() });
     } else {
-        res.redirect("/");
+        return res.redirect("/");
     }
 }
 
@@ -30,7 +30,7 @@ export async function creationRendezVousGET(req, res) {
 export async function creationRendezVousPOST(req, res) {
     const valid = await Token.checkValidity(req, res);
     if(!valid || !res.locals.user){
-        res.redirect('/')
+        return res.redirect('/')
     }
 
     let rendezVous = null;
@@ -71,11 +71,11 @@ export async function creationRendezVousPOST(req, res) {
     // si rendezVous = null alors on a pas réussi à créer les lignes
     if (!rendezVous) {
         const user = await User.getById(res.locals.user.id);
-        res.render("rendezVous", { errMsgs: errMsgs, agendas: await user.getMyAgendas(),
+        return res.render("rendezVous", { errMsgs: errMsgs, agendas: await user.getMyAgendas(),
             titre: req.body.titre, lieu: req.body.lieu, desc: req.body.desc, dateDebut: req.body.dateDebut, dateFin: req.body.dateFin,
             agendasSelectionnes: agendas
         });
     } else {
-        res.redirect("/");
+        return res.redirect("/");
     }
 }

@@ -10,9 +10,9 @@ import Token from "../model/Token.js";
  */
 export function connexionGET(req, res) {
     if (!res.locals.user) {
-        res.render("connexion");
+        return res.render("connexion");
     } else {
-        res.redirect("/");
+        return res.redirect("/");
     }
 }
 
@@ -30,12 +30,12 @@ export async function connexionPOST(req, res) {
         where: { username: username, hashedPassword: password },
     });
     if (user === null) {
-        res.render('connexion', {
+        return res.render('connexion', {
             errMsg: 'Identifiant et/ou mot de passe invalides !',
         });
     } else {
         saveAuthentificationCookie(user, res);
-        res.redirect('/');
+        return res.redirect('/');
     }
 }
 
@@ -47,5 +47,5 @@ export async function connexionPOST(req, res) {
 export async function deconnexion(req, res) {
     await Token.deleteToken(req.cookies.accessToken);
     res.clearCookie('accessToken');
-    res.redirect('/');
+    return res.redirect('/');
 }
