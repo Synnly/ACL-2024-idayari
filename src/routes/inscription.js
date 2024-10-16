@@ -10,7 +10,6 @@ import User from "../model/User.js";
 export function inscriptionGET(req, res) {
     if (res.locals.user) {
         return res.redirect("/");
-        return;
     }
     return res.render("inscription");
 }

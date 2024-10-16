@@ -39,7 +39,6 @@ export async function creationAgendaPOST(req, res) {
         return res.render("creerAgenda", {
             errMsg: "Une erreur est inattendue survenue. Veuillez réessayer plus tard.",
         });
-        return
     }
     try {
         await UserAgendaAccess.create({
