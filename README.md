@@ -23,6 +23,6 @@ Sprint 1 : [v1.9.5](https://github.com/Synnly/ACL-2024-idayari/releases/tag/v1.9
 - FERNANDES DOS SANTOS Emanuel (Synnly)
 - LAGARDE Tristan (Niuub)
 - AIACHI Morade (radmoparker)
-- CUNY Mederic (CMederic)
+- CUNY Mederic (CMederic, Az-Teck)
 - MAVOUNGOU Franck (Outsider1010)
 - BASUALDO Lautaro (Lautaro Basualdo)
