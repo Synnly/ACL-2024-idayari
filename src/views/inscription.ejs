@@ -3,25 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>Inscription</title>
-    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-    <script>
-        function verifierMdp1(){
-            if(document.getElementById("confirmationpswd").value === ""){return;}
-            verifierMdp()
-        }
-
-        function verifierMdp(){
-            if(document.getElementById("password").value !== document.getElementById("confirmationpswd").value) {
-                document.getElementById("inscriptionSubmit").disabled = true;
-                document.getElementById("errorMessage").textContent = "Mots de passe différents";
-            }
-        }
-
-        function clearMessage(){
-            document.getElementById("inscriptionSubmit").disabled = false;
-            document.getElementById("errorMessage").textContent = "";
-        }
-    </script>
 </head>
 <body>
     <h3>Création de compte</h3>
@@ -41,5 +22,6 @@
 
         <input type="submit" value="Envoyer" id="inscriptionSubmit">
     </form>
+    <script src="/js/inscription.js"></script>
 </body>
 </html>
