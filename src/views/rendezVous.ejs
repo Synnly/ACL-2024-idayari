@@ -14,13 +14,13 @@
     <% }%>
     <form method="post">
         <label for="titre">Titre : </label>
-        <input type="text" name="titre" <%= locals.titre ? `value=${locals.titre}` : ''%> required><br><br>
+        <input type="text" name="titre" maxlenght="100" <%= locals.titre ? `value=${locals.titre}` : ''%> required><br><br>
 
         <label for="lieu">Lieu : </label>
-        <input type="text" name="lieu" <%= locals.lieu ? `value=${locals.lieu}` : ''%> ><br><br>
+        <input type="text" name="lieu" maxlenght="100" <%= locals.lieu ? `value=${locals.lieu}` : ''%> ><br><br>
 
         <label for="desc">Description : </label><br>
-        <textArea name="desc" <%= locals.desc ? `value=${locals.desc}` : ''%>></textArea><br><br>
+        <textArea name="desc" maxlenght="500" <%= locals.desc ? `value=${locals.desc}` : ''%>></textArea><br><br>
 
         <label for="dateDebut">Du </label>
         <input type="datetime-local" name="dateDebut" <%= locals.dateDebut ? `value=${locals.dateDebut}` : ''%> required><br>

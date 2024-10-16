@@ -8,12 +8,11 @@ import User from "../model/User.js";
  * @param res La réponse
  */
 export function inscriptionGET(req, res) {
-    if (!res.locals.user) {
-        res.render("inscription");
-    } else {
-        // on reste où on est
+    if (res.locals.user) {
         res.redirect("/");
+        return;
     }
+    res.render("inscription");
 }
 
 /**
@@ -23,6 +22,10 @@ export function inscriptionGET(req, res) {
  * @param res La réponse
  */
 export async function inscriptionPOST(req, res) {
+    if (res.locals.user) {
+        res.redirect("/");
+        return;
+    }
     try {
         const usr = await User.create({
             username: req.body.user_username,

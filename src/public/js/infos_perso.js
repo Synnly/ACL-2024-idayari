@@ -27,13 +27,6 @@ function hideConfirmChanges() {
 }
 
 /**
- * Permet de retourner à la dernière page consultée avant celle-ci
- */
-function back() {
-    window.history.back();
-}
-
-/**
  * Ecouteur sur la confirmation du mdp, s'il est vide pas de message à lui afficher
  */
 document.getElementById('password_change_info_confirmation').addEventListener('input', () => {
