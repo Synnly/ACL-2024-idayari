@@ -8,12 +8,10 @@ import User from "../model/User.js";
  * @param res La réponse
  */
 export function inscriptionGET(req, res) {
-    if (!res.locals.user) {
-        res.render("inscription");
-    } else {
-        // on reste où on est
-        res.redirect("/");
+    if (res.locals.user) {
+        return res.redirect("/");
     }
+    return res.render("inscription");
 }
 
 /**
@@ -23,6 +21,9 @@ export function inscriptionGET(req, res) {
  * @param res La réponse
  */
 export async function inscriptionPOST(req, res) {
+    if (res.locals.user) {
+        return res.redirect("/");
+    }
     try {
         const usr = await User.create({
             username: req.body.user_username,
@@ -30,9 +31,9 @@ export async function inscriptionPOST(req, res) {
         });
         //Pour que le server authenthifie l'utilisateur à partir du cookie
         saveAuthentificationCookie(usr, res);
-        res.redirect("/");
+        return res.redirect("/");
     } catch (e) {
-        res.render("inscription", {
+        return res.render("inscription", {
             errMsg: e.name === "SequelizeUniqueConstraintError" ? "Un compte existe déjà avec ce nom d'utilisateur !" : "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
         });
     }

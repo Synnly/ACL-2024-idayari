@@ -11,10 +11,10 @@
     <% }%>
     <form method="post">
         <label for="username">Nom d'utilisateur</label>
-        <input id="username" type="text" name="user_username" required><br>
+        <input id="username" type="text" name="user_username" maxlength="100" required><br>
 
         <label for="password">Mot de passe</label>
-        <input id="password" type="password" name="user_password" onfocus="clearMessage()"  onblur="verifierMdp1()" required><br>
+        <input id="password" type="password" name="user_password" minlength="8" onfocus="clearMessage()"  onblur="verifierMdp1()" required><br>
 
         <label for="confirmationpswd">Confirmer le mot de passe</label>
         <input id="confirmationpswd" type="password" name="user_confirmationpswd" onfocus="clearMessage()" onblur="verifierMdp()" required><br>

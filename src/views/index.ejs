@@ -13,7 +13,8 @@
     </div>
     <p>Bienvenue, <%= locals.user.username %>.</p>
     <div>
-      <a href="/creerAgenda">Créer un agenda</a>
+      <a href="/infos_perso" class="button">Mes informations personnelles</a><br>
+      <a href="/creerAgenda">Créer un agenda</a><br>
       <a href="/rendezvous/new">Ajouter un rendez-vous</a>
     </div>
     <div>
@@ -50,7 +51,7 @@
                   | à : <%= rv.lieu %>
                 <% } %>
                 <% if (rv.description && rv.description.trim() !== "") { %>
-                  | raison : <%= rv.description%>
+                  | description : <%= rv.description%>
                 <% } %>
                  </li>
 
@@ -59,9 +60,6 @@
           </li>
           <% } %>
       </ul>
-    </div>
-    <div>
-      <a href="/infos_perso" class="button">Mes informations personnelles</a>
     </div>
     <%} else{ %>
     <div>
