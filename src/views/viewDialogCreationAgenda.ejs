@@ -1,9 +1,8 @@
 <dialog id="viewDialogCreationAgenda">
-    <form method="dialog" id="formulaireAgenda">
+    <form method="POST" action="/agenda/new">
         <label for="nom">Nom de l'agenda</label>
-        <input type="text" id="nom" name="nom" required>
-        <button type="submit">Créer</button>
-        <button type="button" id="fermerDialogCreationAgenda">Annuler</button>
+        <input type="text" id="nom" name="nom" required><br>
+        <input type="submit" value="Envoyer">
+        <button id="fermerDialogCreationAgenda">Annuler</button>
     </form>
-    <p id="messageErreur" style="color:purple;"></p>
 </dialog>
