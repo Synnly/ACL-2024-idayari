@@ -23,3 +23,6 @@ npm install && npm start
 - CUNY Mederic (CMederic, Az-Teck)
 - MAVOUNGOU Franck (Outsider1010)
 - BASUALDO Lautaro (Lautaro Basualdo)
+
+## Lien
+Trello : https://trello.com/invite/b/66e83d0065d4b233d7f78c49/ATTI4d79310e1555c5c599467cb6075aa3d49DDBB039/acl
