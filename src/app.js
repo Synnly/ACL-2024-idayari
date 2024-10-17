@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
+import path from 'path';
 import {index} from "./routes/index.js";
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
@@ -12,7 +13,7 @@ import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
 export const app = express();
-
+app.use('/bootstrap', express.static(fileURLToPath(new URL('./node_modules/bootstrap/dist', import.meta.url))));
 app.set('views', fileURLToPath(new URL('./views', import.meta.url)));
 app.set('view engine', 'ejs');
 

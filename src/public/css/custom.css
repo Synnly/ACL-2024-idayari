@@ -1,0 +1,57 @@
+:root {
+    --background-color: #f0f9ff;
+    --black: #091720;
+    --primary-color: #3d799c;
+    --secondary-color: #5fa8d3;
+}
+
+.bg-color-custom {
+    background-color: var(--background-color);
+}
+
+.bg-primary-color {
+    background-color: var(--primary-color);
+    border: 0;
+}
+
+.bg-secondary-color {
+    background-color: var(--secondary-color);
+    border: 0;
+}
+
+.text-primary-color {
+    color: var(--primary-color);
+}
+
+.text-black-color {
+    color: var(--black);
+}
+
+.s-32 {
+    width: 32px;
+    height: 32px;
+}
+
+.s-x0-8 {
+    width: 80%;
+    height: auto;
+}
+
+.top-25 {
+    top: 10%;
+}
+
+.fs-7 {
+    font-size: 14px;
+}
+
+.mb-8 {
+    margin-bottom: 32px;
+}
+
+.card-custom {
+    width: 22rem;
+    height: fit-content; 
+    border: 0; 
+    background-color: transparent;
+}

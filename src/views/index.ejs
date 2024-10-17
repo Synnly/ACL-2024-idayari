@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Idayari</title>
-    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-  </head>
-  <body>
-    <h1>Idayari</h1>
-    <% if (locals.user) { %>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Idayari</title>
+  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body>
+  <% if (locals.user) { %>
     <div>
       <a href="/deconnexion">Se déconnecter</a>
     </div>
@@ -22,50 +25,91 @@
       <ul>
         <% for (const agenda of locals.agendas) { %>
           <li>
-            <h3><%= agenda.nom %></h3>
-          <ul>
-            <% const rendezVous = await agenda.getRendezVous(); %>
-            <% for (const rv of rendezVous) {
-              //Conversion des dates dans un format lisible
-              const dateDeb = new Date(rv.dateDebut);
-              const deb = dateDeb.toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              });
-              const dateFin = new Date(rv.dateFin);
-              const fin = dateFin.toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              });
-            %>
+            <h3>
+              <%= agenda.nom %>
+            </h3>
+            <ul>
+              <% const rendezVous=await agenda.getRendezVous(); %>
+                <% for (const rv of rendezVous) { //Conversion des dates dans un format lisible const dateDeb=new
+                  Date(rv.dateDebut); const deb=dateDeb.toLocaleDateString('fr-FR', { year: 'numeric' , month: 'long' ,
+                  day: 'numeric' , hour: '2-digit' , minute: '2-digit' }); const dateFin=new Date(rv.dateFin); const
+                  fin=dateFin.toLocaleDateString('fr-FR', { year: 'numeric' , month: 'long' , day: 'numeric' ,
+                  hour: '2-digit' , minute: '2-digit' }); %>
 
-            %>
-              <li><%= rv.titre %> | Du <%= deb %> au <%= fin %>
-                <% if (rv.lieu && rv.lieu.trim() !== "") { %>
-                  | à : <%= rv.lieu %>
-                <% } %>
-                <% if (rv.description && rv.description.trim() !== "") { %>
-                  | description : <%= rv.description%>
-                <% } %>
-                 </li>
+                  %>
+                  <li>
+                    <%= rv.titre %> | Du <%= deb %> au <%= fin %>
+                          <% if (rv.lieu && rv.lieu.trim() !=="" ) { %>
+                            | à : <%= rv.lieu %>
+                              <% } %>
+                                <% if (rv.description && rv.description.trim() !=="" ) { %>
+                                  | description : <%= rv.description%>
+                                    <% } %>
+                  </li>
 
-              <% } %>
-          </ul>
+                  <% } %>
+            </ul>
           </li>
           <% } %>
       </ul>
     </div>
     <%} else{ %>
-    <div>
-      <a href="/connexion">Se Connecter</a>
-      <a href="/inscription">S'inscrire</a>
-    </div>
-    <%} %>
-  </body>
+      <div class="container-fluid bg-color-custom">
+        <div class="row">
+          <nav class="navbar">
+            <div class="container-fluid">
+              <div>
+                <img src="/img/favicon.ico" alt="icon" class="s-32">
+                <a class="navbar-brand text-black-color">Idayari</a>
+              </div>
+              <div class="d-flex">
+                <a href="/connexion" class="btn btn-primary bg-primary-color me-3">Se Connecter</a>
+                <a href="/inscription" class="btn btn-secondary bg-secondary-color">S'inscrire</a>
+              </div>
+            </div>
+          </nav>
+          <div class="row">
+            <div class="position-relative text-center">
+              <img src="/img/index_1.png" alt="agenda" class="img-fluid s-x0-8">
+              <div class="position-absolute top-25 start-50 translate-middle">
+                <h1 class="fs-2 text-primary-color">Idayari. Une application agenda pour tout le monde</h1>
+                <h2 class="fs-7 text-black-color">Créer, importer, exporter et partager des agendas. L’unique
+                  application dont vous aurez besoin pour gérer votre temps.</h2>
+              </div>
+              <h2 class="mb-8 fs-3">Quelques fonctionnalités</h2>
+              <div class="row justify-content-evenly align-items-stretch">
+                <div class="card p-4 card-custom">
+                  <img src="/img/index_2.svg" class="card-img-top" alt="import/export">
+                  <div class="card-body">
+                    <h5 class="card-title">Importer/Exporter</h5>
+                    <p class="card-text">Vous pouvez importer ou exporter un agenda en . json</p>
+                  </div>
+                </div>
+                <div class="card p-4 card-custom">
+                  <img src="/img/index_3.svg" class="card-img-top" alt="share">
+                  <div class="card-body">
+                    <h5 class="card-title">Partager</h5>
+                    <p class="card-text">Vous pouvez partager vos agendas avec vos amis, collègues. </p>
+                  </div>
+                </div>
+                <div class="card p-4 card-custom">
+                  <img src="/img/index_4.svg" class="card-img-top " alt="search">
+                  <div class="card-body">
+                    <h5 class="card-title">Rechercher</h5>
+                    <p class="card-text">Vous pouvez chercher avec des filtres dans vos agendas</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-8">
+                <h2 class="mb-8 fs-3">Commencer dès aujourd'hui</h2>
+                <a type="button" href="/inscription" class="btn btn-primary bg-secondary-color">Se lancer</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <%} %>
+        <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+
 </html>
