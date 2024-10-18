@@ -5,7 +5,7 @@
     "main": "server.js",
     "scripts": {
         "db": "nodemon database.js",
-        "start": "nodemon server.js"
+        "start": "sass public/css/main.scss public/css/main.css; nodemon server.js"
     },
     "dependencies": {
         "cookie-parser": "^1.4.7",
@@ -18,7 +18,9 @@
         "morgan": "^1.10.0",
         "mysql2": "^3.11.3",
         "nodemon": "^3.1.7",
-        "sequelize": "^6.37.4"
+        "sequelize": "^6.37.4",
+        "bootstrap": "^5.3.3",
+        "sass": "^1.80.2"
     },
     "type": "module",
     "contributors": [

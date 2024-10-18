@@ -11,6 +11,7 @@ import {creationAgendaGET, creationAgendaPOST} from "./routes/creationAgenda.js"
 import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
+
 export const app = express();
 
 app.set('views', fileURLToPath(new URL('./views', import.meta.url)));

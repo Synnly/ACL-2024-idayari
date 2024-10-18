@@ -1,71 +1,111 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8" />
     <title>Idayari</title>
     <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-  </head>
-  <body>
-    <h1>Idayari</h1>
-    <% if (locals.user) { %>
-    <div>
-      <a href="/deconnexion">Se déconnecter</a>
-    </div>
-    <p>Bienvenue, <%= locals.user.username %>.</p>
-    <div>
-      <a href="/infos_perso" class="button">Mes informations personnelles</a><br>
-      <a href="/creerAgenda">Créer un agenda</a><br>
-      <a href="/rendezvous/new">Ajouter un rendez-vous</a>
-    </div>
-    <div>
-      <h2>Vos agendas</h2>
-      <ul>
-        <% for (const agenda of locals.agendas) { %>
-          <li>
-            <h3><%= agenda.nom %></h3>
-          <ul>
-            <% const rendezVous = await agenda.getRendezVous(); %>
-            <% for (const rv of rendezVous) {
-              //Conversion des dates dans un format lisible
-              const dateDeb = new Date(rv.dateDebut);
-              const deb = dateDeb.toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              });
-              const dateFin = new Date(rv.dateFin);
-              const fin = dateFin.toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              });
-            %>
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/index.js"></script>
+</head>
+<body class="container flex-column d-flex min-vh-100 min-vw-100 m-0 p-0" data-bs-theme="light">
+<% if (locals.user) { %>
+    <nav class="navbar bg-primary px-4">
+        <span class="g-0">
+            <a class="navbar-brand fs-2 text-light fw-medium" href="/">
+            <img class="logo" src="/img/favicon.ico"/>Idayari</a>
+            <span class="navbar-brand text-light align-items-center">Bienvenue, <%= locals.user.username %>.</span>
+        </span>
+        <span class="g-0">
+            <a href="/infos_perso" class="navbar-brand text-light align-items-center">Compte</a>
+        </span>
+    </nav>
+    <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1">
+        <nav class="col nav flex-grow-1 p-0 bg-light">
+            <div class="w-100 h-fit-content">
+                <div class="nav-link text-secondary px-3 py-2">Vos agendas</div>
+                <ul class="list-group px-3 py-1">
+                    <li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
+                </ul>
+                <ul id="agendaList" class="list-group px-3">
+                    <% for (const agenda of locals.agendas) { %>
+                        <li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.nom %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.nom) %>")'><%= agenda.nom %></li>
+                    <% } %>
+                </ul>
+                <div class="w-100 d-flex h-fit-content p-3">
+                    <button class="btn btn-outline-secondary w-100" onclick="window.location.href='/creerAgenda'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-plus" viewBox="0 0 16 16">
+                            <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7"/>
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="w-100 d-flex h-fit-content align-self-end p-3">
+                <button onclick="window.location.href='/deconnexion'" class="btn btn-outline-danger bg-danger-border-subtle w-100">Se déconnecter</button>
+            </div>
+        </nav>
+        <div class="col col-10 p-3 d-flex flex-column">
+            <div class="row d-flex flex-grow-1">
+                <ul>
+                    <% for (const agenda of locals.agendas) { %>
+                        <li>
+                            <ul>
+                                <% const rendezVous = await agenda.getRendezVous(); %>
+                                <% for (const rv of rendezVous) {
+                                    //Conversion des dates dans un format lisible
+                                    const dateDeb = new Date(rv.dateDebut);
+                                    const deb = dateDeb.toLocaleDateString('fr-FR', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    });
+                                    const dateFin = new Date(rv.dateFin);
+                                    const fin = dateFin.toLocaleDateString('fr-FR', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    });
+                                %>
 
-            %>
-              <li><%= rv.titre %> | Du <%= deb %> au <%= fin %>
-                <% if (rv.lieu && rv.lieu.trim() !== "") { %>
-                  | à : <%= rv.lieu %>
-                <% } %>
-                <% if (rv.description && rv.description.trim() !== "") { %>
-                  | description : <%= rv.description%>
-                <% } %>
-                 </li>
+                                %>
+                                <li><%= rv.titre %> | Du <%= deb %> au <%= fin %>
+                                    <% if (rv.lieu && rv.lieu.trim() !== "") { %>
+                                        | à : <%= rv.lieu %>
+                                    <% } %>
+                                    <% if (rv.description && rv.description.trim() !== "") { %>
+                                        | description : <%= rv.description%>
+                                    <% } %>
+                                </li>
 
-              <% } %>
-          </ul>
-          </li>
-          <% } %>
-      </ul>
+                                <% } %>
+                            </ul>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+            <div class="row d-flex justify-content-end px-3">
+                <button onclick="window.location.href='/rendezVous/new'" class="btn btn-outline-secondary px-3 py-2 text-center w-fit-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cake" viewBox="0 0 16 16">
+                        <path d="m7.994.013-.595.79a.747.747 0 0 0 .101 1.01V4H5a2 2 0 0 0-2 2v3H2a2 2 0 0 0-2 2v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a2 2 0 0 0-2-2h-1V6a2 2 0 0 0-2-2H8.5V1.806A.747.747 0 0 0 8.592.802zM4 6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v.414a.9.9 0 0 1-.646-.268 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0A.9.9 0 0 1 4 6.414zm0 1.414c.49 0 .98-.187 1.354-.56a.914.914 0 0 1 1.292 0c.748.747 1.96.747 2.708 0a.914.914 0 0 1 1.292 0c.374.373.864.56 1.354.56V9H4zM1 11a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.793l-.354.354a.914.914 0 0 1-1.293 0 1.914 1.914 0 0 0-2.707 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0L1 11.793zm11.646 1.854a1.915 1.915 0 0 0 2.354.279V15H1v-1.867c.737.452 1.715.36 2.354-.28a.914.914 0 0 1 1.292 0c.748.748 1.96.748 2.708 0a.914.914 0 0 1 1.292 0c.748.748 1.96.748 2.707 0a.914.914 0 0 1 1.293 0Z"/>
+                    </svg>
+                </button></div>
+
+        </div>
     </div>
-    <%} else{ %>
+<%} else{ %>
     <div>
-      <a href="/connexion">Se Connecter</a>
-      <a href="/inscription">S'inscrire</a>
+        <a href="/connexion">Se Connecter</a>
+        <a href="/inscription">S'inscrire</a>
     </div>
-    <%} %>
-  </body>
+<%} %>
+</body>
 </html>

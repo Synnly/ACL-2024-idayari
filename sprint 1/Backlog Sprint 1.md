@@ -59,7 +59,7 @@ Un utilisateur clique sur le bouton pour fermer la session. Il retourne sur la p
 ### Modifier les informations du compte
 Un utilisateur clique sur le bouton de profil afin d’aller sur la page de profil puis clique sur le bouton pour modifier les informations sur la page de son profil et renseigne les nouvelles informations.
 
-S'il souhaite modifier le mot de passe de son compte, il doit renseigner le mot de passe courant ainsi que le nouveau mot de passe 2 fois.c
+S'il souhaite modifier le mot de passe de son compte, il doit renseigner le mot de passe courant ainsi que le nouveau mot de passe 2 fois.
 
 Si les informations saisies sont incorrectes, un message en informe l’utilisateur et empêche la modification des informations du compte.
 
