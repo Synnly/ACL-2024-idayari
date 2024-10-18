@@ -6,8 +6,7 @@
   <title>Idayari</title>
   <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-   <link href="/css/main.css" rel="stylesheet">
-    <link href="/css/index.css" rel="stylesheet">
+  <link href="/css/index.css" rel="stylesheet">
 </head>
 
 <body>
@@ -60,53 +59,119 @@
           <nav class="navbar">
             <div class="container-fluid">
               <div>
-                <img src="/img/favicon.ico" alt="icon" class="s-32">
+                <img src="/img/favicon.ico" alt="icon" class="s-32" loading="lazy">
                 <a class="navbar-brand text-black">Idayari</a>
               </div>
               <div class="d-flex">
-                <a href="/connexion" class="btn btn-primary bg-primary me-3">Se Connecter</a>
-                <a href="/inscription" class="btn btn-secondary bg-secondary">S'inscrire</a>
+                <a href="/connexion" class="btn btn-primary bg-primary me-3 rounded-4">Se Connecter</a>
+                <a href="/inscription" class="btn btn-secondary bg-secondary rounded-4">S'inscrire</a>
               </div>
             </div>
           </nav>
-          <div class="row">
-            <div class="position-relative text-center">
-              <img src="/img/index_1.png" alt="agenda" class="img-fluid s-x0-8">
-              <div class="position-absolute top-25 start-50 translate-middle">
-                <h1 class="fs-2 text-primary">Idayari. Une application agenda pour tout le monde</h1>
-                <h2 class="fs-7 text-black">Créer, importer, exporter et partager des agendas. L’unique
-                  application dont vous aurez besoin pour gérer votre temps.</h2>
-              </div>
-              <h2 class="mb-8 fs-3">Quelques fonctionnalités</h2>
-              <div class="row justify-content-evenly align-items-stretch">
-                <div class="card p-4 card-custom">
-                  <img src="/img/index_2.svg" class="card-img-top" alt="import/export">
-                  <div class="card-body">
-                    <h5 class="card-title">Importer/Exporter</h5>
-                    <p class="card-text">Vous pouvez importer ou exporter un agenda en . json</p>
-                  </div>
-                </div>
-                <div class="card p-4 card-custom">
-                  <img src="/img/index_3.svg" class="card-img-top" alt="share">
-                  <div class="card-body">
-                    <h5 class="card-title">Partager</h5>
-                    <p class="card-text">Vous pouvez partager vos agendas avec vos amis, collègues. </p>
-                  </div>
-                </div>
-                <div class="card p-4 card-custom">
-                  <img src="/img/index_4.svg" class="card-img-top " alt="search">
-                  <div class="card-body">
-                    <h5 class="card-title">Rechercher</h5>
-                    <p class="card-text">Vous pouvez chercher avec des filtres dans vos agendas</p>
-                  </div>
+        </div>
+
+        <div class="row">
+          <div class="position-relative text-center">
+            <img src="/img/index_1.png" alt="agenda" class="img-fluid s-x0-8" loading="lazy">
+            <div class="position-absolute top-25 start-50 translate-middle">
+              <h1 class="fs-2 text-primary">Idayari. Une application agenda pour tout le monde</h1>
+              <h2 class="fs-7 text-black">Créer, importer, exporter et partager des agendas. L’unique
+                application dont vous aurez besoin pour gérer votre temps.</h2>
+            </div>
+            <h2 class="mb-8 fs-3">Quelques fonctionnalités</h2>
+            <div class="row justify-content-evenly align-items-stretch">
+              <div class="card p-4 card-custom">
+                <img src="/img/index_2.svg" class="card-img-top" alt="import/export" loading="lazy">
+                <div class="card-body">
+                  <h5 class="card-title">Importer/Exporter</h5>
+                  <p class="card-text">Vous pouvez importer ou exporter un agenda en . json</p>
                 </div>
               </div>
-              <div class="mb-8">
-                <h2 class="mb-8 fs-3">Commencer dès aujourd'hui</h2>
-                <a type="button" href="/inscription" class="btn btn-primary bg-secondary">Se lancer</a>
+              <div class="card p-4 card-custom">
+                <img src="/img/index_3.svg" class="card-img-top" alt="share" loading="lazy">
+                <div class="card-body">
+                  <h5 class="card-title">Partager</h5>
+                  <p class="card-text">Vous pouvez partager vos agendas avec vos amis, collègues. </p>
+                </div>
+              </div>
+              <div class="card p-4 card-custom">
+                <img src="/img/index_4.svg" class="card-img-top " alt="search" loading="lazy">
+                <div class="card-body">
+                  <h5 class="card-title">Rechercher</h5>
+                  <p class="card-text">Vous pouvez chercher avec des filtres dans vos agendas</p>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="row justify-content-center mb-8 mt-5">
+          <div class="col-12 col-md-9 col-lg-6 mb-8">
+            <div class="accordion" id="accordionExample">
+              <h3 class="text-center mb-8">Questions souvents posés</h3>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                    aria-expanded="true" aria-controls="collapseOne">
+                    Pourquoi devrais-je utiliser Idayari ?
+                  </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <strong>Idayari</strong> est une application complète pour la gestion de vos agendas. Avec
+                    <strong>Idayari</strong>, vous pouvez
+                    <u>créer</u>, <u>organiser</u> et organiser <u>organiser</u> vos agendas en fonction de vos besoins.
+                    Vous avez aussi la
+                    possibilité d'<u>importer</u> et d'<u>exporter</u> vos agendas au format JSON, facilitant
+                    l'intégration avec
+                    d'autres outils. De plus, vous pouvez <u>partager</u> vos agendas avec vos amis ou collègues,
+                    rendant
+                    la collaboration plus fluide. Grâce à sa simplicité et ses fonctionnalités avancées,
+                    <strong>Idayari</strong> est
+                    l'outil idéal pour gérer votre temps efficacement et sans effort.
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    Idayari est-il un outils gratuit ?
+                  </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <strong>Oui, Idayari</strong> est entièrement <strong>gratuit</strong> ! Vous pouvez profiter de
+                    toutes ses fonctionnalités sans
+                    frais, y compris la création, l'importation et l'exportation d'agendas, ainsi que le partage de vos
+                    calendriers avec d'autres utilisateurs. Notre objectif est de fournir une solution accessible à tous
+                    pour gérer facilement leur emploi du temps, que ce soit pour un usage personnel ou professionnel.
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    Puis-je accéder à mes agendas depuis plusieurs appareils ?
+                  </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  Oui, avec Idayari, vous pouvez accéder à vos agendas depuis n'importe quel appareil connecté à
+                  Internet. Que vous soyez sur un ordinateur, une tablette ou un smartphone, vos calendriers seront
+                  toujours synchronisés. Cela vous permet de gérer vos événements où que vous soyez, et de partager vos
+                  agendas en temps réel avec vos collègues ou amis.
+                  <div class="accordion-body">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+        <div class="mb-8 text-center">
+          <h2 class="mb-8 fs-3">Commencez dès aujourd'hui</h2>
+          <a type="button" href="/inscription" class="btn btn-primary bg-primary mb-8">Se lancer</a>
         </div>
       </div>
       <%} %>
