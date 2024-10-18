@@ -1,0 +1,52 @@
+.w-fit-content{
+    width: fit-content;
+}
+
+.w-max-content{
+    width: max-content;
+}
+
+.h-fit-content{
+    height: fit-content;
+}
+
+.h-max-content{
+    height: max-content;
+}
+
+.fill-height {
+    min-height: max-content;
+}
+
+.logo {
+    height: 36px;
+}
+
+.s-32 {
+    width: 32px;
+    height: 32px;
+}
+
+.s-x0-8 {
+    width: 80%;
+    height: auto;
+}
+
+.top-25 {
+    top: 10%;
+}
+
+.fs-7 {
+    font-size: 14px;
+}
+
+.mb-8 {
+    margin-bottom: 32px;
+}
+
+.card-custom {
+    width: 22rem;
+    height: fit-content; 
+    border: 0; 
+    background-color: transparent;
+}
