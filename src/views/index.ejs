@@ -102,7 +102,7 @@
                 </div>
               </div>
             </div>
-            
+
           </div>
         </div>
 
@@ -158,11 +158,13 @@
                   </button>
                 </h2>
                 <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                  Oui, avec Idayari, vous pouvez accéder à vos agendas depuis n'importe quel appareil connecté à
-                  Internet. Que vous soyez sur un ordinateur, une tablette ou un smartphone, vos calendriers seront
-                  toujours synchronisés. Cela vous permet de gérer vos événements où que vous soyez, et de partager vos
-                  agendas en temps réel avec vos collègues ou amis.
                   <div class="accordion-body">
+                    Oui, avec Idayari, vous pouvez accéder à vos agendas depuis n'importe quel appareil connecté à
+                    Internet. Que vous soyez sur un ordinateur, une tablette ou un smartphone, vos calendriers seront
+                    toujours synchronisés. Cela vous permet de gérer vos événements où que vous soyez, et de partager
+                    vos
+                    agendas en temps réel avec vos collègues ou amis.
+
                   </div>
                 </div>
               </div>
@@ -174,8 +176,28 @@
           <a type="button" href="/inscription" class="btn btn-primary bg-primary mb-8">Se lancer</a>
         </div>
       </div>
-      <%} %>
-        <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
+      <div class="toast-container">
+        <div class="toast show position-fixed bottom-0 p-3" role="alert" aria-live="assertive" aria-atomic="true"
+          style="right: 30px;">
+          <div class="toast-header">
+            <strong class="me-auto">Cookies</strong>
+            <small class="text-body-secondary">just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            Vous aimez les cookies ? Moi oui ! <br>
+            <button type="button" class="btn btn-primary btn-sm" onclick="cookies(true)"
+              data-bs-dismiss="toast">Oui</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="cookies(false)"
+              data-bs-dismiss="toast">Non</button>
+          </div>
+        </div>
+
+        <script src="/js/index.js"></script>
+        <%} %>
+          <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
