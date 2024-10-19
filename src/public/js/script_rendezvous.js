@@ -1,3 +1,8 @@
+function change_all_day_option(elem) {
+    document.getElementById('dateDebut').type = elem.checked ? 'date' : 'datetime-local';
+    document.getElementById('dateFin').type = elem.checked ? 'date' : 'datetime-local';
+}
+
 function change_recurrent_option(elem) {
     document.getElementById('recurrent_div').style.display = elem.checked ? 'block' : 'none';
     if (!elem.checked) {

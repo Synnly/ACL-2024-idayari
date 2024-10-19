@@ -21,11 +21,14 @@
 
         <label for="desc">Description : </label><br>
         <textArea name="desc" maxlenght="500"><%= locals.desc ? locals.desc : ''%></textArea><br><br>
-
+        
+        <label for="all_day">Toute la journée ?</label>
+        <input type="checkbox" name="all_day" value="all_day" onChange="change_all_day_option(this)">
+        <br>
         <label for="dateDebut">Du </label>
-        <input type="datetime-local" name="dateDebut" <%= locals.dateDebut ? `value=${locals.dateDebut}` : ''%> required><br>
+        <input type="datetime-local" name="dateDebut" id="dateDebut" <%= locals.dateDebut ? `value=${locals.dateDebut}` : ''%> required><br>
         <label for="dateFin">Au </label>
-        <input type="datetime-local" name="dateFin" <%= locals.dateFin ? `value=${locals.dateFin}` : ''%> required><br>
+        <input type="datetime-local" name="dateFin" id="dateFin" <%= locals.dateFin ? `value=${locals.dateFin}` : ''%> required><br>
         
         <br>
         <label for="recurrent">Récurrent ?</label>

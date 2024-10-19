@@ -61,12 +61,18 @@ export async function creationRendezVousPOST(req, res) {
     const agendas = !(req.body.agendas instanceof Object) ? [(+req.body.agendas)] : 
                                                             req.body.agendas.map(n => +n);
     try {
+        const dateDebut = new Date(Date.parse(req.body.dateDebut));
+        const dateFin = new Date(Date.parse(req.body.dateFin));
+        if (req.body.all_day == "all_day") {
+            dateDebut.setHours(0, 0, 0, 0);
+            dateFin.setHours(23, 59, 59, 999);
+        }
         rendezVous = RendezVous.build({
             titre: req.body.titre,
             lieu: (req.body.lieu ?? null),
             description: (req.body.desc ?? null),
-            dateDebut: Date.parse(req.body.dateDebut),
-            dateFin: Date.parse(req.body.dateFin),
+            dateDebut: dateDebut,
+            dateFin: dateFin,
         });
         // si c'est un rendez-vous récurrent
         if (req.body.recurrent == "rec") {

@@ -65,4 +65,8 @@ export default class RendezVous extends Model {
     getDuree() {
         return this.dateFin - this.dateDebut;
     }
+
+    isAllDay() {
+        return dateFin.getMilliseconds() == 999;
+    }
 }
