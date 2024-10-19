@@ -1,5 +1,11 @@
 import {DataTypes, Model} from "sequelize";
 
+function isAfterDateDebut(value) {
+    if (value < this.dateDebut) {
+        throw new Error("La date de fin doit être supérieur à la date de début.");
+    }
+}
+
 export default class RendezVous extends Model {
     /**
      * Crée la table RendezVous dans la base de données
@@ -21,28 +27,36 @@ export default class RendezVous extends Model {
         dateDebut: {
             type: DataTypes.DATE,
             allowNull: false,
-            validate: {
-                isAfterNow(value) {
-                    if (value <= Date.now()) {
-                        throw new Error("La date de début doit être supérieur à la date d'aujourd'hui.");
-                    }
-                }
-            }
         },
         dateFin: {
             type: DataTypes.DATE,
             allowNull: false,
             validate: {
-               isAfterDateDebut(value) {
-                    if (value <= this.dateDebut) {
-                        throw new Error("La date de fin doit être supérieur à la date de début.");
-                    }
-                } 
+                isAfterDateDebut 
             }
         },
         lieu: {
             type: DataTypes.STRING
+        },
+        type: {
+            type: DataTypes.ENUM('Simple', 'Regular', 'Monthly', 'Yearly'),
+            defaultValue: 'Simple',
+            allowNull: false
+        },
+        frequence: {
+            type: DataTypes.INTEGER
+        },
+        finRecurrence: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            validate: {
+                isAfterDateDebut
+            }
         }
     },
     {sequelize, timestamps: false, tableName: "RendezVous"});
+
+    getDuree() {
+        return this.dateFin - this.dateDebut;
+    }
 }

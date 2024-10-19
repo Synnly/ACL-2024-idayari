@@ -24,9 +24,33 @@
 
         <label for="dateDebut">Du </label>
         <input type="datetime-local" name="dateDebut" <%= locals.dateDebut ? `value=${locals.dateDebut}` : ''%> required><br>
-
         <label for="dateFin">Au </label>
         <input type="datetime-local" name="dateFin" <%= locals.dateFin ? `value=${locals.dateFin}` : ''%> required><br>
+        
+        <br>
+        <label for="recurrent">Récurrent ?</label>
+        <input type="checkbox" name="recurrent" value="rec" onChange="change_recurrent_option(this)">
+
+        <br>
+
+        <div id="recurrent_div" style="display: none;">
+            Tous/Toutes les <input type="number" min="1" name="freq_number" id="freq_number">
+            <select name="freq_type" id="select_freq">
+                <option value="j">jour(s)</option>
+                <option value="s">semaine(s)</option>
+                <option value="Monthly">Mois</option>
+                <option value="Yearly">Année(s)</option>
+            </select>
+            <br><br>
+            Fin de la répétition :
+            <select onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence">
+                <option value="0">Jusqu'à une certaine date (incluse)</option>
+                <option value="1">Après x occurences</option>
+                <option value="2">Jamais</option>
+            </select><br>
+            <input type="datetime-local" name="date_fin_recurrence" id="date_fin_recurrence" required>
+            <input type="number" min="2" name="nb_occurence" id="nb_occurence" style="display: none;">
+        </div>
 
         <% if (locals.agendas && agendas.length > 0) { %>
             <br>
@@ -41,5 +65,6 @@
         <% } %>
         <input type="submit" value="Envoyer" <%= locals.agendas && agendas.length === 0 ? "disabled" : "" %>>
     </form>
+    <script src="/js/script_rendezvous.js"></script>
 </body>
 </html>
