@@ -83,8 +83,10 @@ export async function creationRendezVousPOST(req, res) {
                 rendezVous.set("finRecurrence", d);
             } else if (req.body.fin_recurrence == "1") {
                 const nb_occur = +req.body.nb_occurence;
-                const add_function = rendezVous.type == 'Regular' ? addDays : (rendezVous.type == 'Monthly' ? addMonths : addYears)
-                rendezVous.set('finRecurrence', add_function(rendezVous.dateDebut, (nb_occur-1) * rendezVous.frequence));
+                const add_function = rendezVous.type == 'Regular' ? addDays : (rendezVous.type == 'Monthly' ? addMonths : addYears);
+                const d = add_function(rendezVous.dateDebut, (nb_occur-1) * rendezVous.frequence);
+                d.setHours(23, 59, 59, 999);
+                rendezVous.set('finRecurrence', d);
             }
         }
         await rendezVous.save();
