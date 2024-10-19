@@ -66,8 +66,8 @@
                 <a class="navbar-brand text-black">Idayari</a>
               </div>
               <div class="d-flex">
-                <a href="/connexion" class="btn btn-primary btn-sm bg-primary me-3 rounded-4">Se Connecter</a>
-                <a href="/inscription" class="btn btn-secondary btn-sm bg-secondary rounded-4">S'inscrire</a>
+                <a href="/connexion" class="btn btn-primary btn-sm bg-primary me-3 rounded-4 text-white">Se Connecter</a>
+                <a href="/inscription" class="btn btn-secondary btn-sm bg-secondary rounded-4 text-white">S'inscrire</a>
               </div>
             </div>
           </nav>
@@ -177,25 +177,27 @@
         </div>
         <div class="mb-8 text-center">
           <h2 class="mb-8 fs-3">Commencez dès aujourd'hui</h2>
-          <a type="button" href="/inscription" class="btn btn-primary bg-primary mb-8">Se lancer</a>
+          <a type="button" href="/inscription" class="btn btn-primary bg-primary mb-8 text-white">Se lancer</a>
         </div>
       </div>
-
 
       <div class="toast-container">
         <div class="toast show position-fixed bottom-0 p-3" role="alert" aria-live="assertive" aria-atomic="true"
           style="right: 30px;">
           <div class="toast-header">
+            <img src="/img/cookies.png" alt="cookies" class="me-3">
             <strong class="me-auto">Cookies</strong>
             <small class="text-body-secondary">just now</small>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
           </div>
           <div class="toast-body">
-            Vous aimez les cookies ? Moi oui ! <br>
-            <button type="button" class="btn btn-primary btn-sm" onclick="cookies(true)"
+            <span class="text-black">Vous aimez les cookies ? Moi oui ! </span>
+            <div class="mt-4">
+              <button type="button" class="btn btn-primary btn-sm text-white" onclick="cookies(true)"
               data-bs-dismiss="toast">Oui</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="cookies(false)"
+            <button type="button" class="btn btn-secondary btn-sm text-white" onclick="cookies(false)"
               data-bs-dismiss="toast">Non</button>
+            </div>
           </div>
         </div>
 
