@@ -5,7 +5,7 @@
     "main": "server.js",
     "scripts": {
         "db": "nodemon database.js",
-        "start": "sass public/css/main.scss public/css/main.css; nodemon server.js"
+        "start": "sass --no-source-map --quiet public/css/main.scss public/css/main.css; nodemon server.js"
     },
     "dependencies": {
         "cookie-parser": "^1.4.7",
