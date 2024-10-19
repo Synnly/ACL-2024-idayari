@@ -11,7 +11,6 @@ function change_recurrent_option(elem) {
 }
 
 function change_fin_recurrence_option(elem) {
-    alert('ok');
     const date_fin = document.getElementById('date_fin_recurrence');
     const nb_occur = document.getElementById('nb_occurence');
     if (elem.value == "0") {

@@ -6,6 +6,12 @@ function isAfterDateDebut(value) {
     }
 }
 
+function isAfterDateDebut2(value) {
+    if (value < this.dateDebut) {
+        throw new Error("La date de fin de récurrence doit être supérieur à la date de début.");
+    }
+}
+
 export default class RendezVous extends Model {
     /**
      * Crée la table RendezVous dans la base de données
@@ -50,7 +56,7 @@ export default class RendezVous extends Model {
             type: DataTypes.DATE,
             allowNull: true,
             validate: {
-                isAfterDateDebut
+                isAfterDateDebut2
             }
         }
     },
