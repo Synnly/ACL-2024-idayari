@@ -131,3 +131,6 @@ dist
 
 package-lock.json
 src/package-lock.json
+
+src/public/css/main.css
+src/public/css/main.css.map
