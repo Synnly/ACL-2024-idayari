@@ -1,6 +1,5 @@
 import User from "../model/User.js";
 import ejs from "ejs";
-import Token from "../model/Token.js";
 
 /**
  * Traite la requête GET sur / .
@@ -9,9 +8,7 @@ import Token from "../model/Token.js";
  * @param res La réponse
  */
 export async function index(req, res) {
-    const valid = await Token.checkValidity(req, res);
-
-    if (valid && res.locals.user) {
+    if (res.locals.user) {
         const user = await User.getById(res.locals.user.id);
         res.locals.agendas = await user.getAgendas();
     }

@@ -2,7 +2,6 @@ import AgendaRendezVous from "../model/AgendaRendezVous.js";
 import {ValidationError} from "sequelize";
 import User from "../model/User.js";
 import RendezVous from "../model/RendezVous.js";
-import Token from "../model/Token.js";
 
 /**
  * Traite la requête GET sur /rendezVous.
@@ -11,9 +10,7 @@ import Token from "../model/Token.js";
  * @param res La réponse
  */
 export async function creationRendezVousGET(req, res) {
-    const valid = await Token.checkValidity(req, res);
-
-    if (valid && res.locals.user) {
+    if (res.locals.user) {
         const user = await User.getById(res.locals.user.id);
         return res.render("rendezVous", { agendas: await user.getMyAgendas() });
     } else {
@@ -28,8 +25,7 @@ export async function creationRendezVousGET(req, res) {
  * @param res La réponse
  */
 export async function creationRendezVousPOST(req, res) {
-    const valid = await Token.checkValidity(req, res);
-    if(!valid || !res.locals.user){
+    if (!res.locals.user) {
         return res.redirect('/')
     }
 

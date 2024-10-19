@@ -1,5 +1,4 @@
 import UserAgendaAccess from "../model/UserAgendaAccess.js";
-import Token from "../model/Token.js";
 import Agenda from "../model/Agenda.js";
 
 /**
@@ -9,8 +8,7 @@ import Agenda from "../model/Agenda.js";
  * @param res La réponse
  */
 export async function creationAgendaGET(req, res) {
-    const valid = await Token.checkValidity(req, res);
-    if (valid && res.locals.user) {
+    if (res.locals.user) {
         return res.render("creerAgenda");
     } else {
         return res.redirect("/");
@@ -24,8 +22,7 @@ export async function creationAgendaGET(req, res) {
  * @param res La réponse
  */
 export async function creationAgendaPOST(req, res) {
-    const valid = await Token.checkValidity(req, res);
-    if(!valid || !res.locals.user){
+    if(!res.locals.user){
         return res.redirect('/')
     }
 
