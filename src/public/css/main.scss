@@ -8,4 +8,8 @@ $black: #1B4965;
 $accent: #3D799C; 
 
 // Then import Bootstrap
-@import "../../node_modules/bootstrap/scss/bootstrap";
+@use "../../node_modules/bootstrap/scss/bootstrap" with (
+    $primary : $primary,
+    $secondary : $secondary,
+    $body-bg : $background-color
+);
