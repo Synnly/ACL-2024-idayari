@@ -6,12 +6,14 @@ function change_recurrent_option(elem) {
         reset(document.getElementById('date_fin_recurrence'));
     } else {
         document.getElementById('freq_number').required = true;
+        change_fin_recurrence_option(document.getElementById('select_fin_recurrence'));
     }
 }
 
 function change_fin_recurrence_option(elem) {
-    date_fin = document.getElementById('date_fin_recurrence');
-    nb_occur = document.getElementById('nb_occurence');
+    alert('ok');
+    const date_fin = document.getElementById('date_fin_recurrence');
+    const nb_occur = document.getElementById('nb_occurence');
     if (elem.value == "0") {
         date_fin.style.display = 'block';
         date_fin.required = true;
