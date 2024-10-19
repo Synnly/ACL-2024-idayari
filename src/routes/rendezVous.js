@@ -78,7 +78,9 @@ export async function creationRendezVousPOST(req, res) {
             // si c'est des semaines, cela revient à 7 jours
             rendezVous.set("frequence", req.body.freq_type == "s" ? 7 * (+req.body.freq_number) : +req.body.freq_number);
             if (req.body.fin_recurrence == "0") {
-                rendezVous.set("finRecurrence", Date.parse(req.body.date_fin_recurrence));
+                const d = new Date(Date.parse(req.body.date_fin_recurrence));
+                d.setHours(23, 59, 59, 999);
+                rendezVous.set("finRecurrence", d);
             } else if (req.body.fin_recurrence == "1") {
                 const nb_occur = +req.body.nb_occurence;
                 const add_function = rendezVous.type == 'Regular' ? addDays : (rendezVous.type == 'Monthly' ? addMonths : addYears)
