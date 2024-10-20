@@ -22,7 +22,10 @@
       <ul>
         <% for (const agenda of locals.agendas) { %>
           <li>
-            <h3><%= agenda.nom %></h3>
+            <h3>
+              <%= agenda.nom %>
+              <button onclick="window.location.href='/agenda/modifier/<%= agenda.id %>'">Modifier</button>
+            </h3>
           <ul>
             <% const rendezVous = await agenda.getRendezVous(); %>
             <% for (const rv of rendezVous) {
