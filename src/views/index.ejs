@@ -20,7 +20,7 @@
     <p>Bienvenue, <%= locals.user.username %>.</p>
     <div>
       <a href="/infos_perso" class="button">Mes informations personnelles</a><br>
-      <a href="/creerAgenda">Créer un agenda</a><br>
+      <button id="ouvreDialogCreationAgenda">Créer un agenda</button><br>
       <a href="/rendezvous/new">Ajouter un rendez-vous</a>
     </div>
     <div>
@@ -56,6 +56,9 @@
           </li>
           <% } %>
       </ul>
+    </div>
+    <div>
+      <%- await include('viewDialogCreationAgenda') %>
     </div>
     <%} else{ %>
       <div class="container-fluid bg-background-color">
@@ -183,6 +186,6 @@
       </div>
         <%} %>
           <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+          <script src="/js/dialogCreationAgenda.js"></script>
 </body>
-
 </html>
