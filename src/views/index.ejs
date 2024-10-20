@@ -14,7 +14,7 @@
 		<p>Bienvenue, <%= locals.user.username %>.</p>
 		<div>
 			<a href="/infos_perso" class="button">Mes informations personnelles</a><br>
-			<a href="/creerAgenda">Créer un agenda</a><br>
+			<button id="ouvreDialogCreationAgenda">Créer un agenda</button><br>
 			<a href="/rendezvous/new">Ajouter un rendez-vous</a>
 		</div>
 		<div>
@@ -66,5 +66,9 @@
       		<a href="/inscription">S'inscrire</a>
     	</div>
     	<%} %>
+      <div>
+        <%- await include('viewDialogCreationAgenda') %>
+      </div>
   </body>
+  <script src="/js/dialogCreationAgenda.js"></script>
 </html>

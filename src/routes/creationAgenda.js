@@ -3,22 +3,7 @@ import Token from "../model/Token.js";
 import Agenda from "../model/Agenda.js";
 
 /**
- * Traite la requête GET sur /creerAgenda.
- * Si l'user est déconnecté, renvoie vers /
- * @param req La requête
- * @param res La réponse
- */
-export async function creationAgendaGET(req, res) {
-    const valid = await Token.checkValidity(req, res);
-    if (valid && res.locals.user) {
-        return res.render("creerAgenda");
-    } else {
-        return res.redirect("/");
-    }
-}
-
-/**
- * Traite la requête POST sur /creerAgenda.
+ * Traite la requête POST sur /agenda/new.
  * Si la creation d'agenda échoue, affiche un message d'erreur, sinon renvoie vers /
  * @param req La requête
  * @param res La réponse
@@ -28,28 +13,25 @@ export async function creationAgendaPOST(req, res) {
     if(!valid || !res.locals.user){
         return res.redirect('/')
     }
-
-    let agenda = null;
+    let errMsg = null;
     try {
-        agenda = await Agenda.create({
+        const agenda = await Agenda.create({
             nom: req.body.nom,
             idOwner: res.locals.user.id
         });
+        try {
+            await UserAgendaAccess.create({
+                idUser: res.locals.user.id,
+                idAgenda: agenda.id
+            })
+        } catch (e){
+            await agenda.destroy();
+            errMsg = "Une erreur inattendue est survenue. Veuillez réessayer plus tard.";
+        }
     } catch (e) {
-        return res.render("creerAgenda", {
-            errMsg: "Une erreur est inattendue survenue. Veuillez réessayer plus tard.",
-        });
+        errMsg = "Une erreur est inattendue survenue. Veuillez réessayer plus tard.";
     }
-    try {
-        await UserAgendaAccess.create({
-            idUser: res.locals.user.id,
-            idAgenda: agenda.id
-        })
-        return res.redirect('/');
-    } catch (e){
-        await agenda.destroy();
-        return res.render("creerAgenda", {
-            errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
-        });
-    }
+    // je prévois de faire des sessions et d'afficher `errMsg`
+    // mais on doit revenir à la page d'accueil
+    res.redirect("/")
 }
