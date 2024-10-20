@@ -67,7 +67,7 @@ function envoyerForm(){
 
     if (dateFin <= dateDeb) {
         const msgErreur = document.createElement('div');
-        msgErreur.id = 'dateError';
+        msgErreur.id = 'dateErreur';
         msgErreur.className = 'text-danger';
         msgErreur.textContent = "La date de fin doit être supérieure à la date de début.";
 
