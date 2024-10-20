@@ -33,7 +33,8 @@
             </h3>
             <ul>
               <% const rendezVous=await agenda.getRendezVous(); %>
-                <% for (const rv of rendezVous) { //Conversion des dates dans un format lisible const dateDeb=new
+                <% for (const rv of rendezVous) { //Conversion des dates dans un format lisible
+                  const dateDeb=new
                   Date(rv.dateDebut); const deb=dateDeb.toLocaleDateString('fr-FR', { year: 'numeric' , month: 'long' ,
                   day: 'numeric' , hour: '2-digit' , minute: '2-digit' }); const dateFin=new Date(rv.dateFin); const
                   fin=dateFin.toLocaleDateString('fr-FR', { year: 'numeric' , month: 'long' , day: 'numeric' ,
