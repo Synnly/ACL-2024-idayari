@@ -1,4 +1,7 @@
 import {DataTypes, Model} from "sequelize";
+import RendezVousSimple from "./RendezVousSimple.js";
+import { addDays, addMonths, addYears, daysDiff, monthDiff, yearDiff} from "../date_utils.js";
+
 
 function isAfterDateDebut(value) {
     if (value < this.dateDebut) {
@@ -66,7 +69,46 @@ export default class RendezVous extends Model {
         return this.dateFin - this.dateDebut;
     }
 
-    isAllDay() {
+    is_all_day() {
         return dateFin.getMilliseconds() == 999;
+    }
+
+    create_rendezVousSimple(debut, fin) {
+        return new RendezVousSimple(this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description);
+    }
+
+    // PAS DU TOUT TESTE
+    get_rendezVous(periodeDebut, periodeFin) {
+        // si le rendezVous est après la période, pas besoin de regarder les récurrents
+        if (this.dateDebut > periodeFin) {
+            return [];
+        }
+        if (this.type == 'Simple') {
+            // s'il y a intersection (la condition sur la date de début est déjà vérifiée plus haut)
+            if (this.dateFin >= periodeDebut) {
+                return [this.create_rendezVousSimple(this.dateDebut, this.dateFin)]
+            }
+            return [];
+        }
+        // oui je pourrais faire des if-else classiques
+        const add_function = this.type == 'Regular' ? addDays : (this.type == 'Monthly' ? addMonths : addYears);
+        const diff_function = this.type == 'Regular' ? daysDiff : (this.type == 'Monthly' ? monthDiff : yearDiff);
+        
+        const res = [];
+        let debut = this.dateDebut;
+        let fin = this.dateFin;
+        // le premier rendez vous récurrent ne rentre pas dans la période, au lieu de parcourir
+        // tous les rendez vous récurrents qui ne rentreraient pas, on skip jusqu'au premier rendez-vous récurrent dans la période
+        if (fin < periodeDebut) {
+            const skip = Math.ceil(diff_function(periodeDebut, fin)/this.frequence);
+            fin = add_function(fin, skip);
+            debut = add_function(debut, skip);
+        }
+        while ((!this.finRecurrence || debut <= this.finRecurrence) && debut < periodeFin) {
+            res.push(this.create_rendezVousSimple(debut, fin));
+            debut = add_function(debut, this.frequence);
+            fin = add_function(fin, this.frequence);
+        }
+        return res;
     }
 }

@@ -3,6 +3,7 @@ import {ValidationError} from "sequelize";
 import User from "../model/User.js";
 import RendezVous from "../model/RendezVous.js";
 import Token from "../model/Token.js";
+import { addDays, addMonths, addYears } from "../date_utils.js";
 
 /**
  * Traite la requête GET sur /rendezVous.
@@ -21,30 +22,6 @@ export async function creationRendezVousGET(req, res) {
     }
 }
 
-function addDays(date, days) {
-    const result = new Date(date.getTime());
-    result.setDate(result.getDate() + days);
-    return result;
-}
-
-// quick addMonth and addYears functions, should use moment.js in the future
-function addMonths(date, months) {
-    const result = new Date(date.getTime());
-    const d = date.getDate();
-    result.setMonth(result.getMonth() + months);
-    if (result.getDate() != d) {
-      result.setDate(0);
-    }
-    return result;
-  }
-
-  function addYears(date, years) {
-    const result = new Date(date.getTime());
-    result.setFullYear(result.getFullYear() + years);
-    return result;
-  }
-
-
 /**
  * Traite la requête POST sur /rendezVous.
  * Si la création du rendez vous a échoué, affiche un message d'erreur, sinon renvoie vers / .
@@ -61,8 +38,9 @@ export async function creationRendezVousPOST(req, res) {
     const agendas = !(req.body.agendas instanceof Object) ? [(+req.body.agendas)] : 
                                                             req.body.agendas.map(n => +n);
     try {
-        const dateDebut = new Date(Date.parse(req.body.dateDebut));
-        const dateFin = new Date(Date.parse(req.body.dateFin));
+        const dateDebut = new Date(req.body.dateDebut);
+        const dateFin = new Date(req.body.dateFin);
+        console.log("aze");
         if (req.body.all_day == "all_day") {
             dateDebut.setHours(0, 0, 0, 0);
             dateFin.setHours(23, 59, 59, 999);
@@ -106,14 +84,14 @@ export async function creationRendezVousPOST(req, res) {
         } catch (e) {
             await rendezVous.destroy();
             rendezVous = null;
-            errMsgs = [e, "Une erreur inattendue est survenue. Veuillez réessayer plus tard."];
+            errMsgs = ["Une erreur inattendue est survenue. Veuillez réessayer plus tard."];
         }
     } catch (e) {
         rendezVous = null;
         if (e instanceof ValidationError) {
             errMsgs = e.errors.map(x => x.message);
         } else {
-            errMsgs = [e, "Une erreur inattendue est survenue. Veuillez réessayer plus tard."];
+            errMsgs = ["Une erreur inattendue est survenue. Veuillez réessayer plus tard."];
         }
     }
     // si rendezVous = null alors on a pas réussi à créer les lignes

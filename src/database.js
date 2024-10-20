@@ -55,7 +55,7 @@ User.hasMany(Token, {as: "myTokens", foreignKey: "idOwner"});
 // await User.sync({alter: true});
 // await Agenda.sync({alter: true});
 // await UserAgendaAccess.sync({force: true});
-await RendezVous.sync({alter: true});
+// await RendezVous.sync({alter: true});
 // await AgendaRendezVous.sync({force: true});
 // await Token.sync({alter: true});
 
