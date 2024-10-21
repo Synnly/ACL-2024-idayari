@@ -34,7 +34,7 @@
                     <% } %>
                 </ul>
                 <div class="w-100 d-flex h-fit-content p-3">
-                    <button class="btn btn-outline-secondary w-100" onclick="window.location.href='/creerAgenda'">
+                    <button class="btn btn-outline-secondary w-100" id="ouvreDialogCreationAgenda">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-plus" viewBox="0 0 16 16">
                             <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7"/>
                             <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
@@ -48,6 +48,7 @@
         </nav>
         <div class="col col-10 p-3 d-flex flex-column">
             <div class="row d-flex flex-grow-1">
+                <% if (locals.agendas) { %>
                 <ul>
                     <% for (const agenda of locals.agendas) { %>
                         <li>
@@ -88,6 +89,7 @@
                         </li>
                     <% } %>
                 </ul>
+                <% } %>
             </div>
             <div class="row d-flex justify-content-end px-3">
                 <button onclick="window.location.href='/rendezVous/new'" class="btn btn-outline-secondary px-3 py-2 text-center w-fit-content">
@@ -107,5 +109,9 @@
         <a href="/inscription">S'inscrire</a>
     </div>
 <%} %>
+    <div>
+        <%- await include('viewDialogCreationAgenda') %>
+    </div>
 </body>
+    <script src="/js/dialogCreationAgenda.js"></script>
 </html>
