@@ -19,8 +19,8 @@ function toggleAll(group, allButton){
     else{
         button.classList.add("active");
         for(let child of node.children){
-            if(child.classList.contains('active')){
-                child.classList.remove('active');
+            if(!child.classList.contains('active')){
+                child.classList.add('active');
             }
         }
     }
