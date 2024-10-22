@@ -26,8 +26,18 @@ export async function modifierAgendaGET(req, res) {
  */
 export async function modifierAgendaPOST(req, res) {
     if (res.locals.user) {
-        for(let id in req.body){
-            await Agenda.update({nom: req.body[id]}, {where: {id: id}})
+        const user = await User.getById(res.locals.user.id);
+        const myagendas = await user.getMyAgendas();
+        let agendas = {};
+
+        for(let agenda of myagendas){   // {idAgenda : nomAgenda}
+            agendas[agenda.dataValues.id] = agenda.dataValues.nom;
+        }
+
+        for(let id in req.body){    // Si nom modifié, on fait une requête
+            if(agendas[id] !== req.body[id]) {
+                await Agenda.update({nom: req.body[id]}, {where: {id: id}})
+            }
         }
 
         return res.redirect('/modifierAgendas');
