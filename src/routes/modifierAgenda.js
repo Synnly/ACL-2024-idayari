@@ -1,5 +1,6 @@
 import User from "../model/User.js";
 import Agenda from "../model/Agenda.js";
+import UserAgendaAccess from "../model/UserAgendaAccess.js";
 
 /**
  * Traite la requête GET sur /modifierAgendas.
@@ -43,5 +44,18 @@ export async function modifierAgendaPOST(req, res) {
         return res.redirect('/modifierAgendas');
     } else {
         return res.redirect('/');
+    }
+}
+
+export async function supprimerAgendaGET(req, res){
+    if(res.locals.user){
+        const agenda = await Agenda.findOne({where: {id: req.params.id, idOwner: res.locals.user.id}})
+        if(agenda){
+            await agenda.destroy();
+        }
+        res.redirect('/modifierAgendas');
+    }
+    else {
+        res.redirect('/');
     }
 }
