@@ -1,0 +1,23 @@
+.w-fit-content{
+    width: fit-content;
+}
+
+.w-max-content{
+    width: max-content;
+}
+
+.h-fit-content{
+    height: fit-content;
+}
+
+.h-max-content{
+    height: max-content;
+}
+
+.fill-height {
+    min-height: max-content;
+}
+
+.logo {
+    height: 36px;
+}
