@@ -1,6 +1,4 @@
-
-
-function creerModale(titre, lieu, description, dateDebut, dateFin) {
+function creerModale(titre, lieu, description, dateDebut, dateFin, id) {
     const modaleHTML = `
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -10,28 +8,31 @@ function creerModale(titre, lieu, description, dateDebut, dateFin) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="formModifRDV" action="/" method="POST">
+                      <input type="hidden" id="idRDV" value="`+ id +`" name="idRDV"> 
                       <div class="mb-3">
                         <label for="titreRDV" class="form-label">Titre</label>
-                        <input type="text" class="form-control" id="titreRDV" value="` + titre + `">
+                        <input type="text" class="form-control" id="titreRDV" value="` + titre + `" name="titre" required>
+                        <div id="titreHelp" class="form-text">Requis!</div>
                       </div>
                       <div class="mb-3">
                         <label for="lieuRDV" class="form-label">Lieu</label>
-                        <input type="text" class="form-control" id="lieuRDV" value="` + lieu + `">
+                        <input type="text" class="form-control" id="lieuRDV" value="` + lieu + `" name="lieu">
                       </div>
                       <div class="mb-3">
                         <label for="descriptionRDV" class="form-label">Description</label>
-                          <textarea class="form-control" id="descriptionRDV" rows="3"> ` + description +`</textarea>
+                          <textarea class="form-control" id="descriptionRDV" rows="3" name="description"> ` + description +`</textarea>
                       </div>
                       <div class="mb-3">
-                        <label for="dateDebRDV" class="form-label">Lieu</label>
-                        <input type="date" class="form-control" id="dateDebRDV" value="` + dateDebut.toISOString().split('T')[0]+ `">
+                        <label for="dateDebRDV" class="form-label">Début</label>
+                        <input type="datetime-local" class="form-control" id="dateDebRDV" value="` + dateDebut.toISOString().slice(0, 16) + `" name="dateDebut" required>
+                        <div id="debHelp" class="form-text">Requis!</div>
                       </div>
                       <div class="mb-3">
-                        <label for="dateFinRDV" class="form-label">Lieu</label>
-                        <input type="date" class="form-control" id="dateFinRDV" value="` + dateFin.toISOString().split('T')[0]+ `">
+                        <label for="dateFinRDV" class="form-label">Fin</label>
+                        <input type="datetime-local" class="form-control" id="dateFinRDV" value="` + dateFin.toISOString().slice(0, 16) + `" name="dateFin" required>
+                        <div id="finHelp" class="form-text">Requis!</div>
                       </div>
-                      
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -49,28 +50,64 @@ function creerModale(titre, lieu, description, dateDebut, dateFin) {
     const vraieModale = new bootstrap.Modal(fausseModale);
 
     vraieModale.show();
-
 }
 
-function envoyerForm(){
-    const dateDeb = new Date(document.getElementById('dateDebRDV').value);
-    const dateFin = new Date(document.getElementById('dateFinRDV').value);
+function envoyerForm() {
+    event.preventDefault();
+    const titreInput = document.getElementById('titreRDV');
+    const dateDebInput = document.getElementById('dateDebRDV');
+    const dateFinInput = document.getElementById('dateFinRDV');
+
+    const titreHelp = document.getElementById("titreHelp");
+    const debHelp = document.getElementById("debHelp");
+    const finHelp = document.getElementById("finHelp");
+
+    //Clear des anciennes erreurs
+    titreHelp.classList.remove("text-danger");
+    debHelp.classList.remove("text-danger");
+    finHelp.classList.remove("text-danger");
 
     const msgErreur = document.getElementById('dateErreur');
     if (msgErreur) {
         msgErreur.remove();
     }
 
-    if (dateFin <= dateDeb) {
+    const dateDeb = new Date(dateDebInput.value);
+    const dateFin = new Date(dateFinInput.value);
+
+    let isValid = true;
+
+    //Vérification des champs obligatoires
+    if (titreInput.value.trim() === '') {
+        titreHelp.classList.add("text-danger");
+        isValid = false;
+    }
+
+    if (dateDebInput.value === '') {
+        debHelp.classList.add("text-danger");
+        isValid = false;
+    }
+
+    if (dateFinInput.value === '') {
+        finHelp.classList.add("text-danger");
+        isValid = false;
+    }
+
+    //Vérification des dates
+    if (isValid && dateFin <= dateDeb) {
         const msgErreur = document.createElement('div');
         msgErreur.id = 'dateErreur';
         msgErreur.className = 'text-danger';
         msgErreur.textContent = "La date de fin doit être supérieure à la date de début.";
 
-        document.getElementById('dateFinRDV').parentNode.appendChild(msgErreur);
+        dateFinInput.parentNode.appendChild(msgErreur);
         return;
     }
 
+    if (isValid) {
+        console.log(document.getElementById("formModifRDV"));
+        document.getElementById("formModifRDV").submit();
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function() {

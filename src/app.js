@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
-import {index} from "./routes/index.js";
+import {index, modifierRendezVousPOST} from "./routes/index.js";
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST} from "./routes/creationAgenda.js";
@@ -24,6 +24,7 @@ app
     .use(express.json())
     .use(express.urlencoded({ extended: false }))
     .get("/", index)
+    .post("/",modifierRendezVousPOST)
 
     .get("/deconnexion", deconnexion)
 
