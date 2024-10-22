@@ -1,6 +1,5 @@
 import {saveAuthentificationCookie} from "../token.js";
 import User from "../model/User.js";
-import Token from "../model/Token.js";
 
 /**
  * Traite la requête GET sur /connexion.
@@ -40,12 +39,11 @@ export async function connexionPOST(req, res) {
 }
 
 /**
- * Déconnecte l'utilisateur et supprime le cookie et le token de la bdd, puis renvoie vers /
+ * Déconnecte l'utilisateur et supprime le cookie puis renvoie vers /
  * @param req La requête
  * @param res La réponse
  */
-export async function deconnexion(req, res) {
-    await Token.deleteToken(req.cookies.accessToken);
+export function deconnexion(req, res) {
     res.clearCookie('accessToken');
     return res.redirect('/');
 }
