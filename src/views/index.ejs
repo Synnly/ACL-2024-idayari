@@ -8,8 +8,7 @@
   	<meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/css/main.css" rel="stylesheet">
 	<link href="/css/index.css" rel="stylesheet">
-    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/index.js"></script>
+	<script src="/js/index.js"></script>
 </head>
 
 <body class="container flex-column d-flex min-vh-100 min-vw-100 m-0 p-0" data-bs-theme="light">
@@ -106,6 +105,7 @@
 
         </div>
     </div>
+	<%- await include('viewDialogCreationAgenda.ejs') %>
 		<script src="/js/dialogCreationAgenda.js"></script>
     <%} else{ %>
       	<div class="container-fluid bg-background-color">
