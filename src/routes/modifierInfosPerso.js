@@ -1,6 +1,5 @@
 import User from "../model/User.js";
 import {saveAuthentificationCookie} from "../token.js";
-import Token from "../model/Token.js";
 
 /**
  * Affiche le template des informations personnelles de l'utilisateur
@@ -10,9 +9,7 @@ import Token from "../model/Token.js";
  * @returns {void} retourne rien, fais un rendu d'un template.
  */
 export async function modifierInfosPersoGET(req, res) {
-	const valid = await Token.checkValidity(req, res);
-
-	if (valid && res.locals.user) {
+	if (res.locals.user) {
 		return res.render('infos_perso');
 	} else {
 		return res.redirect('connexion');
@@ -30,8 +27,7 @@ export async function modifierInfosPersoGET(req, res) {
  * sinon si tout est bon on effectue les modifications dans la bdd est on le prévient
  */
 export async function modifierInfosPersoPOST(req, res) {
-	const valid = await Token.checkValidity(req, res);
-	if (valid && res.locals.user) {
+	if (res.locals.user) {
 		try {
 			let user = null;
 			if(req.body.user_username_change_info) {
