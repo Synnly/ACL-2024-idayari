@@ -8,18 +8,18 @@
 </head>
 
 <body>
-    <h1>Modification de <%= agenda.nom %></h1>
+    <h1>Modification des agendas</h1>
     <% if(locals.errMsg) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
     <div>
         <form method="post">
-            <label for="agenda_name">Nom</label>
-            <input id="agenda_name" type="text" name="agenda_name" value="<%= agenda.nom %>">
-
+            <% for (agenda of agendas) {%>
+            <label for="<%= agenda.id %>"><%= agenda.nom %> : </label>
+                <input id="<%= agenda.id %>" type="text" name="<%= agenda.id %>" value="<%= agenda.nom %>"><br>
+            <% } %>
             <button type="submit">Envoyer</button>
-            <button type="button" onclick="window.location.href = '/'">
-                Annuler
-            </button>
+            <button type="button" onclick="window.location.href = '/'">Annuler</button>
         </form>
+
     </div>
 </body>
 

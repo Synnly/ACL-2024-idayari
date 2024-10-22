@@ -18,13 +18,14 @@
       <a href="/rendezvous/new">Ajouter un rendez-vous</a>
     </div>
     <div>
-      <h2>Vos agendas</h2>
+      <h2>Vos agendas
+          <button onclick="window.location.href='/modifierAgendas'>Modifier</button>
+      </h2>
       <ul>
         <% for (const agenda of locals.agendas) { %>
           <li>
             <h3>
               <%= agenda.nom %>
-              <button onclick="window.location.href='/agenda/modifier/<%= agenda.id %>'">Modifier</button>
             </h3>
           <ul>
             <% const rendezVous = await agenda.getRendezVous(); %>

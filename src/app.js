@@ -36,8 +36,8 @@ app
 
     .post("/agenda/new", creationAgendaPOST)
 
-    .get('/agenda/modifier/:agendaId', modifierAgendaGET)
-    .post('/agenda/modifier/:agendaId', modifierAgendaPOST)
+    .get('/modifierAgendas', modifierAgendaGET)
+    .post('/modifierAgendas', modifierAgendaPOST)
 
     .get("/rendezvous/new", creationRendezVousGET)
     .post("/rendezvous/new", creationRendezVousPOST)
