@@ -46,7 +46,7 @@
 							minute: '2-digit'
 						});
 						%>
-						<li onClick="creerModale(rv.id)"><%= rv.titre %> | Du <%= deb %> au <%= fin %>
+						<li onClick="creerModale('<%= rv.titre.replace(/'/g, "\\'") %>', '<%= rv.lieu.replace(/'/g, "\\'") %>', '<%= rv.description.replace(/'/g, "\\'") %>', new Date('<%= rv.dateDebut.toISOString() %>'), new Date('<%= rv.dateFin.toISOString() %>'))">							<%= rv.titre %> | Du <%= deb %> au <%= fin %>
 							<% if (rv.lieu && rv.lieu.trim() !== "") { %>
 							| à : <%= rv.lieu %>
 							<% } %>
@@ -72,8 +72,8 @@
 
       </div>
   </body>
-
-  	<script src="/js/dialogCreationAgenda.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+	<script src="/js/dialogCreationAgenda.js"></script>
 	<script src="/js/modifRDV.js"></script>
 
 </html>

@@ -1,8 +1,6 @@
-import RandezVous from "../../model/RendezVous.js";
 
-async function creerModale(id) {
-    const rdv = await RandezVous.getById(id);
 
+function creerModale(titre, lieu, description, dateDebut, dateFin) {
     const modaleHTML = `
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -15,27 +13,25 @@ async function creerModale(id) {
                     <form>
                       <div class="mb-3">
                         <label for="titreRDV" class="form-label">Titre</label>
-                        <input type="text" class="form-control" id="titreRDV" ` + rdv.titre + `>
+                        <input type="text" class="form-control" id="titreRDV" value="` + titre + `">
                       </div>
                       <div class="mb-3">
                         <label for="lieuRDV" class="form-label">Lieu</label>
-                        <input type="text" class="form-control" id="lieuRDV" ` + rdv.lieu + `>
+                        <input type="text" class="form-control" id="lieuRDV" value="` + lieu + `">
                       </div>
                       <div class="mb-3">
                         <label for="descriptionRDV" class="form-label">Description</label>
-                          <textarea class="form-control" id="descriptionRDV" rows="3"> ` + rdv.description +`</textarea>
+                          <textarea class="form-control" id="descriptionRDV" rows="3"> ` + description +`</textarea>
                       </div>
                       <div class="mb-3">
                         <label for="dateDebRDV" class="form-label">Lieu</label>
-                        <input type="date" class="form-control" id="dateDebRDV" ` + rdv.dateDebut.toISOString().split('T')[0]+ `>
+                        <input type="date" class="form-control" id="dateDebRDV" value="` + dateDebut.toISOString().split('T')[0]+ `">
                       </div>
                       <div class="mb-3">
                         <label for="dateFinRDV" class="form-label">Lieu</label>
-                        <input type="date" class="form-control" id="dateFinRDV" ` + rdv.dateFin.toISOString().split('T')[0]+ `>
+                        <input type="date" class="form-control" id="dateFinRDV" value="` + dateFin.toISOString().split('T')[0]+ `">
                       </div>
                       
-                      
-                      <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -79,7 +75,7 @@ function envoyerForm(){
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    // Suppression des modales lors de la fermeture. J'ai jamais fais sans JQuery inchallah ça marche
+    // Suppression des modales lors de la fermeture.
     document.addEventListener('hidden.bs.modal', function(event) {
         const modale = event.target;
 
