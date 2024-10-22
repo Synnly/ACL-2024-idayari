@@ -14,7 +14,7 @@ import {modifierAgendaGET, modifierAgendaPOST} from './routes/modifierAgenda.js'
 
 
 export const app = express();
-
+app.use('/bootstrap', express.static(fileURLToPath(new URL('./node_modules/bootstrap/dist', import.meta.url))));
 app.set('views', fileURLToPath(new URL('./views', import.meta.url)));
 app.set('view engine', 'ejs');
 

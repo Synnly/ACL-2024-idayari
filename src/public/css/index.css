@@ -21,3 +21,44 @@
 .logo {
     height: 36px;
 }
+
+.s-32 {
+    width: 32px;
+    height: 32px;
+}
+
+.s-x0-8 {
+    width: 70%;
+    height: auto;
+}
+
+@media (max-width : 768px){
+    .s-x0-8 {
+        width: 100%;
+        height: auto;
+    }
+}
+
+.top-25 {
+    top: 10%;
+}
+
+.fs-7 {
+    font-size: 14px;
+}
+
+.mb-8 {
+    margin-bottom: 32px;
+}
+
+.card-custom {
+    width: 22rem;
+    height: fit-content; 
+    border: 0; 
+    background-color: transparent;
+}
+
+.my-8 {
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
