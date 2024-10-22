@@ -7,9 +7,10 @@ import { authenticate } from "./token.js";
 import {index} from "./routes/index.js";
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
-import {creationAgendaGET, creationAgendaPOST} from "./routes/creationAgenda.js";
+import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
+
 
 export const app = express();
 
@@ -33,8 +34,7 @@ app
     .get("/inscription", inscriptionGET)
     .post("/inscription", inscriptionPOST)
 
-    .get("/creerAgenda", creationAgendaGET)
-    .post("/creerAgenda", creationAgendaPOST)
+    .post("/agenda/new", creationAgendaPOST)
 
     .get("/rendezvous/new", creationRendezVousGET)
     .post("/rendezvous/new", creationRendezVousPOST)
