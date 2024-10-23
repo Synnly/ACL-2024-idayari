@@ -1,26 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Connexion</title>
-    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-  </head>
-  <body>
-    <body>
-      <h3>Connexion</h3>
-        <form method="post">
-            <label for="username">Nom d'utilisateur</label>
-            <input id="username" type="text" name="username" required/><br />
-    
-            <label for="password">Mot de passe</label>
-            <input id="password" type="password" name="password" required />
-            <br>
-    
-            <input type="submit" value="Envoyer" id="connexionSubmit" />
-          </form>
-        <% if (locals.errMsg) { %>
-            <% "<p>" %><%= errMsg %><% "</p>" %>
-            <% }%>
 
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Connexion</title>
+  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+  <div class="container-fluid">
+    
+  
+    <div class="row">
+      <div class="col-12 col-md-5 d-flex justify-content-center align-items-center flex-column my-5">
+        <h3 class="text-center">Connexion</h3>
+        <h4 class="fs-6 text-center fw-light">Connectez-vous pour accéder aux fonctionnalités.</h4>
+
+        <form method="post" class="w-75 px-5">
+          <div class="my-5">
+            <label for="username">Nom d'utilisateur</label>
+            <input id="username" type="text" name="username"
+              class="form-control border-0 border-bottom rounded-0 border-black" placeholder="Joe Dohn" required />
+          </div>
+
+          <div class="my-5">
+            <label for="password">Mot de passe</label>
+            <div class="position-relative">
+              <input id="password" type="password" name="password"
+                class="form-control border-0 border-bottom rounded-0 border-black pe-5" placeholder="********"
+                required />
+              <img src="/img/oeil.png" alt="show password"
+                class="position-absolute top-50 translate-middle-y end-0 me-2" id="togglePassword"
+                style="width: 24px; cursor: pointer;">
+            </div>
+          </div>
+          <% if (locals.errMsg) { %>
+            <div class="alert alert-danger alert-dismissible fade show w-100" role="alert" style="z-index: 1050;">
+              <%= errMsg %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% } %>
+          <div class="text-center my-5 w-100">
+            <input type="submit" value="Envoyer" id="connexionSubmit" class="btn btn-primary text-white w-100" />
+          </div>
+        </form>
+        <div class="text-center">
+          Vous n’avez pas un compte ? <a href="/inscription" class="text-primary">Inscrivez-vous !</a>
+        </div>
+      </div>
+
+      <div
+        class="d-none d-md-flex col-md col-md-7 bg-primary min-vh-100 d-flex justify-content-center align-items-center flex-column">
+        <img src="/img/connexion_1.svg" alt="welcome back" class="w-75 img-fluid mt-5">
+        <h1 class="text-white fs-1">Bon retour parmis nous !</h1>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/connexion.js"></script>
+
+</body>
+
 </html>
