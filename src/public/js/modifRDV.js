@@ -46,6 +46,7 @@ function creerModale(titre, lieu, description, dateDebut, dateFin, id) {
 
     document.body.insertAdjacentHTML('beforeend', modaleHTML);
 
+    //Création et affichage d'une modale Bootstrap
     const fausseModale = document.getElementById('staticBackdrop');
     const vraieModale = new bootstrap.Modal(fausseModale);
 
@@ -105,7 +106,6 @@ function envoyerForm() {
     }
 
     if (isValid) {
-        console.log(document.getElementById("formModifRDV"));
         document.getElementById("formModifRDV").submit();
     }
 }

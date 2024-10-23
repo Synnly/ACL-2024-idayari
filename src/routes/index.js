@@ -25,15 +25,14 @@ export async function modifierRendezVousPOST(req, res) {
     console.log(req.body);
     if (res.locals.user) {
         try {
-
+            //Récupération des champs du form
             const { idRDV, titre, lieu, description, dateDebut, dateFin } = req.body;
 
-            console.log(idRDV,titre,lieu,description,dateDebut,dateFin);
-
+            //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
 
             if (!rdvToUpdate) {
-                return res.status(404).json({ message: 'Rendezvous not found' });
+                return res.status(404).json({ message: 'Rendez-vous introuvable' });
             }
 
             rdvToUpdate.titre = titre;
@@ -46,7 +45,7 @@ export async function modifierRendezVousPOST(req, res) {
 
             return res.redirect('/');
         } catch (error) {
-            console.error('Error updating rendezvous:', error);
+            console.error('Erreur lors de la modification du rdv:', error);
             return res.status(500).json({ message: "Une erreur s'est produite" });
         }
     } else {
