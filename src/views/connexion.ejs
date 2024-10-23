@@ -12,13 +12,8 @@
 
 <body>
   <div class="container-fluid">
-    <% if (locals.errMsg) { %>
-      <div class="alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x w-100" role="alert" style="z-index: 1050;">
-        <%= errMsg %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    <% } %>
     
+  
     <div class="row">
       <div class="col-12 col-md-5 d-flex justify-content-center align-items-center flex-column my-5">
         <h3 class="text-center">Connexion</h3>
@@ -42,7 +37,12 @@
                 style="width: 24px; cursor: pointer;">
             </div>
           </div>
-
+          <% if (locals.errMsg) { %>
+            <div class="alert alert-danger alert-dismissible fade show w-100" role="alert" style="z-index: 1050;">
+              <%= errMsg %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% } %>
           <div class="text-center my-5 w-100">
             <input type="submit" value="Envoyer" id="connexionSubmit" class="btn btn-primary text-white w-100" />
           </div>
