@@ -1,0 +1,15 @@
+// Variable overrides first
+$primary: #5FA8D3; 
+$secondary: #62B6CB; 
+$background-color: #F0F9FF; 
+$text-color: #091720; 
+$info: #CAE9FF; 
+$black: #1B4965; 
+$accent: #3D799C; 
+
+// Then import Bootstrap
+@use "../../node_modules/bootstrap/scss/bootstrap" with (
+    $primary : $primary,
+    $secondary : $secondary,
+    $body-bg : $background-color
+);

@@ -15,7 +15,7 @@
         <form method="post">
             <% for (agenda of agendas) {%>
             <label for="<%= agenda.id %>"><%= agenda.nom %> : </label>
-                <input id="<%= agenda.id %>" type="text" name="<%= agenda.id %>" value="<%= agenda.nom %>">
+                <input id="<%= agenda.id %>" type="text" name="<%= agenda.id %>" value="<%= agenda.nom %>" required>
                 <button onclick="confirmerSuppression(<%= agenda.id %>, '<%= agenda.nom %>')">Supprimer</button>
                 <br>
             <% } %>

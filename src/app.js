@@ -12,8 +12,9 @@ import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaGET} from './routes/modifierAgenda.js';
 
-export const app = express();
 
+export const app = express();
+app.use('/bootstrap', express.static(fileURLToPath(new URL('./node_modules/bootstrap/dist', import.meta.url))));
 app.set('views', fileURLToPath(new URL('./views', import.meta.url)));
 app.set('view engine', 'ejs');
 
