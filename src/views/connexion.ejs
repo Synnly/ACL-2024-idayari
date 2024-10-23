@@ -9,8 +9,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/css/main.css">
 </head>
+
 <body>
   <div class="container-fluid">
+    <% if (locals.errMsg) { %>
+      <div class="alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x w-100" role="alert" style="z-index: 1050;">
+        <%= errMsg %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% } %>
+    
     <div class="row">
       <div class="col-12 col-md-5 d-flex justify-content-center align-items-center flex-column my-5">
         <h3 class="text-center">Connexion</h3>
@@ -30,7 +38,8 @@
                 class="form-control border-0 border-bottom rounded-0 border-black pe-5" placeholder="********"
                 required />
               <img src="/img/oeil.png" alt="show password"
-                class="position-absolute top-50 translate-middle-y end-0 me-2" id="togglePassword" style="width: 24px; cursor: pointer;">
+                class="position-absolute top-50 translate-middle-y end-0 me-2" id="togglePassword"
+                style="width: 24px; cursor: pointer;">
             </div>
           </div>
 
@@ -51,13 +60,10 @@
     </div>
   </div>
 
-  <% if (locals.errMsg) { %>
-    <% "<p>" %>
-      <%= errMsg %>
-        <% "</p>" %>
-          <% }%>
-            <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
-            <script src="/js/connexion.js"></script>
+
+
+  <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/connexion.js"></script>
 
 </body>
 
