@@ -7,7 +7,7 @@
   	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
   	<meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/css/main.css" rel="stylesheet">
-	<link href="/css/index.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
 	<script src="/js/index.js"></script>
 </head>
 
@@ -26,7 +26,9 @@
     <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1">
         <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
             <div class="w-100 h-fit-content">
-                <div class="nav-link text-secondary px-3 py-2">Vos agendas</div>
+                <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center"><span>Vos agendas </span>
+					          <button onclick="window.location.href='/modifierAgendas'" class="btn btn-sm btn-secondary text-white">Modifier</button>
+				</div>
                 <ul class="list-group px-3 py-1">
                     <li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
                 </ul>
@@ -174,7 +176,7 @@
                   			<div class="accordion-body">
                     			<strong>Idayari</strong> est une application complète pour la gestion de vos agendas. Avec
                     			<strong>Idayari</strong>, vous pouvez
-                    			<u>créer</u>, <u>organiser</u> et organiser <u>organiser</u> vos agendas en fonction de vos besoins.
+                    			<u>créer</u> et <u>organiser</u> vos agendas en fonction de vos besoins.
                     			Vous avez aussi la
                     			possibilité d'<u>importer</u> et d'<u>exporter</u> vos agendas au format JSON, facilitant
                     			l'intégration avec
