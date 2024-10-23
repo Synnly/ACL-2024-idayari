@@ -1,6 +1,6 @@
 import User from "../model/User.js";
 import Agenda from "../model/Agenda.js";
-import UserAgendaAccess from "../model/UserAgendaAccess.js";
+import ejs from "ejs";
 
 /**
  * Traite la requête GET sur /modifierAgendas.
@@ -13,7 +13,8 @@ export async function modifierAgendaGET(req, res) {
         const user = await User.findByPk(res.locals.user.id);
         const agendas = await user.getMyAgendas();
 
-        return res.render('modifierAgenda', {agendas: agendas});
+        const html = res.render("modifierAgenda.ejs", {agendas:agendas});
+        return html;
     } else {
         return res.redirect('/');
     }
