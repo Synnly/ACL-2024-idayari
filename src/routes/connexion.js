@@ -1,5 +1,7 @@
 import {saveAuthentificationCookie} from "../token.js";
 import User from "../model/User.js";
+import { tabAgenda } from "../token.js";
+
 
 /**
  * Traite la requête GET sur /connexion.
@@ -45,5 +47,6 @@ export async function connexionPOST(req, res) {
  */
 export function deconnexion(req, res) {
     res.clearCookie('accessToken');
+    tabAgenda.length = 0; //On vide le tableau d'agenda sélectionné
     return res.redirect('/');
 }

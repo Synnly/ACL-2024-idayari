@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import sequelize from "./database.js";
+
+export const tabAgenda = []; //Permet de gérer la sélection des agendas (dera fait avec données session plus tard)
+
 dotenv.config(); // Récupère et parse le fichier .env pour récupérer clé SECRET
 
 /**
@@ -16,6 +19,7 @@ export function authenticate(req, res, next) {
         res.locals.user = user;
         //IMPORTANT, à partir de maintenant, si res.locals.users est défini alors l'utilisateur est authentifié
     } catch (err) {
+        tabAgenda.length = 0; //On vide le tableau d'agenda sélectionné
         //On peut au gérer ici les autres cas de déconnexion
         if (err.name === "TokenExpiredError") {
           res.clearCookie("accessToken");

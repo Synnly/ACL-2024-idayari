@@ -11,6 +11,8 @@ import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 import {modifierAgendaGET, modifierAgendaPOST} from './routes/modifierAgenda.js';
+import { calendarGet, calendarGetData } from "./routes/calendar.js";
+
 
 
 export const app = express();
@@ -45,6 +47,9 @@ app
 
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
+
+    .get("/calendar/", calendarGet)
+    .get("/calendar-data/", calendarGetData)
 
     .use((req, res, next) => next(createError(404)))
     .use((err, req, res, next) => {
