@@ -1,5 +1,6 @@
 import User from "../model/User.js";
 import Agenda from "../model/Agenda.js";
+import ejs from "ejs";
 
 /**
  * Traite la requête GET sur /modifierAgendas.
@@ -12,7 +13,8 @@ export async function modifierAgendaGET(req, res) {
         const user = await User.findByPk(res.locals.user.id);
         const agendas = await user.getMyAgendas();
 
-        return res.render('modifierAgenda', {agendas: agendas});
+        const html = res.render("modifierAgenda.ejs", {agendas:agendas});
+        return html;
     } else {
         return res.redirect('/');
     }
@@ -43,5 +45,18 @@ export async function modifierAgendaPOST(req, res) {
         return res.redirect('/modifierAgendas');
     } else {
         return res.redirect('/');
+    }
+}
+
+export async function supprimerAgendaGET(req, res){
+    if(res.locals.user){
+        const agenda = await Agenda.findOne({where: {id: req.params.id, idOwner: res.locals.user.id}})
+        if(agenda){
+            await agenda.destroy();
+        }
+        res.redirect('/modifierAgendas');
+    }
+    else {
+        res.redirect('/');
     }
 }

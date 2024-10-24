@@ -10,7 +10,7 @@ import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
-import {modifierAgendaGET, modifierAgendaPOST} from './routes/modifierAgenda.js';
+import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaGET} from './routes/modifierAgenda.js';
 
 
 export const app = express();
@@ -39,6 +39,8 @@ app
 
     .get('/modifierAgendas', modifierAgendaGET)
     .post('/modifierAgendas', modifierAgendaPOST)
+
+    .get('/supprimerAgenda/:id', supprimerAgendaGET)
 
     .get("/rendezvous/new", creationRendezVousGET)
     .post("/rendezvous/new", creationRendezVousPOST)

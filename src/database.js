@@ -12,7 +12,7 @@ const dbname = "testIdayari";
 const dialect = "mysql";
 export const uri = `${dialect}://${user}:${pass}@${host}/${dbname}`;
 
-export const sequelize = new Sequelize(uri, { logging: false });
+export const sequelize = new Sequelize(uri, { logging: true });
 
 await sequelize.authenticate(); // Si connexion impossible le script quitte ici
 
