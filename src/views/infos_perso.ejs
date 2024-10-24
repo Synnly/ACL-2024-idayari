@@ -5,9 +5,14 @@
     <meta charset="UTF-8">
     <title>Informations personnelles</title>
     <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
 </head>
 
 <body>
+    <%- include('partials/header.ejs') %>
     <a href="/" >Retour à la page d'accueil</a>
     <h1>Informations personnelles</h1>
     <% if(locals.errMsg) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
@@ -57,6 +62,7 @@
         </div>
     </div>
     <script src="/js/infos_perso.js"></script>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
