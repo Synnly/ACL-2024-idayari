@@ -25,7 +25,6 @@
         <form class="row needs-validation w-100" method="post" novalidate>
             <% for (agenda of agendas) {%>
                 <div class="mb-3 w-100">
-                    <label class="form-label" for="<%= agenda.id %>"><%= agenda.nom %></label>
                     <div class="d-flex">
                         <button class="btn btn-danger me-2 h-fit-content" onclick="confirmerSuppression(<%= agenda.id %>, '<%= agenda.nom %>')">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
@@ -34,7 +33,7 @@
                                 </svg>
                         </button>
                         <div class="d-flex flex-column flex-grow-1">
-                            <input class="form-control" id="<%= agenda.id %>" type="text" name="<%= agenda.id %>" value="<%= agenda.nom %>" required>
+                            <input class="form-control" id="<%= agenda.id %>" type="text" name="<%= agenda.id %>" placeholder="<%= agenda.nom %>" value="<%= agenda.nom %>" required>
                             <div class="invalid-feedback">
                                 Veuillez entrer un nom
                             </div>
