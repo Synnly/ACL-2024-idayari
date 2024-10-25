@@ -1,9 +1,11 @@
-import { afficher,afficherFullcalendar /*loadCalendar*/ } from "./calendar_affichage.js";
+import { afficher  } from "./calendar_affichage.js";
 import { ajouterEcouteurs } from "./calendar_ecouteurs.js";
 import { Calendar } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list';
+
+//Récupération de la balise contenant le calendar
 const elementCalendrier = document.getElementById('calendar');
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
@@ -33,6 +35,29 @@ export class AgendaManager {
             month: null,
             year: null,
         };
+         this.calendrier = new Calendar(elementCalendrier,{
+            //Appel des différents composants composants
+            plugins : [dayGridPlugin,timeGridPlugin,listPlugin],
+            locale:'fr',
+            //Attention listWeek potentielleemnet à changer en list
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'} ,
+                buttonText: {
+                    today:'Aujourd\'hui',
+                    month:'Mois',
+                    week:'Semaine',
+                    list:'Liste',
+                    day:"Jour"
+                },
+
+            //  events: C'est ici qu'on insère les rdvs
+        
+        
+        
+        });
+  
     }
     /*Au premier accès à la page calendar on fait une première requête 
     pour obtenir les données de bases de l'utilisateur*/
@@ -52,6 +77,19 @@ export class AgendaManager {
             }
            afficher();
             ajouterEcouteurs(data);
+            this.calendrier.removeAllEvents();
+            let rdvs = rdvMapping(data.rdvs);
+            this.calendrier.addEventSource(rdvs);
+            
+
+            this.calendrier.render();
+    
+            // Ajout d'écouteurs (prev,next : Changements de mois)
+            /*Passer this.updateYear directement ne fonctionne pas car la fonction est exécutée directement */
+            document.querySelector('.fc-prev-button').addEventListener('click', () => this.updateDate());
+
+            document.querySelector('.fc-next-button').addEventListener('click', () => this.updateDate());
+        
         } catch (error) {
             console.log("Aucune donnée", error);
         }
@@ -64,39 +102,25 @@ export class AgendaManager {
         this.data.user = newdata.user;
         this.data.month = newdata.month;
         this.data.year = newdata.year;
-        console.log('who da fuck is this guy',newdata.rdvs);
+        // let rdvs = rdvMapping(newdata.rdvs);
+        ///afficherFullcalendar(rdvs);
+        afficher(newdata);
+        this.calendrier.removeAllEvents();
         let rdvs = rdvMapping(newdata.rdvs);
         console.log(rdvs);
-        afficherFullcalendar(rdvs);
-        afficher(newdata);
+
+        this.calendrier.addEventSource(rdvs);
+        this.calendrier.render();
+            
     }
-    /*Requête lors de la diminution (-1) de l'année */
-    async leftYear() {
-        let choosenYear = parseInt(this.data.year, 10) - 1;
-        fetch(
-            "/calendar-data?year=" +
-                choosenYear +
-                "&" +
-                "month=" +
-                this.data.month
-        )
+    async updateDate(){
+        let currentDate = this.calendrier.getDate(); // Date actuelle du fullcalendar
+        let month = currentDate.getMonth() + 1; // mois de 0 à 11
+        let year = currentDate.getFullYear();
+        fetch("/calendar-data?month=" + month + "&" + "year=" + year)
             .then((response) => response.json())
             .then((data) => this.updateData(data))
-            .catch((error) => console.log("Aucne données"));
-    }
-    /*Requête lors de l'augmentation (+1) de l'année */
-    async rightYear() {
-        let choosenYear = parseInt(this.data.year, 10) + 1;
-        fetch(
-            "/calendar-data?year=" +
-                choosenYear +
-                "&" +
-                "month=" +
-                this.data.month
-        )
-            .then((response) => response.json())
-            .then((data) => this.updateData(data))
-            .catch((error) => console.log("Aucne données"));
+            .catch((error) => console.log("Aucune données"));
     }
     /*Requête lors de la sélection et désélection de l'année */
     async selectionAgenda(idAgenda) {
@@ -114,27 +138,26 @@ export class AgendaManager {
             .then((data) => this.updateData(data))
             .catch((error) => console.log("Aucune données"));
     }
-    /*Requête lors de la sélection d'un mois */
-    async selectionMois(mois) {
-        fetch("/calendar-data?month=" + mois + "&" + "year=" + this.data.year)
-            .then((response) => response.json())
-            .then((data) => this.updateData(data))
-            .catch((error) => console.log("Aucune données"));
-    }
 }
 
+/*Map les rdvs récupérées du serveur en events exploitable par le fullcalendar */
 export function rdvMapping(rdvs){
     let tabRdvs = [];
-    rdvs.forEach(element => {tabRdvs.push({"title": element.titre,"start": toLocaleDate(element.dateDebut),"end": toLocaleDate(element.dateFin)});
+    rdvs.forEach(element => {tabRdvs.push({
+        "title": element.titre,
+        "start": toLocaleDate(element.dateDebut),
+        "end": toLocaleDate(element.dateFin),
+        'id': element.id,
+        "description": element.description,
+    });
         
     });
     return tabRdvs;
 }
+/*Utilisé par le mapping pour avoir un format de date exploitable par fullcalendar */
 export function toLocaleDate(dateString){
 
-
 const date = new Date(dateString);
-
 const options = {
     year: 'numeric',
     month: '2-digit',
@@ -143,7 +166,7 @@ const options = {
     minute: '2-digit',
     second: '2-digit',
     hour12: false, //Format 24h
-    timeZone: 'UTC', // Utiliser 'UTC' ou 'Europe/Paris' selon bd (voir avec Manu)
+    timeZone: 'UTC', // 'UTC' ou 'Europe/Paris' selon bd (voir avec Manu)
 };
 
 const formattedDate = date.toLocaleString('sv-SE', options).replace('T', ' ').slice(0, -3);
