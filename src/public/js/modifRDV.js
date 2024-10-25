@@ -17,12 +17,14 @@ function creerModale(titre, lieu, description, dateDebut, dateFin, id) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formModifRDV" action="/" method="POST">
+                    <form class="needs-validation" id="formModifRDV" action="/" method="POST" novalidate>
                       <input type="hidden" id="idRDV" value="`+ id +`" name="idRDV"> 
                       <div class="mb-3">
                         <label for="titreRDV" class="form-label">Titre</label>
                         <input type="text" class="form-control" id="titreRDV" value="` + escapeHTML(titre) + `" name="titre" required>
-                        <div id="titreHelp" class="form-text">Requis!</div>
+                        <div class="invalid-feedback">
+                          Champ obligatoire
+                        </div>
                       </div>
                       <div class="mb-3">
                         <label for="lieuRDV" class="form-label">Lieu</label>
@@ -35,12 +37,16 @@ function creerModale(titre, lieu, description, dateDebut, dateFin, id) {
                       <div class="mb-3">
                         <label for="dateDebRDV" class="form-label">Début</label>
                         <input type="datetime-local" class="form-control" id="dateDebRDV" value="` + dateDebut.toISOString().slice(0, 16) + `" name="dateDebut" required>
-                        <div id="debHelp" class="form-text">Requis!</div>
+                        <div class="invalid-feedback">
+                          Champ obligatoire
+                        </div>
                       </div>
                       <div class="mb-3">
                         <label for="dateFinRDV" class="form-label">Fin</label>
                         <input type="datetime-local" class="form-control" id="dateFinRDV" value="` + dateFin.toISOString().slice(0, 16) + `" name="dateFin" required>
-                        <div id="finHelp" class="form-text">Requis!</div>
+                        <div class="invalid-feedback">
+                          Champ obligatoire
+                        </div>
                       </div>
                     </form>
                 </div>
@@ -68,14 +74,10 @@ function envoyerForm() {
     const dateDebInput = document.getElementById('dateDebRDV');
     const dateFinInput = document.getElementById('dateFinRDV');
 
-    const titreHelp = document.getElementById("titreHelp");
-    const debHelp = document.getElementById("debHelp");
-    const finHelp = document.getElementById("finHelp");
-
     //Clear des anciennes erreurs
-    titreHelp.classList.remove("text-danger");
-    debHelp.classList.remove("text-danger");
-    finHelp.classList.remove("text-danger");
+    titreInput.classList.remove("is-invalid");
+    dateDebInput.classList.remove("is-invalid");
+    dateFinInput.classList.remove("is-invalid");
 
     const msgErreur = document.getElementById('dateErreur');
     if (msgErreur) {
@@ -89,17 +91,17 @@ function envoyerForm() {
 
     //Vérification des champs obligatoires
     if (titreInput.value.trim() === '') {
-        titreHelp.classList.add("text-danger");
+        titreInput.classList.add("is-invalid");
         isValid = false;
     }
 
     if (dateDebInput.value === '') {
-        debHelp.classList.add("text-danger");
+        dateDebInput.classList.add("is-invalid");
         isValid = false;
     }
 
     if (dateFinInput.value === '') {
-        finHelp.classList.add("text-danger");
+        dateFinInput.classList.add("is-invalid");
         isValid = false;
     }
 
