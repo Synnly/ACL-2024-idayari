@@ -51,8 +51,17 @@ export class AgendaManager {
                     list:'Liste',
                     day:"Jour"
                 },
+        eventClick: function(info) {
 
-            //  events: C'est ici qu'on insère les rdvs
+            // Accès aux détails rdv
+            const title = info.event.title;
+            const description = info.event.extendedProps.description;
+            /* toLocaleDateString(...) : Renvoie une date au format : mardi, 01/10/2024 */
+            const start = info.event.start.toLocaleDateString("fr-FR", {weekday: "long",year: "numeric",month: "numeric",day: "numeric",});
+            const end = info.event.end.toLocaleDateString("fr-FR", {weekday: "long",year: "numeric",month: "numeric",day: "numeric",});
+            
+            alert(`Titre : ${title}\nDébut : ${start}\nFin : ${end}\nDescription : ${description}`);
+        }
         
         
         
