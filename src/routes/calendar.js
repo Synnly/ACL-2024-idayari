@@ -4,6 +4,8 @@ import { tabAgenda } from "../token.js";
 
 // const tabAgenda = []; //Permet de gérer la sélection des agendas (dera fait avec données session plus tard)
 
+/*Va servir à  savoir à quel case commence le 1er du mois */
+const weekdays = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi", "Vendredi", "Samedi"];
 /*Direction vers la page calendar */
 export function calendarGet(req, res) {
     if (res.locals.user) {
@@ -27,10 +29,17 @@ export async function calendarGetData(req, res) {
     if (!paramYear) {
         paramYear = aujourdhui.getFullYear();
     }
+    let startDay = getBeginingDay(paramYear,paramMonth);
+    let endDay = getEndDay(paramYear,paramMonth);
+    console.log(startDay, endDay);
     // Premier jour du mois (selon année et mois choisi)
-    const firstDate = new Date(paramYear, paramMonth - 1, 2); // Premier jours
+    const firstDate = new Date(paramYear, paramMonth - 1, 2-startDay); // Premier jours
+    firstDate.setHours(2,0,0); //PROBLEME SUR LE FUSEAU HORAIRE
     // Dernier jour du mois (selon année et mois choisi)
-    const lastDate = new Date(paramYear, paramMonth, 1); // Dernier Jours à 23h (pas mieux que ça)
+    const lastDate = new Date(paramYear, paramMonth, 1+(6-endDay)); // Dernier Jours à 23h (pas mieux que ça)
+    lastDate.setHours(0,59,59); //PROBLEME SUR LE FUSEAU HORAIRE
+    console.log(firstDate, lastDate);
+
 
     if (res.locals.user) {
         //Récupération des agendas de l'utilisateur
@@ -99,4 +108,56 @@ export async function calendarGetData(req, res) {
         month: paramMonth,
         year: paramYear,
     });
+}
+
+export function getBeginingDay(year,month){
+    /* Note : new Date : les mois vont de 0 à 11 , 
+    3eme paramètre jour du mois sauf 0 = 1 jours avant le premier jours du mois*/
+    let daysInMonth = new Date(year,month,0).getDate(); //Donne le nombre de jours dans le mois
+
+    let firstDayInMonth = new Date(year,month - 1,1);
+
+    /* Renvoie une date au format : mardi, 01/10/2024 */
+    let dateString = firstDayInMonth.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+    });
+
+    //Pour récupérer uniquement le jour
+    dateString = dateString.split(" ")[0];
+    //Pour être sur que la première lettre est une majuscule
+    dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+    /*Récupère l'index du jour de la semaine 
+    (paddingDays = jours qui appartiennent aux mois précédent de 1 jusqu'à paddingDays)*/
+    let paddingDays = weekdays.indexOf(dateString);
+    // console.log(paddingDays, dateString);
+    return paddingDays;
+}
+
+/*lE CODE suivant nous donne le bon jour avec la Mauvaise Date (Problème fuseau horaire?) */
+export function getEndDay(year,month){
+    /* Note : new Date : les mois vont de 0 à 11 , 
+    3eme paramètre jour du mois sauf 0 = 1 jours avant le premier jours du mois*/
+    let lastDayInMonth = new Date(year,month,0);
+    console.log('lastday',lastDayInMonth);
+
+    /* Renvoie une date au format : mardi, 01/10/2024 */
+    let dateString = lastDayInMonth.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+    });
+
+    //Pour récupérer uniquement le jour
+    dateString = dateString.split(" ")[0];
+    //Pour être sur que la première lettre est une majuscule
+    dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+    /*Récupère l'index du jour de la semaine 
+    (paddingDays = jours qui appartiennent aux mois précédent de 1 jusqu'à paddingDays)*/
+    let paddingDays = weekdays.indexOf(dateString);
+    // console.log(paddingDays, dateString);
+    return paddingDays;
 }

@@ -158,19 +158,19 @@ export function rdvMapping(rdvs){
 export function toLocaleDate(dateString){
 
 const date = new Date(dateString);
-const options = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+/* 'sv-SE' sert à mettre la date au format YYYY-MM-DD car par défaut = YYYY/MM/DD
+'2-digit' est possible à la place de numéric */
+let fullCalendarDate = date.toLocaleDateString('sv-SE', {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
     hour12: false, //Format 24h
     timeZone: 'UTC', // 'UTC' ou 'Europe/Paris' selon bd (voir avec Manu)
-};
-
-const formattedDate = date.toLocaleString('sv-SE', options).replace('T', ' ').slice(0, -3);
-return formattedDate;
+});
+return fullCalendarDate;
 }
 //Initialisation du model
 const agendaManager = new AgendaManager();
