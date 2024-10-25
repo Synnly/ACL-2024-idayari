@@ -1,4 +1,13 @@
+function escapeHTML(str) {
+    return str.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function creerModale(titre, lieu, description, dateDebut, dateFin, id) {
+    description = description.trim();
     const modaleHTML = `
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -12,16 +21,16 @@ function creerModale(titre, lieu, description, dateDebut, dateFin, id) {
                       <input type="hidden" id="idRDV" value="`+ id +`" name="idRDV"> 
                       <div class="mb-3">
                         <label for="titreRDV" class="form-label">Titre</label>
-                        <input type="text" class="form-control" id="titreRDV" value="` + titre + `" name="titre" required>
+                        <input type="text" class="form-control" id="titreRDV" value="` + escapeHTML(titre) + `" name="titre" required>
                         <div id="titreHelp" class="form-text">Requis!</div>
                       </div>
                       <div class="mb-3">
                         <label for="lieuRDV" class="form-label">Lieu</label>
-                        <input type="text" class="form-control" id="lieuRDV" value="` + lieu + `" name="lieu">
+                        <input type="text" class="form-control" id="lieuRDV" value="` + escapeHTML(lieu) + `" name="lieu">
                       </div>
                       <div class="mb-3">
                         <label for="descriptionRDV" class="form-label">Description</label>
-                          <textarea class="form-control" id="descriptionRDV" rows="3" name="description"> ` + description +`</textarea>
+                          <textarea class="form-control" id="descriptionRDV" rows="3" name="description">`+escapeHTML(description)+`</textarea>
                       </div>
                       <div class="mb-3">
                         <label for="dateDebRDV" class="form-label">Début</label>
