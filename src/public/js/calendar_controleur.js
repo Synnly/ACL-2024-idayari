@@ -1,5 +1,11 @@
-import { afficher, loadCalendar } from "./calendar_affichage.js";
+import { afficher,afficherFullcalendar /*loadCalendar*/ } from "./calendar_affichage.js";
 import { ajouterEcouteurs } from "./calendar_ecouteurs.js";
+import { Calendar } from '@fullcalendar/core'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import listPlugin from '@fullcalendar/list';
+const elementCalendrier = document.getElementById('calendar');
+
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/
 export const tableauRdvs = []; //Tableau enregistrant les rdvs par jour
@@ -44,7 +50,7 @@ export class AgendaManager {
             for (let i = 0; i < 32; i++) {
                 tableauRdvs.push([]);
             }
-            afficher();
+           afficher();
             ajouterEcouteurs(data);
         } catch (error) {
             console.log("Aucune donnée", error);
@@ -58,6 +64,10 @@ export class AgendaManager {
         this.data.user = newdata.user;
         this.data.month = newdata.month;
         this.data.year = newdata.year;
+        console.log('who da fuck is this guy',newdata.rdvs);
+        let rdvs = rdvMapping(newdata.rdvs);
+        console.log(rdvs);
+        afficherFullcalendar(rdvs);
         afficher(newdata);
     }
     /*Requête lors de la diminution (-1) de l'année */
@@ -111,6 +121,33 @@ export class AgendaManager {
             .then((data) => this.updateData(data))
             .catch((error) => console.log("Aucune données"));
     }
+}
+
+export function rdvMapping(rdvs){
+    let tabRdvs = [];
+    rdvs.forEach(element => {tabRdvs.push({"title": element.titre,"start": toLocaleDate(element.dateDebut),"end": toLocaleDate(element.dateFin)});
+        
+    });
+    return tabRdvs;
+}
+export function toLocaleDate(dateString){
+
+
+const date = new Date(dateString);
+
+const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false, //Format 24h
+    timeZone: 'UTC', // Utiliser 'UTC' ou 'Europe/Paris' selon bd (voir avec Manu)
+};
+
+const formattedDate = date.toLocaleString('sv-SE', options).replace('T', ' ').slice(0, -3);
+return formattedDate;
 }
 //Initialisation du model
 const agendaManager = new AgendaManager();

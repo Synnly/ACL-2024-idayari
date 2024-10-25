@@ -4,7 +4,12 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list';
 
 const elementCalendrier = document.getElementById('calendar');
-let evenements = [{"title": "Ceci est mon premier rdv","start": "2024-10-23 09:00:00","end": "2024-10-23 10:00:00"}]
+let debut = new Date("2024-10-23 09:00:00");
+
+let fin = new Date("2024-10-23 010:00:00");
+
+let evenements = [{"title": "Ceci est mon premier rdv","start": debut,"end": fin}]
+
 
 
 window.onload = () =>{ let calendrier = new Calendar(elementCalendrier,{

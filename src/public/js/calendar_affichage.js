@@ -1,71 +1,77 @@
 import { agendaManager, tableauRdvs } from "./calendar_controleur.js";
+import { Calendar } from '@fullcalendar/core'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import listPlugin from '@fullcalendar/list';
+const elementCalendrier = document.getElementById('calendar');
+
 /*SCRIPT qui gère l'affichage dans la page selon les données du model */
 
-const listRdvs = document.getElementById("listRdvs");
+// const listRdvs = document.getElementById("listRdvs");
 const selectionAgenda = document.getElementById("selectionAgenda");
 const msgAgenda = document.getElementById("msgAgenda");
 const agendasSelectionnes = document.getElementById("agendasSelectionnes");
-const rdvday = document.getElementById("rdvday");
+// const rdvday = document.getElementById("rdvday");
 
-const calendar = document.getElementById("calendar");
-/*Va servir à  savoir à quel case commence le 1er du mois */
-const weekdays = [
-    "Lundi",
-    "Mardi",
-    "Mercredi",
-    "Jeudi",
-    "Vendredi",
-    "Samedi",
-    "Dimanche",
-];
+// const calendar = document.getElementById("calendar");
+// /*Va servir à  savoir à quel case commence le 1er du mois */
+// const weekdays = [
+//     "Lundi",
+//     "Mardi",
+//     "Mercredi",
+//     "Jeudi",
+//     "Vendredi",
+//     "Samedi",
+//     "Dimanche",
+// ];
 
-export function loadCalendar() {
-    calendar.innerHTML = "";
-    /* Note : new Date : les mois vont de 0 à 11 , 
-    3eme paramètre jour du mois sauf 0 = 1 jours avant le premier jours du mois*/
-    let daysInMonth = new Date(
-        agendaManager.data.year,
-        agendaManager.data.month,
-        0
-    ).getDate(); //Donne le nombre de jours dans le mois
-    let firstDayInMonth = new Date(
-        agendaManager.data.year,
-        agendaManager.data.month - 1,
-        1
-    );
-    /* Renvoie une date au format : mardi, 01/10/2024 */
-    let dateString = firstDayInMonth.toLocaleDateString("fr-FR", {
-        weekday: "long",
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-    });
-    //Pour récupérer uniquement le jour
-    dateString = dateString.split(" ")[0];
-    //Pour être sur que la première lettre est une majuscule
-    dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
-    /*Récupère l'index du jour de la semaine 
-    (paddingDays = jours qui appartiennent aux mois précédent de 1 jusqu'à paddingDays)*/
-    let paddingDays = weekdays.indexOf(dateString);
-    console.log(paddingDays, dateString);
+// export function loadCalendar() {
+//     calendar.innerHTML = "";
+//     /* Note : new Date : les mois vont de 0 à 11 , 
+//     3eme paramètre jour du mois sauf 0 = 1 jours avant le premier jours du mois*/
+//     let daysInMonth = new Date(
+//         agendaManager.data.year,
+//         agendaManager.data.month,
+//         0
+//     ).getDate(); //Donne le nombre de jours dans le mois
+//     let firstDayInMonth = new Date(
+//         agendaManager.data.year,
+//         agendaManager.data.month - 1,
+//         1
+//     );
+//     /* Renvoie une date au format : mardi, 01/10/2024 */
+//     let dateString = firstDayInMonth.toLocaleDateString("fr-FR", {
+//         weekday: "long",
+//         year: "numeric",
+//         month: "numeric",
+//         day: "numeric",
+//     });
+//     //Pour récupérer uniquement le jour
+//     dateString = dateString.split(" ")[0];
+//     //Pour être sur que la première lettre est une majuscule
+//     dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+//     /*Récupère l'index du jour de la semaine 
+//     (paddingDays = jours qui appartiennent aux mois précédent de 1 jusqu'à paddingDays)*/
+//     let paddingDays = weekdays.indexOf(dateString);
+//     console.log(paddingDays, dateString);
 
-    for (let i = 1; i <= paddingDays + daysInMonth; i++) {
-        let daySquare = document.createElement("div");
-        daySquare.classList.add("day");
-        if (i > paddingDays) {
-            //Pour obtenir le vrai numéro du jour
-            daySquare.innerText = i - paddingDays;
-            daySquare.id = "day-" + (i - paddingDays);
-            daySquare.addEventListener("click", (event) =>
-                ajoutRdvsDuJours(i - paddingDays)
-            );
-        } else {
-            daySquare.classList.add("padding");
-        }
-        calendar.appendChild(daySquare);
-        // console.log(daySquare.id);
-    }
-}
+//     for (let i = 1; i <= paddingDays + daysInMonth; i++) {
+//         let daySquare = document.createElement("div");
+//         daySquare.classList.add("day");
+//         if (i > paddingDays) {
+//             //Pour obtenir le vrai numéro du jour
+//             daySquare.innerText = i - paddingDays;
+//             daySquare.id = "day-" + (i - paddingDays);
+//             daySquare.addEventListener("click", (event) =>
+//                 ajoutRdvsDuJours(i - paddingDays)
+//             );
+//         } else {
+//             daySquare.classList.add("padding");
+//         }
+//         calendar.appendChild(daySquare);
+//         // console.log(daySquare.id);
+//     }
+// }
 
 /*Gère l'affichage et la séléction selon les données du model */
 export async function afficher() {
@@ -74,12 +80,12 @@ export async function afficher() {
         tableauRdvs[i].length = 0;
     }
     //Remise à zéro du rdv du jours
-    rdvday.innerHTML = "";
-    loadCalendar(afficherRendezVous);
+    // rdvday.innerHTML = "";
+    // loadCalendar(afficherRendezVous);
     afficherAgendas(agendaManager.data);
-    afficherRendezVous(agendaManager.data);
-    afficherYear(agendaManager.data);
-    afficherMonth(agendaManager.data);
+    // afficherRendezVous(agendaManager.data);
+    // afficherYear(agendaManager.data);
+    // afficherMonth(agendaManager.data);
     afficherAgendasSelectionnes(agendaManager.data);
 }
 /*Sélection de l'année selon le modéle */
@@ -228,4 +234,37 @@ export function getJourCorrespondant(day) {
     //Pour être sur que la première lettre est une majuscule
     dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
     return dateString;
+}
+
+
+export function afficherFullcalendar(rdvs){
+    let calendrier = new Calendar(elementCalendrier,{
+        //Appel des différents composants composants
+        plugins : [dayGridPlugin,timeGridPlugin,listPlugin],
+        locale:'fr',
+        //Attention listWeek potentielleemnet à changer en list
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'} ,
+            buttonText: {
+                today:'Aujourd\'hui',
+                month:'Mois',
+                week:'Semaine',
+                list:'Liste',
+                day:"Jour"
+            },
+        //initialView: 'dayGridWeek'
+        // initialView: 'dayGridDay'
+        // initialView: 'dayGridMonth'
+        // initialView:'timeGridWeek'
+        // initialView:'timeGridDay'
+        // initialView:'list'
+         events:rdvs
+    
+    
+    
+    });
+    calendrier.render();
+    
 }

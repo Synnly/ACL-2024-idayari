@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Calendar</title>
+        <link rel="stylesheet" href="./styles/calendar.css" />
         <!-- <script type="module" src="./js/calendar_controleur.js"></script>
         <link rel="stylesheet" href="./styles/calendar.css" /> -->
         <script type='importmap'>
@@ -18,14 +19,22 @@
               }
             }
           </script>
+          <script type="module" src="./js/calendar_controleur.js"></script>
+
           <link rel="stylesheet" href="./fullcalendar/styles/calendar.css" />
 
 
           <script type="module" src="./fullcalendar/script-fullcalendar.js"></script>
-
+          
     </head>
     <body>
+        <div class="listAgenda" id="listAgenda">
+            <div class="msgAgenda" id="msgAgenda"></div>
+            <select class="selectionAgenda" id="selectionAgenda"></select>
+            <div class="agendasSelectionnes" id="agendasSelectionnes"></div>
+        </div>
         <h1>Calendar</h1>
     <div id="calendar"></div>
+    
     </body>
 </html>
