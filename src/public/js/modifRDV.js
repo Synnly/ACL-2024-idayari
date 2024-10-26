@@ -1,11 +1,3 @@
-function escapeHTML(str) {
-    return str.replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
 function creerModale(titre, lieu, description, dateDebut, dateFin, id) {
     description = description.trim();
     const modaleHTML = `
@@ -21,18 +13,18 @@ function creerModale(titre, lieu, description, dateDebut, dateFin, id) {
                       <input type="hidden" id="idRDV" value="`+ id +`" name="idRDV"> 
                       <div class="mb-3">
                         <label for="titreRDV" class="form-label">Titre</label>
-                        <input type="text" class="form-control" id="titreRDV" value="` + escapeHTML(titre) + `" name="titre" required>
+                        <input type="text" class="form-control" id="titreRDV" value="` + titre + `" name="titre" required>
                         <div class="invalid-feedback">
                           Champ obligatoire
                         </div>
                       </div>
                       <div class="mb-3">
                         <label for="lieuRDV" class="form-label">Lieu</label>
-                        <input type="text" class="form-control" id="lieuRDV" value="` + escapeHTML(lieu) + `" name="lieu">
+                        <input type="text" class="form-control" id="lieuRDV" value="` + lieu + `" name="lieu">
                       </div>
                       <div class="mb-3">
                         <label for="descriptionRDV" class="form-label">Description</label>
-                          <textarea class="form-control" id="descriptionRDV" rows="3" name="description">`+escapeHTML(description)+`</textarea>
+                          <textarea class="form-control" id="descriptionRDV" rows="3" name="description">`+description+`</textarea>
                       </div>
                       <div class="mb-3">
                         <label for="dateDebRDV" class="form-label">Début</label>

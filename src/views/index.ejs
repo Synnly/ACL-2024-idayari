@@ -46,7 +46,7 @@
 							minute: '2-digit'
 						});
 						%>
-						<li onClick="creerModale('<%= rv.titre.replace(/'/g, "\\'") %>', '<%= rv.lieu.replace(/'/g, "\\'") %>', '<%= rv.description.replace(/'/g, "\\'") %>', new Date('<%= rv.dateDebut.toISOString() %>'), new Date('<%= rv.dateFin.toISOString() %>'), '<%= rv.id %>')">							<%= rv.titre %> | Du <%= deb %> au <%= fin %>
+						<li onClick="creerModale('<%= rv.titre.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") %>', '<%= rv.lieu.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") %>', '<%= rv.description.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") %>', new Date('<%= rv.dateDebut.toISOString() %>'), new Date('<%= rv.dateFin.toISOString() %>'), '<%= rv.id %>')">							<%= rv.titre %> | Du <%= deb %> au <%= fin %>
 							<% if (rv.lieu && rv.lieu.trim() !== "") { %>
 							| à : <%= rv.lieu %>
 							<% } %>
