@@ -46,7 +46,16 @@
 							minute: '2-digit'
 						});
 						%>
-						<li onClick="creerModale('<%= rv.titre.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") %>', '<%= rv.lieu.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") %>', '<%= rv.description.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") %>', new Date('<%= rv.dateDebut.toISOString() %>'), new Date('<%= rv.dateFin.toISOString() %>'), '<%= rv.id %>')">							<%= rv.titre %> | Du <%= deb %> au <%= fin %>
+						<li data-titre="<%= rv.titre %>"
+							data-lieu="<%= rv.lieu %>"
+							data-description="<%= rv.description %>"
+							data-date-debut="<%= rv.dateDebut.toISOString() %>"
+							data-date-fin="<%= rv.dateFin.toISOString() %>"
+							data-id="<%= rv.id %>"
+
+							onClick="creerModale(this)">
+
+							<%= rv.titre %> | Du <%= deb %> au <%= fin %>
 							<% if (rv.lieu && rv.lieu.trim() !== "") { %>
 							| à : <%= rv.lieu %>
 							<% } %>

@@ -22,7 +22,6 @@ export async function index(req, res) {
 }
 
 export async function modifierRendezVousPOST(req, res) {
-    console.log(req.body);
     if (res.locals.user) {
         try {
             //Récupération des champs du form
