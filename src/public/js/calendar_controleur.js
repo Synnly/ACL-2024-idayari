@@ -5,6 +5,9 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list';
 
+import {creerModale} from '/js/modif_rendezvous-calendar.js';
+
+
 //Récupération de la balise contenant le calendar
 const elementCalendrier = document.getElementById('calendar');
 
@@ -55,12 +58,16 @@ export class AgendaManager {
 
             // Accès aux détails rdv
             const title = info.event.title;
+            const id = info.event.id;
+
             const description = info.event.extendedProps.description;
+            const lieu = info.event.extendedProps.lieu;
+
             /* toLocaleDateString(...) : Renvoie une date au format : mardi, 01/10/2024 */
             const start = info.event.start.toLocaleDateString("fr-FR", {weekday: "long",year: "numeric",month: "numeric",day: "numeric",});
             const end = info.event.end.toLocaleDateString("fr-FR", {weekday: "long",year: "numeric",month: "numeric",day: "numeric",});
-            
-            alert(`Titre : ${title}\nDébut : ${start}\nFin : ${end}\nDescription : ${description}`);
+            // creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})
+            alert(`Titre : ${title}\nDébut : ${start}\nFin : ${end}\nDescription : ${description}\nLieu : ${lieu}\nid : ${id}`);        
         }
         
         
@@ -158,6 +165,7 @@ export function rdvMapping(rdvs){
         "end": toLocaleDate(element.dateFin),
         'id': element.id,
         "description": element.description,
+        "lieu": element.lieu,
     });
         
     });
