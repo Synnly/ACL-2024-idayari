@@ -145,18 +145,21 @@ export async function envoyerForm() {
 
         //Désactivation de la modale
         let modal = document.getElementById('staticBackdrop');
-        
+        let modalInstance = bootstrap.Modal.getInstance(modal);
+
+        //Détruit les éléments liés à la modale (éléments bootstrap)
+        if(modalInstance){
+            modalInstance.dispose();
+            //Pour faire fonctionner le scroll à nouveau
+            document.body.style.overflow = '';
+        }
         
         //On supprime la modal pour pouvoir la recréer avec de nouvelles données
         if (modal) {
-            let modalInstance = bootstrap.Modal.getInstance(modal);
-
-            //Détruit les éléments liés à la modale (éléments bootstrap)
-            if(modalInstance){
-                modalInstance.dispose();
-            }
             modal.remove(); 
-        } 
+        }
+       
+       
     }
 }
 
