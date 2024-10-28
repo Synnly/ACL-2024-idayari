@@ -4,9 +4,13 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Calendar</title>
-        <link rel="stylesheet" href="./styles/calendar.css" />
-        <!-- <script type="module" src="./js/calendar_controleur.js"></script>
-        <link rel="stylesheet" href="./styles/calendar.css" /> -->
+        <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- script essentiel au style de la modal mais change la couleur du texte du fullcalendar -->
+        <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="./css/calendar.css" />
+
         <script type='importmap'>
             {
               "imports": {
@@ -19,9 +23,13 @@
               }
             }
           </script>
+          <script type="module" src="./js/modif_rendezvous-calendar.js"></script>
+
           <script type="module" src="./js/calendar_controleur.js"></script>
 
-          <link rel="stylesheet" href="./fullcalendar/styles/calendar.css" />
+          <!-- <link rel="stylesheet" href="./fullcalendar/styles/calendar.css" /> -->
+
+
           
     </head>
     <body>
@@ -32,6 +40,7 @@
         </div>
         <h1>Calendar</h1>
     <div id="calendar"></div>
-    
+
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

@@ -5,7 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list';
 
-import {creerModale} from '/js/modif_rendezvous-calendar.js';
+import {creerModale,envoyerForm} from '/js/modif_rendezvous-calendar.js';
 
 
 //Récupération de la balise contenant le calendar
@@ -64,10 +64,12 @@ export class AgendaManager {
             const lieu = info.event.extendedProps.lieu;
 
             /* toLocaleDateString(...) : Renvoie une date au format : mardi, 01/10/2024 */
-            const start = info.event.start.toLocaleDateString("fr-FR", {weekday: "long",year: "numeric",month: "numeric",day: "numeric",});
-            const end = info.event.end.toLocaleDateString("fr-FR", {weekday: "long",year: "numeric",month: "numeric",day: "numeric",});
-            // creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})
-            alert(`Titre : ${title}\nDébut : ${start}\nFin : ${end}\nDescription : ${description}\nLieu : ${lieu}\nid : ${id}`);        
+            const start = info.event.start; //.toLocaleDateString("fr-FR", {weekday: "long",year: "numeric",month: "numeric",day: "numeric",});
+            const end = info.event.end; //.toLocaleDateString("fr-FR", {weekday: "long",year: "numeric",month: "numeric",day: "numeric",});
+            //Rattacher la fonction du formulaire envoyerForm à celle du script modif_rendezvous-calendar
+            window.envoyerForm = envoyerForm;
+            creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})
+            //alert(`Titre : ${title}\nDébut : ${start}\nFin : ${end}\nDescription : ${description}\nLieu : ${lieu}\nid : ${id}`);        
         }
         
         
@@ -129,6 +131,7 @@ export class AgendaManager {
         this.calendrier.render();
             
     }
+    /*Met à jours le calendrier selon le mois dans lequel on navigue */
     async updateDate(){
         let currentDate = this.calendrier.getDate(); // Date actuelle du fullcalendar
         let month = currentDate.getMonth() + 1; // mois de 0 à 11
@@ -137,6 +140,36 @@ export class AgendaManager {
             .then((response) => response.json())
             .then((data) => this.updateData(data))
             .catch((error) => console.log("Aucune données"));
+    }
+    /*Mise à jour d'un rdv (après modification) */
+    async updateRdv(rdv){
+        console.log('All rdvs :');
+
+        let events = this.calendrier.getEvents()
+        events.forEach(event => {
+            console.log(`ID: ${event.id}, Titre: ${event.title}, Début: ${event.start}, Fin: ${event.end}`);
+        });
+        console.log('FIN FIN FIN All rdvs :');
+        console.log('Pourquoi ca ne marche pas : ',rdv.id);
+
+        console.log('le rdv va être modifié',rdv);
+        //récupération du rdv 
+        let event = this.calendrier.getEventById(rdv.id); 
+        console.log(event);
+        if(event){
+            console.log('rdv trouvé');
+            event.setProp('title', rdv.titre);
+            event.setStart(rdv.dateDebut);
+            event.setEnd(rdv.dateFin);
+            event.setExtendedProp('description', rdv.description);
+            event.setExtendedProp('lieu', rdv.lieu);
+        
+        }else{
+            console.log('rdv introuvable');
+        }
+        
+
+
     }
     /*Requête lors de la sélection et désélection de l'année */
     async selectionAgenda(idAgenda) {
@@ -154,6 +187,7 @@ export class AgendaManager {
             .then((data) => this.updateData(data))
             .catch((error) => console.log("Aucune données"));
     }
+
 }
 
 /*Map les rdvs récupérées du serveur en events exploitable par le fullcalendar */
@@ -174,20 +208,20 @@ export function rdvMapping(rdvs){
 /*Utilisé par le mapping pour avoir un format de date exploitable par fullcalendar */
 export function toLocaleDate(dateString){
 
-const date = new Date(dateString);
-/* 'sv-SE' sert à mettre la date au format YYYY-MM-DD car par défaut = YYYY/MM/DD
-'2-digit' est possible à la place de numéric */
-let fullCalendarDate = date.toLocaleDateString('sv-SE', {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: false, //Format 24h
-    timeZone: 'UTC', // 'UTC' ou 'Europe/Paris' selon bd (voir avec Manu)
-});
-return fullCalendarDate;
+    const date = new Date(dateString);
+    /* 'sv-SE' sert à mettre la date au format YYYY-MM-DD car par défaut = YYYY/MM/DD
+    '2-digit' est possible à la place de numéric */
+    let fullCalendarDate = date.toLocaleDateString('sv-SE', {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: false, //Format 24h
+        timeZone: 'UTC', // 'UTC' ou 'Europe/Paris' selon bd (voir avec Manu)
+    });
+    return fullCalendarDate;
 }
 //Initialisation du model
 const agendaManager = new AgendaManager();
