@@ -3,19 +3,19 @@ import { escapeHTML,convertDate } from "./utils.js";
 
 /*Créer la modale de modification de rendez vous */
 export function creerModale(rdv) {
-    const titre = rdv.titre;
-    const lieu = rdv.lieu;
-    const description = rdv.description;
-    const dateDebut = convertDate(rdv.dateDebut);
-    const dateFin = convertDate(rdv.dateFin);
-    const id = rdv.id;
+    let titre = rdv.titre;
+    let lieu = rdv.lieu;
+    let description = rdv.description;
+    let dateDebut = convertDate(rdv.dateDebut);
+    let dateFin = convertDate(rdv.dateFin);
+    let id = rdv.id;
 
-    const modaleHTML = `
+    let modaleHTML = `
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Modification du RDV</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Affichage du RDV</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler"></button>
                 </div>
                 <div class="modal-body">
@@ -53,8 +53,8 @@ export function creerModale(rdv) {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-modal" data-bs-dismiss="modal" >Annuler</button>
-                    <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Valider</button>
+                    <button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModal()">Annuler</button>
+                    <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Modifier</button>
                 </div>
             </div>
         </div>
@@ -64,8 +64,8 @@ export function creerModale(rdv) {
     document.body.insertAdjacentHTML('beforeend', modaleHTML);
 
     //Création et affichage d'une modale Bootstrap
-    const fausseModale = document.getElementById('staticBackdrop');
-    const vraieModale = new bootstrap.Modal(fausseModale);
+    let fausseModale = document.getElementById('staticBackdrop');
+    let vraieModale = new bootstrap.Modal(fausseModale);
 
     vraieModale.show();
 }
@@ -74,28 +74,28 @@ export function creerModale(rdv) {
 export async function envoyerForm() {
     event.preventDefault();
 
-    const titreInput = document.getElementById('titreRDV');
-    const descriptionRDV = document.getElementById('descriptionRDV');
-    const lieuRDV = document.getElementById('lieuRDV');
-    const idRDV = document.getElementById('idRDV');
+    let titreInput = document.getElementById('titreRDV');
+    let descriptionRDV = document.getElementById('descriptionRDV');
+    let lieuRDV = document.getElementById('lieuRDV');
+    let idRDV = document.getElementById('idRDV');
 
 
 
-    const dateDebInput = document.getElementById('dateDebRDV');
-    const dateFinInput = document.getElementById('dateFinRDV');
+    let dateDebInput = document.getElementById('dateDebRDV');
+    let dateFinInput = document.getElementById('dateFinRDV');
 
     //Clear des anciennes erreurs
     titreInput.classList.remove("is-invalid");
     dateDebInput.classList.remove("is-invalid");
     dateFinInput.classList.remove("is-invalid");
 
-    const msgErreur = document.getElementById('dateErreur');
+    let msgErreur = document.getElementById('dateErreur');
     if (msgErreur) {
         msgErreur.remove();
     }
 
-    const dateDeb = new Date(dateDebInput.value);
-    const dateFin = new Date(dateFinInput.value);
+    let dateDeb = new Date(dateDebInput.value);
+    let dateFin = new Date(dateFinInput.value);
 
     let isValid = true;
 
@@ -144,11 +144,26 @@ export async function envoyerForm() {
         .catch((error) => console.log("Aucune données"));
 
         //Désactivation de la modale
-        const modal = document.getElementById('staticBackdrop');
-        let modalInstance = bootstrap.Modal.getInstance(modal);
+        let modal = document.getElementById('staticBackdrop');
         
-        if (modalInstance) {
-            modalInstance.hide(); 
-        }
+        
+        //On supprime la modal pour pouvoir la recréer avec de nouvelles données
+        if (modal) {
+            let modalInstance = bootstrap.Modal.getInstance(modal);
+
+            //Détruit les éléments liés à la modale (éléments bootstrap)
+            if(modalInstance){
+                modalInstance.dispose();
+            }
+            modal.remove(); 
+        } 
     }
+}
+
+export function quitModal(){
+    //Désactivation de la modale
+    let modal = document.getElementById('staticBackdrop');
+    modal.remove();
+   
+    
 }

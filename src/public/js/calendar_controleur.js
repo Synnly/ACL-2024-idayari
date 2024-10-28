@@ -4,7 +4,7 @@ import { Calendar } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list';
-import {creerModale,envoyerForm} from '/js/modif_rendezvous-calendar.js';
+import {creerModale,envoyerForm,quitModal} from '/js/modif_rendezvous-calendar.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/ 
@@ -56,16 +56,18 @@ export class AgendaManager {
             eventClick: function(info) {
 
                 // Accès aux détails rdv
-                const title = info.event.title;
-                const id = info.event.id;
-                const description = info.event.extendedProps.description;
-                const lieu = info.event.extendedProps.lieu;
-                const start = info.event.start; 
-                const end = info.event.end; 
+                let title = info.event.title;
+                let id = info.event.id;
+                let description = info.event.extendedProps.description;
+                let lieu = info.event.extendedProps.lieu;
+                let start = info.event.start; 
+                let end = info.event.end; 
 
-                /*Rattacher la fonction du formulaire (envoyerForm) à celle du script modif_rendezvous-calendar
+                /*Rattacher les fonction du formulaire (envoyerForm,quitModal) à celle du script modif_rendezvous-calendar
                 sinon la fonction est introuvable*/
                 window.envoyerForm = envoyerForm;
+                window.quitModal = quitModal;
+
                 creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})
             }
         });
