@@ -36,7 +36,6 @@ export async function calendarGetData(req, res) {
     // Dernier jour visibles du mois (selon année et mois choisi) : peut appartenir au mois suivant
     const lastDate = new Date(paramYear, paramMonth, 1+(6-endDay)); // Dernier Jours à 23h (pas mieux que ça)
     lastDate.setHours(0,59,59); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 23h59)
-    console.log(firstDate, lastDate);
 
     if (res.locals.user) {
         //Récupération des agendas de l'utilisateur
@@ -118,10 +117,6 @@ export async function modifierRendezVousCalendarPOST(req, res) {
                 return res.status(404).json({ message: 'Rendez-vous introuvable' });
             }
 
-            rdvToUpdate.titre = titre;
-            rdvToUpdate.lieu = lieu;
-            rdvToUpdate.description = description;
-
             /*ATTENTION : On devrait être au format GMT+1 , ce qui n'est pas le cas dans le server j'avance d'1 heure ici
             manuellement, mais cela est à changer plus tard*/
             let debut =new Date(dateDebut); 
@@ -130,10 +125,13 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             fin.setHours(fin.getHours() + 1)
 
             rdvToUpdate.dateDebut = debut;
-
             rdvToUpdate.dateFin = fin;
-
+            rdvToUpdate.titre = titre;
+            rdvToUpdate.lieu = lieu;
+            rdvToUpdate.description = description;
+            
             await rdvToUpdate.save();
+            
             let data = {
                 id: rdvToUpdate.id,
                 titre: rdvToUpdate.titre,
@@ -142,10 +140,8 @@ export async function modifierRendezVousCalendarPOST(req, res) {
                 description: rdvToUpdate.description,
                 lieu: rdvToUpdate.lieu
             };
-            console.log('DATADATDATDATDATDAT',data);
             return res.json(data);
 
-            //return res.redirect('/calendar');
         } catch (error) {
             console.error('Erreur lors de la modification du rdv:', error);
             return res.status(500).json({ message: "Une erreur s'est produite" });

@@ -141,15 +141,12 @@ export class AgendaManager {
         let event = this.calendrier.getEventById(rdv.id); 
         if(event){
             //Modification du calendrier avec les nouvelles valeurs
-            console.log('rdv trouvé');
             event.setProp('title', rdv.titre);
             event.setStart(toLocaleDate(rdv.dateDebut));
             event.setEnd(toLocaleDate(rdv.dateFin));
             event.setExtendedProp('description', rdv.description);
             event.setExtendedProp('lieu', rdv.lieu);
         
-        }else{
-            console.log('rdv introuvable');
         }
     }
 
