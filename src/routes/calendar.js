@@ -1,6 +1,8 @@
 import User from "../model/User.js";
 import Agenda from "../model/Agenda.js";
 import { tabAgenda } from "../token.js";
+import RendezVous from "../model/RendezVous.js";
+
 
 // const tabAgenda = []; //Permet de gérer la sélection des agendas (dera fait avec données session plus tard)
 
@@ -109,6 +111,58 @@ export async function calendarGetData(req, res) {
         year: paramYear,
     });
 }
+
+
+export async function modifierRendezVousCalendarPOST(req, res) {
+    if (res.locals.user) {
+        try {
+            //Récupération des champs du form
+            const { idRDV, titre, lieu, description, dateDebut, dateFin } = req.body;
+
+            //Récupération du rdv avec l'id donné
+            const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
+
+            if (!rdvToUpdate) {
+                return res.status(404).json({ message: 'Rendez-vous introuvable' });
+            }
+
+            rdvToUpdate.titre = titre;
+            rdvToUpdate.lieu = lieu;
+            rdvToUpdate.description = description;
+
+            /*ATTENTION : On devrait être au format GMT+1 , ce qui n'est pas le cas dans le server j'avance d'1 heure ici
+            manuellement, mais cela est à changer plus tard*/
+            let debut =new Date(dateDebut); 
+             debut.setHours(debut.getHours() + 1)
+            let fin =new Date(dateFin);  
+             fin.setHours(fin.getHours() + 1)
+
+            rdvToUpdate.dateDebut = debut;
+
+            rdvToUpdate.dateFin = fin;
+
+            await rdvToUpdate.save();
+            let data = {
+                id: rdvToUpdate.id,
+                titre: rdvToUpdate.titre,
+                dateDebut: rdvToUpdate.dateDebut,
+                dateFin: rdvToUpdate.dateFin,
+                description: rdvToUpdate.description,
+                lieu: rdvToUpdate.lieu
+            };
+            console.log('DATADATDATDATDATDAT',data);
+            return res.json(data);
+
+            //return res.redirect('/calendar');
+        } catch (error) {
+            console.error('Erreur lors de la modification du rdv:', error);
+            return res.status(500).json({ message: "Une erreur s'est produite" });
+        }
+    } else {
+        return res.status(403).json({ message: 'Unauthorized access' });
+    }
+}
+
 
 export function getBeginingDay(year,month){
     /* Note : new Date : les mois vont de 0 à 11 , 

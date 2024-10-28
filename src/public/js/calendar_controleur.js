@@ -159,8 +159,8 @@ export class AgendaManager {
         if(event){
             console.log('rdv trouvé');
             event.setProp('title', rdv.titre);
-            event.setStart(rdv.dateDebut);
-            event.setEnd(rdv.dateFin);
+            event.setStart(toLocaleDate(rdv.dateDebut));
+            event.setEnd(toLocaleDate(rdv.dateFin));
             event.setExtendedProp('description', rdv.description);
             event.setExtendedProp('lieu', rdv.lieu);
         
@@ -221,6 +221,7 @@ export function toLocaleDate(dateString){
         hour12: false, //Format 24h
         timeZone: 'UTC', // 'UTC' ou 'Europe/Paris' selon bd (voir avec Manu)
     });
+    // console.log(dateString,fullCalendarDate);
     return fullCalendarDate;
 }
 //Initialisation du model

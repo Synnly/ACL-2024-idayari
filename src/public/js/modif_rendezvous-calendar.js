@@ -149,7 +149,7 @@ export async function envoyerForm() {
             lieu: lieuRDV.value,
             idRDV: idRDV.value,
         }
-        console.log('avant serveur : ',dateDeb)
+        console.log('avant serveur : ',dateFin)
 
         fetch("/calendar-rdv",{
             method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)

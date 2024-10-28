@@ -4,14 +4,14 @@ import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
-import {index,modifierRendezVousCalendarPOST} from "./routes/index.js";
+import {index} from "./routes/index.js";
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 import {modifierAgendaGET, modifierAgendaPOST} from './routes/modifierAgenda.js';
-import { calendarGet, calendarGetData } from "./routes/calendar.js";
+import { calendarGet, calendarGetData,modifierRendezVousCalendarPOST } from "./routes/calendar.js";
 
 
 
