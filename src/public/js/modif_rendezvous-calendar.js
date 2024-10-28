@@ -1,13 +1,7 @@
 import { agendaManager } from "./calendar_controleur.js";
+import { escapeHTML,convertDate } from "./utils.js";
 
-function escapeHTML(str) {
-    return str.replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
+/*Créer la modale de modification de rendez vous */
 export function creerModale(rdv) {
     const titre = rdv.titre;
     const lieu = rdv.lieu;
@@ -15,7 +9,6 @@ export function creerModale(rdv) {
     const dateDebut = convertDate(rdv.dateDebut);
     const dateFin = convertDate(rdv.dateFin);
     const id = rdv.id;
-    console.log('date is correct? ',dateDebut);
 
     const modaleHTML = `
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -77,6 +70,7 @@ export function creerModale(rdv) {
     vraieModale.show();
 }
 
+/* Post de la requête de modif du rdv puis demande de mise à jours du calendrier au controleur*/
 export async function envoyerForm() {
     event.preventDefault();
 
@@ -133,14 +127,6 @@ export async function envoyerForm() {
     }
 
     if (isValid) {
-        console.log('dateDeb ',dateDeb);
-        console.log('dateFin ',dateFin);
-        console.log('titreInput ',titreInput.value);
-        console.log('descriptionRDV ',descriptionRDV.value);
-        console.log('lieuRDV ',lieuRDV.value);
-        console.log('idRDV ',idRDV.value);
-
-
         let data = {
             dateDebut: dateDeb,
             dateFin: dateFin,
@@ -149,8 +135,7 @@ export async function envoyerForm() {
             lieu: lieuRDV.value,
             idRDV: idRDV.value,
         }
-        console.log('avant serveur : ',dateFin)
-
+        /*Après récupération du rdv modifié, on demande au controleur de mettre à jour le full calendar pour ce rdv */
         fetch("/calendar-rdv",{
             method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
         })
@@ -166,36 +151,4 @@ export async function envoyerForm() {
             modalInstance.hide(); 
         }
     }
-}
-
-    document.addEventListener("DOMContentLoaded", function() {
-
-        // Suppression des modales lors de la fermeture.
-        document.addEventListener('hidden.bs.modal', function(event) {
-            const modale = event.target;
-
-            if (modale.classList.contains('modal')) {
-                modale.remove();
-            }
-        });
-    });
-
-
-/*Pour passer du format Sat Nov 02 2024 15:14:00 GMT+0100 (heure normale d’Europe centrale)
-au format 2024-11-02T15:14 pour insérer les dates par défaut dans la modale */
-export function convertDate(date){
-    // let date = new Date("Sat Nov 02 2024 15:14:00 GMT+0100");
-    console.log(date);
-    
-    let year = date.getFullYear();
-    let month = String(date.getMonth() + 1).padStart(2, '0'); // Mois (0-11)
-    //PadStart(2,'0') : 2 nb min de caratère, '0' : le caractère qu'on ajoute pour avoir nos 2 caractères
-    let day = String(date.getDate()).padStart(2, '0');
-    let hours = String(date.getHours()).padStart(2, '0');
-    let minutes = String(date.getMinutes()).padStart(2, '0'); 
-
-    const newDate = `${year}-${month}-${day}T${hours}:${minutes}`;
-
-    console.log(newDate);
-    return newDate;
 }

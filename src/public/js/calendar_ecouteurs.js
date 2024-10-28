@@ -1,5 +1,5 @@
 import { agendaManager } from "./calendar_controleur.js";
-/*SCRIPT qui gère l'écoutes des divers évenements dans la page calendrier */
+/*SCRIPT qui gère l'écoutes de la séléction d'agendas */
 
 const selectionAgenda = document.getElementById("selectionAgenda");
 

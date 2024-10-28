@@ -1,25 +1,12 @@
-import { agendaManager, tableauRdvs } from "./calendar_controleur.js";
-import { Calendar } from '@fullcalendar/core'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import listPlugin from '@fullcalendar/list';
-const elementCalendrier = document.getElementById('calendar');
+import { agendaManager } from "./calendar_controleur.js";
 
 /*SCRIPT qui gère l'affichage dans la page selon les données du model */
-
-
 const selectionAgenda = document.getElementById("selectionAgenda");
 const msgAgenda = document.getElementById("msgAgenda");
 const agendasSelectionnes = document.getElementById("agendasSelectionnes");
 
-
 /*Gère l'affichage et la séléction selon les données du model */
 export async function afficher() {
-    //Remise à zéro du tableau des rdvs
-    for (let i = 0; i < 32; i++) {
-        tableauRdvs[i].length = 0;
-    }
-
     afficherAgendas(agendaManager.data);
     afficherAgendasSelectionnes(agendaManager.data);
 }
@@ -69,38 +56,4 @@ export async function afficherAgendasSelectionnes(data) {
         h3.textContent = "Il n'y a pas d'agenda sélectionnés";
         agendasSelectionnes.appendChild(h3);
     }
-}
-/*À utiliser lors du clique sur un jour ou un rdv */
-export function ajoutRdvsDuJours(day) {
-    rdvday.innerHTML = "";
-    console.log("what", day);
-    let h3Date = document.createElement("h3");
-    h3Date.textContent =
-        "Rdvs du " +
-        day +
-        "/" +
-        agendaManager.data.month +
-        "/" +
-        agendaManager.data.year;
-    rdvday.appendChild(h3Date);
-    for (let rdv of tableauRdvs[day]) {
-        let h3 = document.createElement("h3");
-        h3.textContent = rdv.titre;
-
-        let span = document.createElement("span");
-        span.textContent = "Lieu : " + rdv.lieu;
-        span.classList.add("rdv");
-        let span2 = document.createElement("span");
-        span2.textContent = "Descritption : " + rdv.description;
-        span2.classList.add("rdv");
-        rdvday.appendChild(h3);
-        let br = document.createElement("br");
-        rdvday.appendChild(br);
-        rdvday.appendChild(span);
-        br = document.createElement("br");
-        rdvday.appendChild(br);
-        rdvday.appendChild(span2);
-    }
-    rdvday;
-    tableauRdvs;
 }
