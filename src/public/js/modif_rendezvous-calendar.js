@@ -16,7 +16,7 @@ export function creerModale(rdv) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Affichage du RDV</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="quitModal()"></button>
                 </div>
                 <div class="modal-body">
                     <form class="needs-validation" id="formModifRDV" action="/calendar-rdv"" method="POST" novalidate>
