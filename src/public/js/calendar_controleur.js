@@ -101,6 +101,7 @@ export class AgendaManager {
             /*Passer this.updateYear directement ne fonctionne pas car la fonction est exécutée directement */
             document.querySelector('.fc-prev-button').addEventListener('click', () => this.updateDate());
             document.querySelector('.fc-next-button').addEventListener('click', () => this.updateDate());
+            document.querySelector('.fc-today-button').addEventListener('click', () => this.updateDate());
         
         } catch (error) {
             console.log("Aucune donnée", error);
