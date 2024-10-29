@@ -28,7 +28,7 @@ export async function calendarGetData(req, res) {
         paramYear = aujourdhui.getFullYear();
     }
    
-    let interval = getInterval(new Date(paramYear, paramMonth - 2, 2),new Date(paramYear, paramMonth, 2));
+    let interval = getIntervalle(new Date(paramYear, paramMonth - 2, 2),new Date(paramYear, paramMonth, 2));
 
     // Premier jour visible du mois (selon année et mois choisi) : peut appartenir au mois précédent
     const firstDate = interval.debut;
@@ -110,27 +110,22 @@ export async function modifierRendezVousCalendarPOST(req, res) {
                 return res.status(404).json({ message: 'Rendez-vous introuvable' });
             }
 
-            /*ATTENTION : On devrait être au format GMT+1 , ce qui n'est pas le cas dans le server j'avance d'1 heure ici
-            manuellement, mais cela est à changer plus tard*/
+            /*ATTENTION : On déduit le décallage horaire*/
             let debut =new Date(dateDebut); 
-            debut.setHours(debut.getHours() + 1)
+            debut.setHours(debut.getHours() - (debut.getTimezoneOffset()/60))
             let fin =new Date(dateFin);  
-            fin.setHours(fin.getHours() + 1)
+            fin.setHours(fin.getHours() - (fin.getTimezoneOffset()/60))
 
-            
+            //Sauvegarde du rdv
             rdvToUpdate.dateDebut = debut;
             rdvToUpdate.dateFin = fin;
             rdvToUpdate.titre = titre;
             rdvToUpdate.lieu = lieu;
             rdvToUpdate.description = description;
-            
             await rdvToUpdate.save();
             
             //Récupération des rdvs avec un interval large
-            debut.setMonth(debut.getMonth()-1);
-            fin.setMonth(fin.getMonth()+1);
-            let interval = getInterval(new Date(debut.getFullYear(), debut.getMonth() - 1, 2),new Date(fin.getFullYear(), debut.getMonth()+1, 2));
-
+            let interval = getIntervalle(new Date(debut.getFullYear(), debut.getMonth() - 1, 2),new Date(fin.getFullYear(), debut.getMonth()+1, 2));
             let savedRdv = await RendezVous.findOne({where: { id: rdvToUpdate.id }})
             let rdvs = savedRdv.get_rendezVous(interval.debut,interval.fin);
             return res.json(rdvs);
@@ -145,7 +140,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
 }
 
 /* Renvoi l'intervalle Large entre 2 dates (on peut modifier un rdv de novembre au mois d'octobre avec fullcalendar) */
-export function getInterval(startDate,endDate){
+export function getIntervalle(startDate,endDate){
     let monthDebut = startDate.getMonth() + 1;
     let yearDebut = startDate.getFullYear();
     let monthEnd = endDate.getMonth() + 1; 
@@ -154,12 +149,12 @@ export function getInterval(startDate,endDate){
     let startDay = getBeginingDay(yearDebut,monthDebut);
     // Premier jour visible du mois (selon année et mois choisi)
     let debut = new Date(yearDebut, monthDebut - 1, 1-startDay); // Premier jours
-    debut.setHours(2,0,0); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 00h00)
+    debut.setHours(- (debut.getTimezoneOffset()/60),0,0); //Déduction du décalage horaire
 
     let endDay = getEndDay(yearEnd,monthEnd);
     // Dernier jour visibles du mois (selon année et mois choisi) 
-    let fin = new Date(yearEnd, monthEnd, 1+(6-endDay)); // Dernier Jours à 23h (pas mieux que ça)
-    fin.setHours(0,59,59); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 23h59)
+    let fin = new Date(yearEnd, monthEnd, (6-endDay)); 
+    fin.setHours(23- (fin.getTimezoneOffset()/60),59,59); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 23h59)
 
     return {debut,fin};
 
