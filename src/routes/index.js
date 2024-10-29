@@ -17,3 +17,34 @@ export async function index(req, res) {
     const html = await ejs.renderFile("views/index.ejs", res.locals, {async:true});
     res.send(html);
 }
+
+export async function modifierRendezVousPOST(req, res) {
+    if (res.locals.user) {
+        try {
+            //Récupération des champs du form
+            const { idRDV, titre, lieu, description, dateDebut, dateFin } = req.body;
+
+            //Récupération du rdv avec l'id donné
+            const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
+
+            if (!rdvToUpdate) {
+                return res.status(404).json({ message: 'Rendez-vous introuvable' });
+            }
+
+            rdvToUpdate.titre = titre;
+            rdvToUpdate.lieu = lieu;
+            rdvToUpdate.description = description;
+            rdvToUpdate.dateDebut = new Date(dateDebut);
+            rdvToUpdate.dateFin = new Date(dateFin);
+
+            await rdvToUpdate.save();
+
+            return res.redirect('/');
+        } catch (error) {
+            console.error('Erreur lors de la modification du rdv:', error);
+            return res.status(500).json({ message: "Une erreur s'est produite" });
+        }
+    } else {
+        return res.status(403).json({ message: 'Unauthorized access' });
+    }
+}
