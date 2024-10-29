@@ -2,7 +2,7 @@ import { agendaManager } from "./calendar_controleur.js";
 import { escapeHTML,convertDate } from "./utils.js";
 
 /*Créer la modale de modification de rendez vous */
-export function creerModale(rdv) {
+export function creerModale(rdv,month,year) {
     let titre = rdv.titre;
     let lieu = rdv.lieu;
     let description = rdv.description;
@@ -54,7 +54,7 @@ export function creerModale(rdv) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModal()">Annuler</button>
-                    <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Modifier</button>
+                    <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm(`+month+`,`+year+`)">Modifier</button>
                 </div>
             </div>
         </div>
@@ -71,7 +71,7 @@ export function creerModale(rdv) {
 }
 
 /* Post de la requête de modif du rdv puis demande de mise à jours du calendrier au controleur*/
-export async function envoyerForm() {
+export async function envoyerForm(month,year) {
     event.preventDefault();
 
     let titreInput = document.getElementById('titreRDV');

@@ -11,19 +11,18 @@ au format 2024-11-02T15:14 pour insérer les dates par défaut dans la modale
 Utilisés dans modif_rendezvous-calendar*/
 export function convertDate(date){    
     let year = date.getFullYear();
-    let month = String(date.getMonth() + 1).padStart(2, '0'); // Mois (0-11)
-
     //PadStart(2,'0') : 2 = nb min de caratère, '0' = le caractère de remplissage qu'on ajoute 
+    let month = String(date.getMonth() + 1).padStart(2, '0'); // Mois (0-11)
     let day = String(date.getDate()).padStart(2, '0');
     let hours = String(date.getHours()).padStart(2, '0');
     let minutes = String(date.getMinutes()).padStart(2, '0'); 
 
     const newDate = `${year}-${month}-${day}T${hours}:${minutes}`;
-
+    
     return newDate;
 }
 
-/*Va servir à savoir quel jour commence le 1er du mois */
+/*Sert à connaître le jour auquel commence le 1er du mois */
 const weekdays = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi", "Vendredi", "Samedi"];
 
 /*Renvoie l'indice du premier jour du mois */

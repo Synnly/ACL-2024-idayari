@@ -54,7 +54,6 @@ export class AgendaManager {
                 },
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
-
                 // Accès aux détails rdv
                 let title = info.event.title;
                 let id = info.event.id;
@@ -62,13 +61,20 @@ export class AgendaManager {
                 let lieu = info.event.extendedProps.lieu;
                 let start = info.event.start; 
                 let end = info.event.end; 
+                let type = info.event.extendedProps.type;
+                
+                if(info.event.extendedProps.type !== "Simple"){
+                    alert(`MODIF RDVS RÉCURRENTS DISPONIBLE PROCHAINEMENT\n\nTitre : ${title}\nDescription : ${description}\nLieu : ${lieu}\nDate début : ${start}\nDate fin : ${end}\nType : ${type}\nId : ${id}\n`);
+                }else{
+                    /*Rattacher les fonction du formulaire (envoyerForm,quitModal) à celle du script modif_rendezvous-calendar
+                    sinon la fonction est introuvable*/
+                    window.envoyerForm = envoyerForm;
+                    window.quitModal = quitModal;
+                    creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})
+                }
 
-                /*Rattacher les fonction du formulaire (envoyerForm,quitModal) à celle du script modif_rendezvous-calendar
-                sinon la fonction est introuvable*/
-                window.envoyerForm = envoyerForm;
-                window.quitModal = quitModal;
 
-                creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})
+                
             }
         });
   
@@ -89,7 +95,7 @@ export class AgendaManager {
             
             //Mise à jours des agendas
             afficher();
-            ajouterEcouteurs(data);
+            ajouterEcouteurs();
 
             //Mise à jours des rdvs (events) du calendrier
             this.calendrier.removeAllEvents();
@@ -140,17 +146,15 @@ export class AgendaManager {
 
     /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
     async updateRdv(rdv){
-        //Récupération du rdv correspondant
-        let event = this.calendrier.getEventById(rdv.id); 
-        if(event){
-            //Modification du calendrier avec les nouvelles valeurs
-            event.setProp('title', rdv.titre);
-            event.setStart(toLocaleDate(rdv.dateDebut));
-            event.setEnd(toLocaleDate(rdv.dateFin));
-            event.setExtendedProp('description', rdv.description);
-            event.setExtendedProp('lieu', rdv.lieu);
-        
-        }
+        let firstRdv = rdv[0];
+        //Suppression des rdvs correspondants
+        let events = this.calendrier.getEvents().filter(event => event.id != firstRdv.id);
+        //Ajouts des nouveaux rdvs
+        let newRdvs = rdvMapping(rdv);
+        events.push(...newRdvs);
+        this.calendrier.removeAllEvents();
+        this.calendrier.addEventSource(events);
+        this.calendrier.render(); 
     }
 
     /*Requête lors de la sélection et désélection de l'année */
@@ -183,6 +187,7 @@ export function rdvMapping(rdvs){
         'id': element.id,
         "description": element.description,
         "lieu": element.lieu,
+        "type": element.type
     });
         
     });

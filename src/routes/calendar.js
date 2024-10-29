@@ -27,15 +27,13 @@ export async function calendarGetData(req, res) {
     if (!paramYear) {
         paramYear = aujourdhui.getFullYear();
     }
-    let startDay = getBeginingDay(paramYear,paramMonth);
-    let endDay = getEndDay(paramYear,paramMonth);
+   
+    let interval = getInterval(new Date(paramYear, paramMonth - 2, 2),new Date(paramYear, paramMonth, 2));
 
     // Premier jour visible du mois (selon année et mois choisi) : peut appartenir au mois précédent
-    const firstDate = new Date(paramYear, paramMonth - 1, 2-startDay); // Premier jours
-    firstDate.setHours(2,0,0); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 00h00)
+    const firstDate = interval.debut;
     // Dernier jour visibles du mois (selon année et mois choisi) : peut appartenir au mois suivant
-    const lastDate = new Date(paramYear, paramMonth, 1+(6-endDay)); // Dernier Jours à 23h (pas mieux que ça)
-    lastDate.setHours(0,59,59); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 23h59)
+    const lastDate = interval.fin;
 
     if (res.locals.user) {
         //Récupération des agendas de l'utilisateur
@@ -64,19 +62,15 @@ export async function calendarGetData(req, res) {
         //Récupération de tout les rdvs des agendas sélectionnés
         let rendezVous = [];
         let listRdv = null;
+        let tempRdv;
         for (let key in tabAgenda) {
-            //IMPORTANT : À remplacer par la fonction de récupération des rdvs de Frank (dont récurrent)
             listRdv = await tabAgenda[key].getRendezVous();
             if (listRdv) {
                 for (let key in listRdv) {
                     /*IMPORTANT : on fait ca car la fonction qui récupère les rdvs 
                     (dont les récurents) ne fonctionne pas */
-                    if (
-                        listRdv[key].dateDebut >= firstDate &&
-                        listRdv[key].dateFin <= lastDate
-                    ) {
-                        rendezVous.push(listRdv[key]);
-                    }
+                    tempRdv = listRdv[key].get_rendezVous(firstDate,lastDate);
+                    rendezVous.push(...tempRdv);
                 }
             }
         }
@@ -109,7 +103,6 @@ export async function modifierRendezVousCalendarPOST(req, res) {
         try {
             //Récupération des champs du form
             const { idRDV, titre, lieu, description, dateDebut, dateFin } = req.body;
-
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
 
@@ -124,6 +117,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             let fin =new Date(dateFin);  
             fin.setHours(fin.getHours() + 1)
 
+            
             rdvToUpdate.dateDebut = debut;
             rdvToUpdate.dateFin = fin;
             rdvToUpdate.titre = titre;
@@ -132,15 +126,14 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             
             await rdvToUpdate.save();
             
-            let data = {
-                id: rdvToUpdate.id,
-                titre: rdvToUpdate.titre,
-                dateDebut: rdvToUpdate.dateDebut,
-                dateFin: rdvToUpdate.dateFin,
-                description: rdvToUpdate.description,
-                lieu: rdvToUpdate.lieu
-            };
-            return res.json(data);
+            //Récupération des rdvs avec un interval large
+            debut.setMonth(debut.getMonth()-1);
+            fin.setMonth(fin.getMonth()+1);
+            let interval = getInterval(new Date(debut.getFullYear(), debut.getMonth() - 1, 2),new Date(fin.getFullYear(), debut.getMonth()+1, 2));
+
+            let savedRdv = await RendezVous.findOne({where: { id: rdvToUpdate.id }})
+            let rdvs = savedRdv.get_rendezVous(interval.debut,interval.fin);
+            return res.json(rdvs);
 
         } catch (error) {
             console.error('Erreur lors de la modification du rdv:', error);
@@ -149,4 +142,25 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     } else {
         return res.status(403).json({ message: 'Unauthorized access' });
     }
+}
+
+/* Renvoi l'intervalle Large entre 2 dates (on peut modifier un rdv de novembre au mois d'octobre avec fullcalendar) */
+export function getInterval(startDate,endDate){
+    let monthDebut = startDate.getMonth() + 1;
+    let yearDebut = startDate.getFullYear();
+    let monthEnd = endDate.getMonth() + 1; 
+    let yearEnd = endDate.getFullYear();
+
+    let startDay = getBeginingDay(yearDebut,monthDebut);
+    // Premier jour visible du mois (selon année et mois choisi)
+    let debut = new Date(yearDebut, monthDebut - 1, 1-startDay); // Premier jours
+    debut.setHours(2,0,0); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 00h00)
+
+    let endDay = getEndDay(yearEnd,monthEnd);
+    // Dernier jour visibles du mois (selon année et mois choisi) 
+    let fin = new Date(yearEnd, monthEnd, 1+(6-endDay)); // Dernier Jours à 23h (pas mieux que ça)
+    fin.setHours(0,59,59); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 23h59)
+
+    return {debut,fin};
+
 }

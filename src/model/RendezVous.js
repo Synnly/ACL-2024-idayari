@@ -70,11 +70,11 @@ export default class RendezVous extends Model {
     }
 
     is_all_day() {
-        return dateFin.getMilliseconds() == 999;
+        return this.dateFin.getMilliseconds() == 999;
     }
 
     create_rendezVousSimple(debut, fin) {
-        return new RendezVousSimple(this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description);
+        return new RendezVousSimple(this.id,this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description,this.type);
     }
 
     // PAS DU TOUT TESTE

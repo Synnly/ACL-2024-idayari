@@ -36,7 +36,6 @@ export async function creationRendezVousPOST(req, res) {
     try {
         const dateDebut = new Date(req.body.dateDebut);
         const dateFin = new Date(req.body.dateFin);
-        console.log("aze");
         if (req.body.all_day == "all_day") {
             dateDebut.setHours(0, 0, 0, 0);
             dateFin.setHours(23, 59, 59, 999);

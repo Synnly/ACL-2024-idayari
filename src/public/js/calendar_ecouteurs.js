@@ -5,14 +5,14 @@ const selectionAgenda = document.getElementById("selectionAgenda");
 
 
 /*Ajoute les écouteurs pour gérer l sélection d'agenda - le changement de mois, et le changemnt d'année */
-export async function ajouterEcouteurs(data) {
-    ajouterEcouteurSelectionAgenda(data);    
+export async function ajouterEcouteurs() {
+    ajouterEcouteurSelectionAgenda();    
 }
 
 /*Attention ici l'écouteur click fonctionnne parce que le select des agendas
 a la taille du nombre d'agendas. Sinon il faudrait utiliser l'ecouteur change 
 comme dans la fonction ajouterEcouteurMonth */
-export async function ajouterEcouteurSelectionAgenda(data) {
+export async function ajouterEcouteurSelectionAgenda() {
     selectionAgenda.addEventListener("click", function (event) {
         if (event.target.tagName === "OPTION") {
             let idAgenda = event.target.id.split("-")[1];
