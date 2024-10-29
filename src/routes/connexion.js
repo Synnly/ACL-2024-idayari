@@ -24,6 +24,7 @@ export function connexionGET(req, res) {
  * @param res La réponse
  */
 export async function connexionPOST(req, res) {
+    tabAgenda.length = 0; //On vide le tableau d'agenda sélectionné (sécurité)
     let username = req.body.username;
     let password = User.hashPassowrd(req.body.password);
 

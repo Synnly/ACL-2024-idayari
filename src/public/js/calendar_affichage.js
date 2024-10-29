@@ -15,9 +15,10 @@ export async function afficher() {
 export async function afficherAgendas(data) {
     msgAgenda.innerHTML = "";
     if (data.agendas.length > 0) {
+        selectionAgenda.style.display = "block";
+
         let h3 = document.createElement("h3");
-        h3.textContent =
-            "Sélectionnez un ou plusieurs agendas pour voir les rdvs associés";
+        h3.textContent = "Sélectionnez vos agendas";
         msgAgenda.appendChild(h3);
 
         selectionAgenda.size = data.agendas.length;
@@ -31,21 +32,19 @@ export async function afficherAgendas(data) {
             selectionAgenda.appendChild(option);
         }
     } else {
+        selectionAgenda.style.display = "none"; 
         let h3 = document.createElement("h3");
-        h3.textContent = "Il n'y a pas d'agenda";
+        h3.textContent = "Aucun agenda disponible";
         msgAgenda.appendChild(h3);
     }
 }
 /*Affichage des agendas sélectionnés selon le model */
 export async function afficherAgendasSelectionnes(data) {
     agendasSelectionnes.innerHTML = "";
+    let h3 = document.createElement("h3");
+    h3.textContent = "Agendas sélectionnés";
+    agendasSelectionnes.appendChild(h3);
     if (data.selectedAgendas.length > 0) {
-        let h3 = document.createElement("h3");
-        h3.textContent = "Agendas sélectionnés";
-        agendasSelectionnes.appendChild(h3);
-        let br = document.createElement("br");
-        agendasSelectionnes.appendChild(br);
-
         for (const agenda of data.selectedAgendas) {
             let span = document.createElement("span");
             span.textContent = agenda.nom + ", ";
@@ -53,7 +52,9 @@ export async function afficherAgendasSelectionnes(data) {
         }
     } else {
         let h3 = document.createElement("h3");
-        h3.textContent = "Il n'y a pas d'agenda sélectionnés";
-        agendasSelectionnes.appendChild(h3);
+        let span = document.createElement("span");
+        span.classList.add('noAgenda');
+        span.textContent = "Aucun agenda sélectionné";
+        agendasSelectionnes.appendChild(span);
     }
 }

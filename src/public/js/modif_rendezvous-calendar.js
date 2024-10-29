@@ -158,8 +158,6 @@ export async function envoyerForm() {
         if (modal) {
             modal.remove(); 
         }
-       
-       
     }
 }
 
