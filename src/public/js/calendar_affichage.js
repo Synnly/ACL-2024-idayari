@@ -7,7 +7,6 @@ const agendasSelectionnes = document.getElementById("agendasSelectionnes");
 
 /*Gère l'affichage et la séléction selon les données du model */
 export async function afficher() {
-    afficherAgendas(agendaManager.data);
     afficherAgendasSelectionnes(agendaManager.data);
 }
 

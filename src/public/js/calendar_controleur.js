@@ -1,4 +1,4 @@
-import { afficher  } from "./calendar_affichage.js";
+import { afficher ,afficherAgendas } from "./calendar_affichage.js";
 import { ajouterEcouteurs } from "./calendar_ecouteurs.js";
 import { Calendar } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -95,6 +95,7 @@ export class AgendaManager {
             
             //Mise à jours des agendas
             afficher();
+            afficherAgendas(this.data);
             ajouterEcouteurs();
 
             //Mise à jours des rdvs (events) du calendrier
