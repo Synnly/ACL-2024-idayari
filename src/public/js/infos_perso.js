@@ -89,3 +89,20 @@ function modifyPassword(){
     document.getElementById("password_change_info").disabled = false;
     document.getElementById("div_confirmationpswd_change_info").style = "display: block";
 }
+
+const togglePassword = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('password_change_info_confirmation');
+
+  togglePassword.addEventListener('click', function () {
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      togglePassword.src = '/img/oeil_2.svg';
+    } else {
+      passwordInput.type = 'password';
+      togglePassword.src = '/img/oeil.png';
+    }
+  });
+
+
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))

@@ -6,63 +6,87 @@
     <title>Informations personnelles</title>
     <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-  	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/css/main.css" rel="stylesheet">
     <link href="/css/index.css" rel="stylesheet">
 </head>
 
 <body>
+
+    <!-- File for header -->
     <%- include('partials/header.ejs') %>
-    <a href="/" >Retour à la page d'accueil</a>
-    <h1>Informations personnelles</h1>
-    <% if(locals.errMsg) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
-    <div>
-        <form method="post" id="mainForm" style="display: flex; flex-direction: column; gap: 10px;">
-            <div>
+
+    <!-- Rest og the page -->
+    <div class="p-4">
+
+        <!-- Title and subtitle  -->
+        <div class="mb-5">
+            <a href="/">Retour à la page d'accueil</a>
+            <h1 class="pt-4 fs-2">Voici vos informations personnelles</h1>
+            <h2 class="fs-5 fw-light">Vous pouvez consulter/modifier chacunes de vos informations ci-dessous</h2>
+        </div>
+
+        <!-- Form -->
+        <form method="post" id="mainForm" class="d-flex flex-row column-gap-5">
+
+            <!-- Username -->
+            <div class="w-50" style="max-width: 600px;">
                 <label for="username_change_info">Nom d'utilisateur</label>
-                <input id="username_change_info" type="text" name="user_username_change_info" value="<%= locals.user.username%>" disabled="">
-                <button onclick="modifyUsername()">Modifier</button>
+                <div class="d-flex justify-content-center align-items-center column-gap-3">
+                    <input id="username_change_info" type="text" name="user_username_change_info" value="<%= locals.user.username%>" disabled="" class="form-control">
+                    <img src="/img/pen.png" alt="pen" onclick="modifyUsername()" width="24" height="24" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Modifier votre nom d'utilisateur" style="cursor: pointer;">
+                </div>
             </div>
 
-            <div>
-                <label for="password_change_info">Mot de passe</label>
-                <input id="password_change_info" type="password" name="user_password_change_info" placeholder="**********" disabled="">
-                <button onclick="modifyPassword()">Modifier</button>
-            </div>
+            <!-- Password & confirmation -->
+            <div class="w-50 d-flex flex-column colum row-gap-3" style="max-width: 600px;">
+                
+                <!-- Password -->
+                <div>
+                    <label for="password_change_info">Mot de passe</label>
+                    <div class="d-flex justify-content-center align-items-center column-gap-3">
+                        <input id="password_change_info" type="password" name="user_password_change_info" placeholder="**********" disabled="" class="form-control">
+                        <img src="/img/pen.png" alt="pen" onclick="modifyPassword()" width="24" height="24" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Modifier votre mot de passe" style="cursor: pointer;">
+                    </div>
+                </div>
 
-            <div id="div_confirmationpswd_change_info" style="display: none">
-                <label for="confirmationpswd_change_info">Confirmer le nouveau mot de passe</label>
-                <input id="confirmationpswd_change_info" type="password"
-                name="user_confirmationpswd_change_info" placeholder="**********">
+                <!-- Confirmation  -->
+                <div id="div_confirmationpswd_change_info" style="display: none; max-width: 600px;">
+                    <label for="confirmationpswd_change_info">Confirmer le nouveau mot de passe</label>
+                    <input id="confirmationpswd_change_info" type="password" name="user_confirmationpswd_change_info" placeholder="**********" class="form-control">
+                </div>
+                <div id="errorMessage"></div>
+                <input type="hidden" id="hidden_password_confirmation" name="user_password_change_info_confirmation_hidden" style="max-width: 600px;">
             </div>
-
-            <div id="errorMessage"></div>
-            <input type="hidden" id="hidden_password_confirmation"
-                name="user_password_change_info_confirmation_hidden">
         </form>
 
+        <!-- Confirmation change with write password -->
         <div id="confirm_password" style="display: none">
-            <h3>Entrez votre mot de passe actuel pour confirmer</h3>
 
-            <div>
+            <h3>Entrez votre mot de passe actuel pour confirmer les modifications</h3>
+            <div class="d-flex flex-column column-gap-3">
+
                 <label for="password_change_info">Mot de passe</label>
-                <input id="password_change_info_confirmation" type="password"
-                name="user_password_change_info_confirmation" required>
+                <div class="d-flex align-items-center column-gap-3" style="max-width: 600px;">
+
+                    <input id="password_change_info_confirmation" type="password" name="user_password_change_info_confirmation" class="form-control" required style="max-width: 600px;">
+                    <img src="/img/oeil.png" alt="show password" id="togglePassword" style="width: 24px; cursor: pointer;">
+                </div>
             </div>
-           
+
             <span id="information_confirmation"></span>
-
-           <div>
-            <button type="submit" id="changeInfoSubmitComfirmation" onclick="return sendData()">Envoyer</button>
-
-            <button type="button" onclick="window.location.href = '/infos_perso'">
-                Annuler
-            </button>
-           </div>
+            
+            <div>
+                <button type="submit" id="changeInfoSubmitComfirmation"onclick="return sendData()" class="btn btn-primary text-white">Envoyer</button>
+                <button type="button" onclick="window.location.href = '/infos_perso'" class="btn btn-secondary text-white">Annuler</button>
+            </div>
         </div>
+        
     </div>
-    <script src="/js/infos_perso.js"></script>
-    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
-</body>
 
+    <% if(locals.errMsg) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/infos_perso.js"></script>
+
+</body>
 </html>
