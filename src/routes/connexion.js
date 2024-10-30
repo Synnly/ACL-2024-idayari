@@ -1,6 +1,5 @@
 import {saveAuthentificationCookie} from "../token.js";
 import User from "../model/User.js";
-import { tabAgenda } from "../token.js";
 
 
 /**
@@ -24,7 +23,6 @@ export function connexionGET(req, res) {
  * @param res La réponse
  */
 export async function connexionPOST(req, res) {
-    tabAgenda.length = 0; //On vide le tableau d'agenda sélectionné (sécurité)
     let username = req.body.username;
     let password = User.hashPassowrd(req.body.password);
 
@@ -48,6 +46,5 @@ export async function connexionPOST(req, res) {
  */
 export function deconnexion(req, res) {
     res.clearCookie('accessToken');
-    tabAgenda.length = 0; //On vide le tableau d'agenda sélectionné
     return res.redirect('/');
 }

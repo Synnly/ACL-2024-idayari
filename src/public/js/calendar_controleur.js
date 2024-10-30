@@ -1,5 +1,3 @@
-import { afficher ,afficherAgendas } from "./calendar_affichage.js";
-import { ajouterEcouteurs } from "./calendar_ecouteurs.js";
 import { Calendar } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -15,11 +13,9 @@ const elementCalendrier = document.getElementById('calendar');
 /*Classe représentant les données nécessaires au fonctionnemnt du calendrier,
 c'est dans cette classe que l'on va charger les données recus du serveur */
 export class Data {
-    constructor(agendas, selectedAgendas, rdvs, user, month, year) {
-        this.agendas = agendas;
-        this.selectedAgendas = selectedAgendas;
+    constructor(agendas_selectionnes, rdvs, month, year) {
+        this.agendas_selectionnes = agendas_selectionnes;
         this.rdvs = rdvs;
-        this.user = user;
         this.month = month;
         this.year = year;
     }
@@ -29,10 +25,8 @@ export class AgendaManager {
 
     constructor() {
         this.data = {
-            agendas: null,
-            selectedAgendas: null,
+            agendas_selectionnes: [],
             rdvs: null,
-            user: null,
             month: null,
             year: null,
         };
@@ -60,21 +54,11 @@ export class AgendaManager {
                 let description = info.event.extendedProps.description;
                 let lieu = info.event.extendedProps.lieu;
                 let start = info.event.start; 
-                let end = info.event.end; 
-                let type = info.event.extendedProps.type;
-                
-                if(info.event.extendedProps.type !== "Simple"){
-                    alert(`MODIF RDVS RÉCURRENTS DISPONIBLE PROCHAINEMENT\n\nTitre : ${title}\nDescription : ${description}\nLieu : ${lieu}\nDate début : ${start}\nDate fin : ${end}\nType : ${type}\nId : ${id}\n`);
-                }else{
-                    /*Rattacher les fonction du formulaire (envoyerForm,quitModal) à celle du script modif_rendezvous-calendar
-                    sinon la fonction est introuvable*/
-                    window.envoyerForm = envoyerForm;
-                    window.quitModal = quitModal;
-                    creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})
-                }
+                let end = info.event.end;
 
-
-                
+                window.envoyerForm = envoyerForm;
+                window.quitModal = quitModal;
+                creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})   
             }
         });
   
@@ -83,117 +67,74 @@ export class AgendaManager {
     /*Au premier accès à la page calendar on fait une première requête 
     pour obtenir les données de bases de l'utilisateur*/
     async init() {
-        try {
-            const serverResponse = await fetch("/calendar-data");
-            const data = await serverResponse.json();
-            this.data.agendas = data.agendas;
-            this.data.selectedAgendas = data.selectedAgendas;
-            this.data.rdvs = data.rdvs;
-            this.data.user = data.user;
-            this.data.month = data.month;
-            this.data.year = data.year;
-            
-            //Mise à jours des agendas
-            afficher();
-            afficherAgendas(this.data);
-            ajouterEcouteurs();
+        this.calendrier.render();
 
-            //Mise à jours des rdvs (events) du calendrier
-            this.calendrier.removeAllEvents();
-            let rdvs = rdvMapping(data.rdvs);
-            this.calendrier.addEventSource(rdvs);
-            this.calendrier.render();
-    
-            // Ajout d'écouteurs (prev,next : Changements de mois)
-            /*Passer this.updateYear directement ne fonctionne pas car la fonction est exécutée directement */
-            document.querySelector('.fc-prev-button').addEventListener('click', () => this.updateDate());
-            document.querySelector('.fc-next-button').addEventListener('click', () => this.updateDate());
-            document.querySelector('.fc-today-button').addEventListener('click', () => this.updateDate());
-        
-        } catch (error) {
-            console.log("Aucune donnée", error);
+        // Ajout d'écouteurs (prev,next : Changements de mois)
+        /*Passer this.updateYear directement ne fonctionne pas car la fonction est exécutée directement */
+        for (const child of document.getElementById('agendaList').children) {
+            child.addEventListener('click', () => this.refresh());
         }
+        document.getElementById('selectAll').addEventListener('click', () => this.refresh());
+        document.querySelector('.fc-prev-button').addEventListener('click', () => this.updateDate());
+        document.querySelector('.fc-next-button').addEventListener('click', () => this.updateDate());
+        document.querySelector('.fc-today-button').addEventListener('click', () => this.updateDate());
     }
 
     /*Mets à jours les données du model */
     updateData(newdata) {
-        this.data.agendas = newdata.agendas;
-        this.data.selectedAgendas = newdata.selectedAgendas;
         this.data.rdvs = newdata.rdvs;
-        this.data.user = newdata.user;
         this.data.month = newdata.month;
         this.data.year = newdata.year;
-        
-        //Mise à jours des agendas
-        afficher(newdata);
     
         //Mise à jours des rdvs (events) du calendrier
         this.calendrier.removeAllEvents();
-        let rdvs = rdvMapping(newdata.rdvs);
-        this.calendrier.addEventSource(rdvs);
+        this.calendrier.addEventSource(this.data.rdvs);
         this.calendrier.render();    
     }
 
     /*Met à jours le calendrier selon le mois ou l'année dans lequels on navigue */
     async updateDate(){
         let currentDate = this.calendrier.getDate(); // Date actuelle du fullcalendar
-        let month = currentDate.getMonth() + 1; // mois de 0 à 11
-        let year = currentDate.getFullYear();
-        fetch("/calendar-data?month=" + month + "&" + "year=" + year)
-            .then((response) => response.json())
-            .then((data) => this.updateData(data))
-            .catch((error) => console.log("Aucune données"));
+        this.data.month = currentDate.getMonth() + 1; // mois de 0 à 11
+        this.data.year = currentDate.getFullYear();
+        this.update();
     }
 
     /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
     async updateRdv(rdv){
+        console.log(rdv);
         let firstRdv = rdv[0];
         //Suppression des rdvs correspondants
         let events = this.calendrier.getEvents().filter(event => event.id != firstRdv.id);
         //Ajouts des nouveaux rdvs
-        let newRdvs = rdvMapping(rdv);
-        events.push(...newRdvs);
+        events.push(...rdv);
         this.calendrier.removeAllEvents();
         this.calendrier.addEventSource(events);
         this.calendrier.render(); 
     }
 
     /*Requête lors de la sélection et désélection de l'année */
-    async selectionAgenda(idAgenda) {
+    async update() {
+        const sel = encodeURIComponent(JSON.stringify(this.data.agendas_selectionnes));
         fetch(
             "/calendar-data?year=" +
-                this.data.year +
-                "&" +
-                "id=" +
-                idAgenda +
-                "&" +
-                "month=" +
-                this.data.month
+                (this.data.year ? this.data.year : "") +
+                "&selectionnes=" + sel +
+                "&month=" +
+                (this.data.month ? this.data.month : "")
         )
             .then((response) => response.json())
             .then((data) => this.updateData(data))
             .catch((error) => console.log("Aucune données"));
     }
+
+    refresh() {
+        const agendaSelectionnes = document.getElementById('agendaList').getElementsByClassName('active');
+        this.data.agendas_selectionnes = Array.prototype.map.call(agendaSelectionnes, (e) => e.id.split("_")[1]);
+        this.update();
+    }
 }
 
-
-
-/*Map les rdvs récupérées du serveur en events exploitable par le fullcalendar */
-export function rdvMapping(rdvs){
-    let tabRdvs = [];
-    rdvs.forEach(element => {tabRdvs.push({
-        "title": element.titre,
-        "start": toLocaleDate(element.dateDebut),
-        "end": toLocaleDate(element.dateFin),
-        'id': element.id,
-        "description": element.description,
-        "lieu": element.lieu,
-        "type": element.type
-    });
-        
-    });
-    return tabRdvs;
-}
 
 /*Utilisé par le mapping pour avoir un format de date exploitable par fullcalendar */
 export function toLocaleDate(dateString){

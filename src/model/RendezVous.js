@@ -74,7 +74,7 @@ export default class RendezVous extends Model {
     }
 
     create_rendezVousSimple(debut, fin) {
-        return new RendezVousSimple(this.id,this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description,this.type);
+        return new RendezVousSimple(this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description);
     }
 
     // PAS DU TOUT TESTE

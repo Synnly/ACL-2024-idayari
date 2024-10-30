@@ -54,7 +54,6 @@ app
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
 
-    .get("/calendar/", calendarGet)
     .get("/calendar-data/", calendarGetData)
 
     .use((req, res, next) => next(createError(404)))
