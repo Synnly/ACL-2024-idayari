@@ -61,9 +61,25 @@ export default class RendezVous extends Model {
             validate: {
                 isAfterDateDebut2
             }
+        },
+        nbOccurrences: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         }
     },
     {sequelize, timestamps: false, tableName: "RendezVous"});
+
+    is_recurrent() {
+        return this.type != 'Simple';
+    }
+
+    fin_par_date() {
+        return this.finRecurrence != null;
+    }
+
+    fin_par_nb_occurrences() {
+        return this.nbOccurrences != null;
+    }
 
     getDuree() {
         return this.dateFin - this.dateDebut;
@@ -94,6 +110,15 @@ export default class RendezVous extends Model {
         const add_function = this.type == 'Regular' ? addDays : (this.type == 'Monthly' ? addMonths : addYears);
         const diff_function = this.type == 'Regular' ? daysDiff : (this.type == 'Monthly' ? monthDiff : yearDiff);
         
+        let finRec = null;
+        if (this.fin_par_nb_occurrences()) {
+            finRec = add_function(this.dateDebut, (this.nbOccurrences-1) * this.frequence);
+            finRec.setHours(23, 59, 59, 999);
+        }
+        if (this.fin_par_date()) {
+            finRec = this.finRecurrence;
+        }
+            
         const res = [];
         let debut = this.dateDebut;
         let fin = this.dateFin;
@@ -104,7 +129,7 @@ export default class RendezVous extends Model {
             fin = add_function(fin, skip);
             debut = add_function(debut, skip);
         }
-        while ((!this.finRecurrence || debut <= this.finRecurrence) && debut < periodeFin) {
+        while ((!finRec || debut <= finRec) && debut < periodeFin) {
             res.push(this.create_rendezVousSimple(debut, fin));
             debut = add_function(debut, this.frequence);
             fin = add_function(fin, this.frequence);
