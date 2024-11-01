@@ -100,7 +100,7 @@ export default class RendezVous extends Model {
         // le premier rendez vous récurrent ne rentre pas dans la période, au lieu de parcourir
         // tous les rendez vous récurrents qui ne rentreraient pas, on skip jusqu'au premier rendez-vous récurrent dans la période
         if (fin < periodeDebut) {
-            const skip = Math.ceil(diff_function(periodeDebut, fin)/this.frequence);
+            const skip = Math.ceil(diff_function(fin, periodeDebut)/this.frequence);
             fin = add_function(fin, skip);
             debut = add_function(debut, skip);
         }
