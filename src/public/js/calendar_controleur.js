@@ -39,6 +39,7 @@ export class AgendaManager {
             // permet de pas afficher des milliers de rendez-vous par case
             dayMaxEventRows: 3, // pour la vue mois
             eventMaxStack: 4, // pour les vues semaine et jour
+            timeZone: 'UTC', //Sans fuseau horaire (à l'affichage)            
             //Paramétrage des modes d'affichages du calendrier
             headerToolbar: {
                 left: 'prev,next today',
@@ -58,8 +59,9 @@ export class AgendaManager {
                 let id = info.event.id;
                 let description = info.event.extendedProps.description;
                 let lieu = info.event.extendedProps.lieu;
-                let start = info.event.start; 
-                let end = info.event.end;
+                // Pour obtenir date sans fuseau horaire appliqué par fullcalendar
+                let start = new Date(info.event.start.toLocaleString("en-US", { timeZone: "UTC" })); 
+                let end = new Date(info.event.end.toLocaleString("en-US", { timeZone: "UTC" })); 
 
                 manager.rendez_vous_change_id = id;
                 manager.rendez_vous_change_agendas = info.event.extendedProps.agendas;
