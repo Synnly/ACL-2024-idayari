@@ -56,23 +56,16 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (res.locals.user) {
         try {
             //Récupération des champs du form
-            const { idRDV, titre, lieu, description, dateDebut, dateFin, viewStart, viewEnd } = req.body;
+            const { idRDV, titre, lieu, description, ecartDebut, ecartFin, viewStart, viewEnd } = req.body;
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
 
             if (!rdvToUpdate) {
                 return res.status(404).json({ message: 'Rendez-vous introuvable' });
             }
-
-            /*ATTENTION : On déduit le décallage horaire*/
-            let debut =new Date(dateDebut); 
-            debut.setHours(debut.getHours() - (debut.getTimezoneOffset()/60))
-            let fin =new Date(dateFin);  
-            fin.setHours(fin.getHours() - (fin.getTimezoneOffset()/60))
-
             //Sauvegarde du rdv
-            rdvToUpdate.dateDebut = debut;
-            rdvToUpdate.dateFin = fin;
+            rdvToUpdate.dateDebut = new Date(rdvToUpdate.dateDebut.valueOf() + ecartDebut);
+            rdvToUpdate.dateFin = new Date(rdvToUpdate.dateFin.valueOf() + ecartFin);
             rdvToUpdate.titre = titre;
             rdvToUpdate.lieu = lieu;
             rdvToUpdate.description = description;

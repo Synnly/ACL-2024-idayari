@@ -1,6 +1,19 @@
 function change_all_day_option(elem) {
-    document.getElementById('dateDebut').type = elem.checked ? 'date' : 'datetime-local';
-    document.getElementById('dateFin').type = elem.checked ? 'date' : 'datetime-local';
+    const date_debut = document.getElementById('dateDebut');
+    const date_fin = document.getElementById('dateFin');
+    const val_debut = date_debut.value ? new Date(date_debut.value) : "";
+    const val_fin = date_fin.value ? new Date(date_fin.value) : "";
+    if (elem.checked) {
+        date_debut.type = 'date';
+        date_fin.type = 'date';
+        date_debut.value = val_debut ? val_debut.toISOString().slice(0, 10) : val_debut;
+        date_fin.value = val_fin ? val_fin.toISOString().slice(0, 10) : val_fin;
+    } else {
+        date_debut.type = 'datetime-local';
+        date_fin.type = 'datetime-local';
+        date_debut.value = val_debut ? val_debut.toISOString().slice(0, 16) : val_debut;
+        date_fin.value = val_fin ? val_fin.toISOString().slice(0, 16) : val_fin;
+    }
 }
 
 function change_recurrent_option(elem) {
