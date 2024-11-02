@@ -101,6 +101,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             let interval = getIntervalle(new Date(debut.getFullYear(), debut.getMonth() - 1, 2),new Date(fin.getFullYear(), debut.getMonth()+1, 2));
             let savedRdv = await RendezVous.findOne({where: { id: rdvToUpdate.id }})
             let rdvs = savedRdv.get_rendezVous(interval.debut,interval.fin);
+            
             return res.json(rdvs);
 
         } catch (error) {
@@ -128,7 +129,7 @@ export function getIntervalle(startDate,endDate){
     // Dernier jour visibles du mois (selon année et mois choisi) 
     let fin = new Date(yearEnd, monthEnd, (6-endDay)); 
     fin.setHours(23- (fin.getTimezoneOffset()/60),59,59); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 23h59)
-
+   
     return {debut,fin};
 
 }

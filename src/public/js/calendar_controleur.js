@@ -34,6 +34,7 @@ export class AgendaManager {
             //Appel des différents composants 
             plugins : [dayGridPlugin,timeGridPlugin,listPlugin],
             locale:'fr',
+            timeZone: 'UTC', //Sans fuseau horaire (à l'affichage)            
             //Paramétrage des modes d'affichages du calendrier
             headerToolbar: {
                 left: 'prev,next today',
@@ -53,8 +54,9 @@ export class AgendaManager {
                 let id = info.event.id;
                 let description = info.event.extendedProps.description;
                 let lieu = info.event.extendedProps.lieu;
-                let start = info.event.start; 
-                let end = info.event.end;
+                // Pour obtenir date sans fuseau horaire appliqué par fullcalendar
+                let start = new Date(info.event.start.toLocaleString("en-US", { timeZone: "UTC" })); 
+                let end = new Date(info.event.end.toLocaleString("en-US", { timeZone: "UTC" })); 
 
                 window.envoyerForm = envoyerForm;
                 window.quitModal = quitModal;
@@ -102,7 +104,6 @@ export class AgendaManager {
 
     /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
     async updateRdv(rdv){
-        console.log(rdv);
         let firstRdv = rdv[0];
         //Suppression des rdvs correspondants
         let events = this.calendrier.getEvents().filter(event => event.id != firstRdv.id);
