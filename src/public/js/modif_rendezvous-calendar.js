@@ -134,6 +134,9 @@ export async function envoyerForm(month,year) {
             description: descriptionRDV.value,
             lieu: lieuRDV.value,
             idRDV: idRDV.value,
+            // on envoie aussi la période actuellement visible
+            viewStart: agendaManager.calendrier.view.activeStart,
+            viewEnd: agendaManager.calendrier.view.activeEnd
         }
         /*Après récupération du rdv modifié, on demande au controleur de mettre à jour le full calendar pour ce rdv */
         fetch("/calendar-rdv",{

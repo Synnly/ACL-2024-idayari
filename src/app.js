@@ -10,7 +10,7 @@ import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
-import { calendarGet, calendarGetData,modifierRendezVousCalendarPOST } from "./routes/calendar.js";
+import { calendarGetData, modifierRendezVousCalendarPOST } from "./routes/calendar.js";
 
 import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaGET} from './routes/modifierAgenda.js';
 

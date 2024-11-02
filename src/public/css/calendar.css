@@ -1,7 +1,7 @@
 #calendar {
-    width:800px;
+    width:100%;
     height:800px;
-    margin: auto;
+    margin-left: auto;
 }
 .noAgenda {
     color:red;

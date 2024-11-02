@@ -1,72 +1,53 @@
 import Agenda from "../model/Agenda.js";
 import RendezVous from "../model/RendezVous.js";
-import { getBeginingDay,getEndDay } from "../public/js/utils.js";
+import AgendaRendezVous from "../model/AgendaRendezVous.js";
+import { Sequelize } from "sequelize";
 
-/*Direction vers la page calendar */
-export function calendarGet(req, res) {
-    if (res.locals.user) {
-        return res.render("calendar");
-    }
-    return res.redirect("/");
-}
 
-function extractAttributes(obj) {
-    return [obj.start, obj.id];
-  }
-  
-  function uniqueArrayByAttributes(arr) {
-    return arr.reduce((accumulator, current) => {
-      const attributes = extractAttributes(current);
-      if (!accumulator.some(item => JSON.stringify(extractAttributes(item)) === JSON.stringify(attributes))) {
-        accumulator.push(current);
-      }
-      return accumulator;
-    }, []);
-  }
-
-/*Fonction gère et renvoie les Agendas séléctionnés et les rdvs selon l'année, le mois et les agendas choisis
-Les paramètre dans la requête sont optionnels et comblés par la fonction si besoin */
+/*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
 export async function calendarGetData(req, res) {
     if (!res.locals.user) {
-        return res.redirect("/");
+        return res.json({err : "deconnecte"});
     }
+    const dateStart = new Date(req.query.start);
+    const dateEnd = new Date(req.query.end);
 
-    /*Gestion des intervalles de rdvs à récupérés selon les semaines affichable dans un mois */
-    let paramMonth = req.query?.month;
-    let paramYear = req.query?.year;
-    let aujourdhui = new Date();
-    if (!paramMonth) {
-        paramMonth = aujourdhui.getMonth() + 1; //Car renvoi mois entre 0 et 11
-    }
-    if (!paramYear) {
-        paramYear = aujourdhui.getFullYear();
-    }
-   
-    let interval = getIntervalle(new Date(paramYear, paramMonth - 2, 2),new Date(paramYear, paramMonth, 2));
-
-    // Premier jour visible du mois (selon année et mois choisi) : peut appartenir au mois précédent
-    const firstDate = interval.debut;
-    // Dernier jour visibles du mois (selon année et mois choisi) : peut appartenir au mois suivant
-    const lastDate = interval.fin;
-
-    //Récupération des agendas de l'utilisateur
-    let tabAgenda = JSON.parse(decodeURIComponent(req.query.selectionnes));
-    if (tabAgenda) {
-        if (! (tabAgenda instanceof Object)) {
-            tabAgenda = [tabAgenda];
-        }
-        tabAgenda = await Promise.all(tabAgenda.map(e => Agenda.findOne({ where: {id : +e}})));
-    }
-    //Récupération de tout les rdvs des agendas sélectionnés
-    const rendezVous = await Promise.all(tabAgenda.map(e => e.getRendezVous()));
-    const rendezVousSimple = uniqueArrayByAttributes(rendezVous.flat().map(e => e.get_rendezVous(firstDate, lastDate)).flat());
-    //Données à renvoyées au model
-    let donnees = {
-        rdvs: rendezVousSimple,
-        month: paramMonth,
-        year: paramYear,
+    //Récupération des agendas sélectionnés
+    const tabAgendas = JSON.parse(decodeURIComponent(req.query.agendas)).map(e => +e);
+    // requête pour récupérer tous les rendez-vous associés aux agendas
+    // et pour chaque rendez-vous les ids des agendas *SELECTIONNES* associés
+    // c'est-à-dire un rendez-vous peut être dans 5 agendas mais si seul 2 de ces agendas sont sélectionnés
+    // on retourne les 2 sélectionnés.
+    const options = {
+        separate: true,
+        include: [
+            {
+                model: Agenda,
+                as: 'Agendas',
+                through: AgendaRendezVous,
+                where: {
+                    id: {
+                        [Sequelize.Op.in]: tabAgendas
+                    }
+                },
+                attributes: ['id']
+            }
+        ]
     };
-    return res.json(donnees);
+    RendezVous.findAll(options)
+    .then((results) => {
+        const rendez_vous_simples = [];
+        for (const rdv of results) {
+            for (const rdv2 of rdv.get_rendezVous(dateStart, dateEnd)) {
+                rdv2.agendas = rdv.Agendas.map(e => e.id);
+                rendez_vous_simples.push(rdv2);
+            }
+        }
+        return res.json(rendez_vous_simples);
+    })
+    .catch((error) => {
+        return res.json({err : error})
+    });
 }
 
 
@@ -75,7 +56,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (res.locals.user) {
         try {
             //Récupération des champs du form
-            const { idRDV, titre, lieu, description, dateDebut, dateFin } = req.body;
+            const { idRDV, titre, lieu, description, dateDebut, dateFin, viewStart, viewEnd } = req.body;
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
 
@@ -97,11 +78,11 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             rdvToUpdate.description = description;
             await rdvToUpdate.save();
             
-            //Récupération des rdvs avec un interval large
-            let interval = getIntervalle(new Date(debut.getFullYear(), debut.getMonth() - 1, 2),new Date(fin.getFullYear(), debut.getMonth()+1, 2));
-            let savedRdv = await RendezVous.findOne({where: { id: rdvToUpdate.id }})
-            let rdvs = savedRdv.get_rendezVous(interval.debut,interval.fin);
-            return res.json(rdvs);
+            //Récupération des rdvs
+            const dateStart = new Date(viewStart);
+            const dateEnd = new Date(viewEnd);
+
+            return res.json(rdvToUpdate.get_rendezVous(dateStart, dateEnd));
 
         } catch (error) {
             console.error('Erreur lors de la modification du rdv:', error);
@@ -110,25 +91,4 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     } else {
         return res.status(403).json({ message: 'Unauthorized access' });
     }
-}
-
-/* Renvoi l'intervalle Large entre 2 dates (on peut modifier un rdv de novembre au mois d'octobre avec fullcalendar) */
-export function getIntervalle(startDate,endDate){
-    let monthDebut = startDate.getMonth() + 1;
-    let yearDebut = startDate.getFullYear();
-    let monthEnd = endDate.getMonth() + 1; 
-    let yearEnd = endDate.getFullYear();
-
-    let startDay = getBeginingDay(yearDebut,monthDebut);
-    // Premier jour visible du mois (selon année et mois choisi)
-    let debut = new Date(yearDebut, monthDebut - 1, 1-startDay); // Premier jours
-    debut.setHours(- (debut.getTimezoneOffset()/60),0,0); //Déduction du décalage horaire
-
-    let endDay = getEndDay(yearEnd,monthEnd);
-    // Dernier jour visibles du mois (selon année et mois choisi) 
-    let fin = new Date(yearEnd, monthEnd, (6-endDay)); 
-    fin.setHours(23- (fin.getTimezoneOffset()/60),59,59); //PROBLEME SUR LE FUSEAU HORAIRE (artificiellement à 23h59)
-
-    return {debut,fin};
-
 }

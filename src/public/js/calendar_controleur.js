@@ -1,6 +1,6 @@
-import { Calendar } from '@fullcalendar/core'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
+import { Calendar } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import {creerModale,envoyerForm,quitModal} from '/js/modif_rendezvous-calendar.js';
 
@@ -10,30 +10,35 @@ AgendaManager connait une instance de Data , c'est selon ces données que l'affi
 //Récupération de la balise contenant le calendar
 const elementCalendrier = document.getElementById('calendar');
 
-/*Classe représentant les données nécessaires au fonctionnemnt du calendrier,
-c'est dans cette classe que l'on va charger les données recus du serveur */
-export class Data {
-    constructor(agendas_selectionnes, rdvs, month, year) {
-        this.agendas_selectionnes = agendas_selectionnes;
-        this.rdvs = rdvs;
-        this.month = month;
-        this.year = year;
-    }
-}
-/*Classe qui va contenir Data (données du model) et va jouer le rôle d'interface pour les requêtes au serveurs */
 export class AgendaManager {
 
     constructor() {
-        this.data = {
-            agendas_selectionnes: [],
-            rdvs: null,
-            month: null,
-            year: null,
-        };
-         this.calendrier = new Calendar(elementCalendrier,{
+        // "tableau associatif" qui associe chaque agenda (id) à un ensemble de périodes ({debut, fin})
+        // dont les rendez-vous simples sont stockées dans le calendrier
+        // ex : '12': Set [ {start: 2 Nov 2024, end: 3 Nov 2024} ]
+        this.agendas_periodes = {};
+        // "tableau associatif" qui associe des paires (id, dateDebut) de chaque rendez-vous simple au rendez-vous simple correspondant
+        // assure le fait qu'il y a toujours au plus un rendez-vous simple avec cet id et date de début
+        // ex : '23_2-11-2024...' : rdv
+        this.unique_rdv = {};
+        // variable permettant de retenir l'id du rendez-vous après modification, permet de supprimer les rendez-vous simples n'étant plus pertinent
+        this.rendez_vous_change_id = null;
+        // retient la liste des agendas du rendez-vous après modification
+        this.rendez_vous_change_agendas = null;
+
+        const manager = this;
+        this.calendrier = new Calendar(elementCalendrier,{
             //Appel des différents composants 
             plugins : [dayGridPlugin,timeGridPlugin,listPlugin],
-            locale:'fr',
+            // le format des dates dépend du navigateur
+            locale:navigator.languages[0],
+            // permet de commencer Lundi
+            weekNumberCalculation: "ISO",
+            // nombre de semaines dans la vue Mois non fixe, au lieu de toujours 6 (inclut donc parfois des semaines n'étant pas du tout dans le mois)
+            fixedWeekCount: false,
+            // permet de pas afficher des milliers de rendez-vous par case
+            dayMaxEventRows: 3, // pour la vue mois
+            eventMaxStack: 4, // pour les vues semaine et jour
             //Paramétrage des modes d'affichages du calendrier
             headerToolbar: {
                 left: 'prev,next today',
@@ -56,103 +61,201 @@ export class AgendaManager {
                 let start = info.event.start; 
                 let end = info.event.end;
 
+                manager.rendez_vous_change_id = id;
+                manager.rendez_vous_change_agendas = info.event.extendedProps.agendas;
                 window.envoyerForm = envoyerForm;
                 window.quitModal = quitModal;
                 creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})   
             }
         });
-  
     }
 
-    /*Au premier accès à la page calendar on fait une première requête 
-    pour obtenir les données de bases de l'utilisateur*/
-    async init() {
+    init() {
         this.calendrier.render();
 
-        // Ajout d'écouteurs (prev,next : Changements de mois)
-        /*Passer this.updateYear directement ne fonctionne pas car la fonction est exécutée directement */
+        // Ajout d'écouteurs
+
+        // écouteurs lors de selections d'agenda
         for (const child of document.getElementById('agendaList').children) {
-            child.addEventListener('click', () => this.refresh());
+            child.addEventListener('click', (event) => this.selectionAgenda(event.target.id.split("_")[1]));
         }
-        document.getElementById('selectAll').addEventListener('click', () => this.refresh());
-        document.querySelector('.fc-prev-button').addEventListener('click', () => this.updateDate());
-        document.querySelector('.fc-next-button').addEventListener('click', () => this.updateDate());
-        document.querySelector('.fc-today-button').addEventListener('click', () => this.updateDate());
+        document.getElementById('selectAll').addEventListener('click', () => this.selectAll());
+        // écouteurs lorsque changement de vue/période
+        Array.prototype.forEach.call(document.getElementsByClassName('fc-button'), e => {
+            e.addEventListener('click', () => this.updateDate());
+        });
     }
 
-    /*Mets à jours les données du model */
-    updateData(newdata) {
-        this.data.rdvs = newdata.rdvs;
-        this.data.month = newdata.month;
-        this.data.year = newdata.year;
-    
-        //Mise à jours des rdvs (events) du calendrier
-        this.calendrier.removeAllEvents();
-        this.calendrier.addEventSource(this.data.rdvs);
-        this.calendrier.render();    
+    // à partir de la liste des rendez-vous simples des agendas, ajoute les rendez-vous si nécessaire dans le calendrier
+    // si déjà présent, met à jour la liste d'agendas d'où provient le rendez-vous
+    async addData(agendas, updateDate=true) {
+        const rendezVous = await this.getRdvFromServer(agendas);
+        for (const rdv of rendezVous) {
+            rdv.agendas = new Set(rdv.agendas);
+            const identifier = rdv.id + "_" + rdv.start;
+            // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
+            if (this.unique_rdv[identifier]) {
+                this.unique_rdv[identifier].agendas = this.unique_rdv[identifier].agendas.union(rdv.agendas);
+            } else {
+                this.unique_rdv[identifier] = rdv;
+                this.calendrier.addEvent(rdv);
+            }
+        }
+        // on sait désormais les rendez-vous des agendas dans la période actuellement visible
+        if (updateDate) {
+            agendas.forEach(e => {
+                this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
+            });
+        }
     }
 
-    /*Met à jours le calendrier selon le mois ou l'année dans lequels on navigue */
-    async updateDate(){
-        let currentDate = this.calendrier.getDate(); // Date actuelle du fullcalendar
-        this.data.month = currentDate.getMonth() + 1; // mois de 0 à 11
-        this.data.year = currentDate.getFullYear();
-        this.update();
-    }
-
-    /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
-    async updateRdv(rdv){
-        console.log(rdv);
-        let firstRdv = rdv[0];
-        //Suppression des rdvs correspondants
-        let events = this.calendrier.getEvents().filter(event => event.id != firstRdv.id);
-        //Ajouts des nouveaux rdvs
-        events.push(...rdv);
-        this.calendrier.removeAllEvents();
-        this.calendrier.addEventSource(events);
+    // click sur un agenda
+    async selectionAgenda(agenda_id) {
+        // l'agenda a été déselectionné
+        if (this.agendas_periodes[agenda_id]) {
+            for (const event of this.calendrier.getEvents()) {
+                // si le rendez-vous provient de cet agenda
+                if (event.extendedProps.agendas.has(+agenda_id)) {
+                    // si le rendez-vous provient uniquement de cet agenda, on le supprime
+                    if (event.extendedProps.agendas.size === 1) {
+                        delete this.unique_rdv[event.id + "_" + event.start.toISOString()];
+                        event.remove();
+                    } else {
+                        event.extendedProps.agendas.delete(+agenda_id);
+                    }
+                }
+            }
+            // on enlève l'agenda
+            delete this.agendas_periodes[agenda_id];
+        } else {
+            // l'agenda a été sélectionné
+            await this.addData([agenda_id]);
+        }
         this.calendrier.render(); 
     }
 
-    /*Requête lors de la sélection et désélection de l'année */
-    async update() {
-        const sel = encodeURIComponent(JSON.stringify(this.data.agendas_selectionnes));
-        fetch(
-            "/calendar-data?year=" +
-                (this.data.year ? this.data.year : "") +
-                "&selectionnes=" + sel +
-                "&month=" +
-                (this.data.month ? this.data.month : "")
-        )
-            .then((response) => response.json())
-            .then((data) => this.updateData(data))
-            .catch((error) => console.log("Aucune données"));
+    // click sur "Tout sélectionner"
+    async selectAll() {
+        // on récupère la nouvelle liste des agendas sélectionnés du DOM
+        const agendasSelectionnes = document.getElementById('agendaList').getElementsByClassName('active');
+        // si tout a été désélectionné, pas besoin de query
+        if (agendasSelectionnes.length == 0) {
+            this.agendas_periodes = {};
+            this.unique_rdv = {};
+            this.calendrier.removeAllEvents();
+        } else {
+            // sinon on récupère les rendez-vous simples des agendas dont on n'a pas encore les infos
+            const new_agendas = [];
+            for (const elem of agendasSelectionnes) {
+                const id = elem.id.split("_")[1];
+                if (!this.agendas_periodes[id]) {
+                    new_agendas.push(id);
+                }
+            }
+            await this.addData(new_agendas);
+        }
+        this.calendrier.render(); 
     }
 
-    refresh() {
-        const agendaSelectionnes = document.getElementById('agendaList').getElementsByClassName('active');
-        this.data.agendas_selectionnes = Array.prototype.map.call(agendaSelectionnes, (e) => e.id.split("_")[1]);
-        this.update();
+    /* Met à jours le calendrier selon la période actuellement visinle */
+    async updateDate(){
+        const start = this.calendrier.view.activeStart;
+        const end = this.calendrier.view.activeEnd;
+        // liste des agendas dont on devra récupérer des infos
+        const to_query = [];
+        // pour chaque agenda...
+        for (const agenda_id of Object.keys(this.agendas_periodes)) {
+            const periodes = this.agendas_periodes[agenda_id];
+            // variable pour savoir si on connait déjà les rendez-vous de l'agenda dans la période
+            let known = false;
+            // variables si les rendez-vous simples d'une partie de la période actuellement visible sont connus
+            // permet de combiner ces périodes (pour garantir l'intersection vide des périodes)
+            let connect_start = null;
+            let connect_end = null;
+            for (const periode of periodes) {
+                // la période actuellement visible is totalement incluse dans une période dont on connait déjà les rendez-vous
+                // pas besoin de query
+                if (start >= periode.start && end <= periode.end) {
+                    known = true;
+                }
+                // la période actuellement visible est partiellement incluse dans une période connue
+                else if (start >= periode.start) {
+                    connect_start = periode;
+                }
+                else if (end <= periode.end) {
+                    connect_end = periode;
+                }
+                // la période actuellement visible englobe une periode connue (ex : passage de vue Jour -> Mois)
+                // on supprime les périodes incluses
+                else {
+                    periodes.delete(periode);
+                }
+            }
+            // garantit l'intersection vide des périodes
+            if (connect_start && connect_end) {
+                const new_start = connect_start.start;
+                const new_end = connect_end.end;
+                periodes.delete(connect_start);
+                periodes.delete(connect_end);
+                periodes.add({start: new_start, end: new_end});
+            } else if (connect_start) {
+                connect_start.end = end;
+            } else if (connect_end) {
+                connect_end.start = start;
+            }
+            // si on ne connait pas déjà les rendez-vous simples on query
+            if (!known) {
+                to_query.push(agenda_id);
+            }
+        }
+        if (to_query.length > 0) {
+            // pas besoin de mettre à jour les périodes dans la fonction addData, cela a été fait plus haut
+            await this.addData(to_query, false);
+        }
+        this.calendrier.render();
+    }
+
+    /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
+    updateRdv(rdvs){
+        const events = this.calendrier.getEvents();
+        //Suppression des rdvs simples correspondants au rendez-vous du rendez-vous simple supprimé
+        for (let i = events.length - 1; i >= 0; i--) {
+            if (events[i].id === this.rendez_vous_change_id) {
+                delete this.unique_rdv[events[i].id + "_" + events[i].start.toISOString()];
+                events[i].remove();
+            }
+        }
+        //Ajouts des nouveaux rdvs
+        for (const rdv of rdvs) {
+            rdv.agendas = new Set(this.rendez_vous_change_agendas);
+            this.unique_rdv[rdv.id + "_" + rdv.start] = rdv;
+            this.calendrier.addEvent(rdv);
+        }
+        // mise à jour des périodes des agendas
+        // on ne sait désormais que les rendez-vous dans la période visible
+        this.rendez_vous_change_agendas.forEach(e => {
+            this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
+        })
+        this.calendrier.render(); 
+    }
+
+    // récupère les rendez-vous simples à partir d'une liste d'agendas et la période actuellement viisble
+    async getRdvFromServer(agendas) {
+        const ag = encodeURIComponent(JSON.stringify(agendas));
+        const res = await fetch(
+            "/calendar-data?start=" + this.calendrier.view.activeStart +
+                "&end=" + this.calendrier.view.activeEnd +
+                "&agendas=" + ag
+        ).then((response) => response.json());
+        if (res.err === "deconnecte") {
+            window.location.href = '/';
+            return;
+        } else if (res.err) {
+            return [];
+        }
+        return res;
     }
 }
-
-
-/*Utilisé par le mapping pour avoir un format de date exploitable par fullcalendar */
-export function toLocaleDate(dateString){
-    const date = new Date(dateString);
-    /* 'sv-SE' sert à mettre la date au format YYYY-MM-DD car par défaut = YYYY/MM/DD numeric identique à 2-digit */
-    let fullCalendarDate = date.toLocaleDateString('sv-SE', {
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        hour12: false, //Format 24h
-        timeZone: 'UTC', // 'UTC' ou 'Europe/Paris' selon bd (voir avec Manu)
-    });
-    return fullCalendarDate;
-}
-
 
 //Initialisation du model
 const agendaManager = new AgendaManager();
