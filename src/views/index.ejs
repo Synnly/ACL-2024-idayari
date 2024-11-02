@@ -8,49 +8,84 @@
   	<meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/css/main.css" rel="stylesheet">
 	<link href="/css/index.css" rel="stylesheet">
-	<script src="/js/index.js"></script>
     <script src="/js/modifRDV.js"></script>
 </head>
 
 <body class="container flex-column d-flex min-vh-100 min-vw-100 m-0 p-0" data-bs-theme="light">
 <% if (locals.user) { %>
-    <nav class="navbar bg-primary px-4">
-        <span class="g-0">
-            <a class="navbar-brand fs-2 text-light fw-medium" href="/">
-            <img class="logo" src="/img/favicon.ico"/>Idayari</a>
-            <span class="navbar-brand text-light align-items-center">Bienvenue, <%= locals.user.username %>.</span>
-        </span>
-        <span class="g-0">
-            <a href="/infos_perso" class="navbar-brand text-light align-items-center">Compte</a>
-        </span>
-    </nav>
-    <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1">
-        <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
-            <div class="w-100 h-fit-content">
-                <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center"><span>Vos agendas </span>
-					          <button onclick="window.location.href='/modifierAgendas'" class="btn btn-sm btn-secondary text-white">Modifier</button>
+    <!-- File for header -->
+    <%- await include('partials/header.ejs') %>
+
+	<div class="p-3">
+		<a class="btn btn-primary d-md-none text-white" data-bs-toggle="offcanvas" href="#offcanvas" role="button" aria-controls="offcanvas">
+			liste agendas
+		  </a>
+	</div>
+	  
+	  <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+		<div class="offcanvas-header">	
+		  <h5 class="offcanvas-title" id="offcanvasLabel">Liste de mes agendas</h5>
+		  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		</div>
+		<div class="offcanvas-body d-flex">
+			<nav class="col nav flex-grow-1 p-0 text-break bg-light">
+				<div class="w-100 h-fit-content">
+					<div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center"><span>Vos agendas </span>
+								  <button onclick="window.location.href='/modifierAgendas'" class="btn btn-sm btn-secondary text-white">Modifier</button>
+					</div>
+					<ul class="list-group px-3 py-1">
+						<li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
+					</ul>
+					<ul id="agendaList" class="list-group px-3">
+						<% for (const agenda of locals.agendas) { %>
+							<li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.nom %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.nom) %>")'><%= agenda.nom %></li>
+						<% } %>
+					</ul>
+					<div class="w-100 d-flex h-fit-content p-3">
+						<button class="btn btn-outline-secondary w-100" id="ouvreDialogCreationAgenda">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-plus" viewBox="0 0 16 16">
+								<path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7"/>
+								<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+							</svg>
+						</button>
+					</div>
 				</div>
-                <ul class="list-group px-3 py-1">
-                    <li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
-                </ul>
-                <ul id="agendaList" class="list-group px-3">
-                    <% for (const agenda of locals.agendas) { %>
-                        <li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.nom %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.nom) %>")'><%= agenda.nom %></li>
-                    <% } %>
-                </ul>
-                <div class="w-100 d-flex h-fit-content p-3">
-                    <button class="btn btn-outline-secondary w-100" id="ouvreDialogCreationAgenda">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-plus" viewBox="0 0 16 16">
-                            <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7"/>
-                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="w-100 d-flex h-fit-content align-self-end p-3">
-                <button onclick="window.location.href='/deconnexion'" class="btn btn-outline-danger bg-danger-border-subtle w-100">Se déconnecter</button>
-            </div>
-        </nav>
+				<div class="w-100 d-flex h-fit-content align-self-end p-3">
+					<button onclick="window.location.href='/deconnexion'" class="btn btn-outline-danger bg-danger-border-subtle w-100">Se déconnecter</button>
+				</div>
+			</nav>
+		</div>
+	  </div>
+
+
+
+    <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1">
+		<nav class="col nav flex-grow-1 p-0 text-break bg-light d-none d-md-flex col-2">
+			<div class="w-100 h-fit-content">
+				<div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center"><span>Vos agendas </span>
+							  <button onclick="window.location.href='/modifierAgendas'" class="btn btn-sm btn-secondary text-white">Modifier</button>
+				</div>
+				<ul class="list-group px-3 py-1">
+					<li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
+				</ul>
+				<ul id="agendaList" class="list-group px-3">
+					<% for (const agenda of locals.agendas) { %>
+						<li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.nom %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.nom) %>")'><%= agenda.nom %></li>
+					<% } %>
+				</ul>
+				<div class="w-100 d-flex h-fit-content p-3">
+					<button class="btn btn-outline-secondary w-100" id="ouvreDialogCreationAgenda">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-plus" viewBox="0 0 16 16">
+							<path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7"/>
+							<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+						</svg>
+					</button>
+				</div>
+			</div>
+			<div class="w-100 d-flex h-fit-content align-self-end p-3">
+				<button onclick="window.location.href='/deconnexion'" class="btn btn-outline-danger bg-danger-border-subtle w-100">Se déconnecter</button>
+			</div>
+		</nav>
         <div class="col col-10 p-3 d-flex flex-column">
             <div class="row d-flex flex-grow-1">
                 <% if (locals.agendas) { %>
@@ -238,6 +273,7 @@
           	<a type="button" href="/inscription" class="btn btn-primary bg-primary mb-8 text-white">Se lancer</a>
         </div>
     <% } %>
+	<script src="/js/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>

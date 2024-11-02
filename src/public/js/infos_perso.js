@@ -90,6 +90,9 @@ function modifyPassword(){
     document.getElementById("div_confirmationpswd_change_info").style = "display: block";
 }
 
+/**
+ * Change l'icone de la visualisation du mot de passe et le type de l'input
+ */
 const togglePassword = document.getElementById('togglePassword');
   const passwordInput = document.getElementById('password_change_info_confirmation');
 
@@ -103,6 +106,8 @@ const togglePassword = document.getElementById('togglePassword');
     }
   });
 
-
+/**
+ * Permet de faire des tooltips avec boostraps 
+ */
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
