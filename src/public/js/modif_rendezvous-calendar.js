@@ -1,23 +1,36 @@
 import { agendaManager } from "./calendar_controleur.js";
-import { escapeHTML,convertDate } from "./utils.js";
+import { escapeHTML } from "./utils.js";
 
 /*Créer la modale de modification de rendez vous */
-export function creerModale(rdv) {
-    const titre = rdv.titre;
+export function creerModale(rdv, agendas) {
+    const titre = rdv.title;
     const lieu = rdv.lieu;
     const description = rdv.description;
-    const dateDebut = convertDate(rdv.dateDebut);
-    const dateFin = convertDate(rdv.dateFin);
+    let dateDebut;
+    let dateFin;
     const id = rdv.id;
     const all_day = rdv.allDay;
     let all_day_text = "";
     let date_input_type = "date";
     if (all_day) {
+        dateDebut = rdv.start.slice(0, 10);
+        dateFin = rdv.end.slice(0, 10);
         all_day_text = "checked";
     } else {
         date_input_type += "time-local";
+        dateDebut = rdv.start.slice(0, 16);
+        dateFin = rdv.end.slice(0, 16);
     }
-    
+    let list_agendas = "";
+    for (const elem of agendas) {
+        let selected_text = "";
+        let initvalue = "";
+        if (rdv.agendas.has(+elem.id)) {
+            selected_text = "selected";
+            initvalue = "data-initial='yes'";
+        }
+        list_agendas += `<option value="${elem.id}" ${initvalue} ${selected_text}>${elem.nom}</option>\n`;
+    }
 
     let modaleHTML = `
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -46,7 +59,7 @@ export function creerModale(rdv) {
                           <textarea class="form-control" id="descriptionRDV" rows="3" name="description">${escapeHTML(description)}</textarea>
                       </div>
                       <div class="mb-3">
-                        <label for="all_day">Toute la journée</label>
+                        <label for="all_day" class="form-label">Toute la journée</label>
                         <input type="checkbox" name="all_day" id="all_day" ${all_day_text} onChange="change_all_day_option(this)">
                       </div>
                       <div class="mb-3">
@@ -62,6 +75,15 @@ export function creerModale(rdv) {
                         <div class="invalid-feedback">
                           Champ obligatoire
                         </div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="agendas" class="form-label">Agenda(s) associé(s) au rendez-vous</label>
+                        <select name="agendas" id="select_agendas" class="form-control" multiple required>
+                            ${list_agendas}
+                        </select>
+                        <div class="invalid-feedback">
+                          Champ obligatoire
+                        </div>                        
                       </div>
                     </form>
                 </div>
@@ -90,8 +112,11 @@ export async function envoyerForm() {
     let descriptionRDV = document.getElementById('descriptionRDV');
     let lieuRDV = document.getElementById('lieuRDV');
     let idRDV = document.getElementById('idRDV');
-
-
+    
+    const selectElement = document.getElementById('select_agendas');
+    // on récupère uniquement les agendas à ajouter/supprimer
+    const relevantOptions = Array.from(selectElement.options).filter(option => option.selected || option.getAttribute('data-initial') === 'yes')
+                                 .map(e => Object({id: e.value, to_add: e.selected}));
 
     let dateDebInput = document.getElementById('dateDebut');
     let dateFinInput = document.getElementById('dateFin');
@@ -152,6 +177,7 @@ export async function envoyerForm() {
             description: descriptionRDV.value,
             lieu: lieuRDV.value,
             idRDV: idRDV.value,
+            relevantAgendas: relevantOptions,
             // on envoie aussi la période actuellement visible
             viewStart: agendaManager.calendrier.view.activeStart,
             viewEnd: agendaManager.calendrier.view.activeEnd

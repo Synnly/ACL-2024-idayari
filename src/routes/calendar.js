@@ -56,7 +56,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (res.locals.user) {
         try {
             //Récupération des champs du form
-            const { idRDV, titre, lieu, description, ecartDebut, ecartFin, viewStart, viewEnd } = req.body;
+            const { idRDV, titre, lieu, description, ecartDebut, ecartFin, relevantAgendas, viewStart, viewEnd } = req.body;
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
 
@@ -70,6 +70,14 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             rdvToUpdate.lieu = lieu;
             rdvToUpdate.description = description;
             await rdvToUpdate.save();
+
+            for (const agenda of relevantAgendas) {
+                if (agenda.to_add) {
+                    
+                } else {
+                    // à supprimer
+                }
+            }
             
             //Récupération des rdvs
             const dateStart = new Date(viewStart);

@@ -17,14 +17,14 @@ export class AgendaManager {
         // dont les rendez-vous simples sont stockées dans le calendrier
         // ex : '12': Set [ {start: 2 Nov 2024, end: 3 Nov 2024} ]
         this.agendas_periodes = {};
-        // "tableau associatif" qui associe des paires (id, dateDebut) de chaque rendez-vous simple au rendez-vous simple correspondant
-        // assure le fait qu'il y a toujours au plus un rendez-vous simple avec cet id et date de début
-        // ex : '23_2-11-2024...' : rdv
-        this.unique_rdv = {};
         // variable permettant de retenir l'id du rendez-vous après modification, permet de supprimer les rendez-vous simples n'étant plus pertinent
         this.rendez_vous_change_id = null;
-        // retient la liste des agendas du rendez-vous après modification
-        this.rendez_vous_change_agendas = null;
+
+        // liste des agendas
+        const agendas = [];
+        for (const li of document.getElementById('agendaList').children) {
+            agendas.push({nom: li.textContent, id: li.id.split("_")[1]});
+        }
 
         const manager = this;
         this.calendrier = new Calendar(elementCalendrier,{
@@ -54,20 +54,13 @@ export class AgendaManager {
                 },
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
-                // Accès aux détails rdv
-                let title = info.event.title;
-                let id = info.event.id;
-                let description = info.event.extendedProps.description;
-                let lieu = info.event.extendedProps.lieu;
-                // Pour obtenir date sans fuseau horaire appliqué par fullcalendar
-                let start = new Date(info.event.start.toLocaleString("en-US", { timeZone: "UTC" })); 
-                let end = new Date(info.event.end.toLocaleString("en-US", { timeZone: "UTC" })); 
-
-                manager.rendez_vous_change_id = id;
-                manager.rendez_vous_change_agendas = info.event.extendedProps.agendas;
+                const event = info.event;
+                manager.rendez_vous_change_id = event.extendedProps.id_rdv;
                 window.envoyerForm = envoyerForm;
                 window.quitModal = quitModal;
-                creerModale({titre:title,description:description,lieu:lieu,dateDebut:start,dateFin:end,id:id})   
+                creerModale({title: event.title, lieu: event.lieu, description: event.description,
+                            id: event.extendedProps.id_rdv, start: event.start, end: event.end, allDay: event.allDay,
+                            agendas: event.extendedProps.agendas}, agendas);   
             }
         });
     }
@@ -83,9 +76,9 @@ export class AgendaManager {
         }
         document.getElementById('selectAll').addEventListener('click', () => this.selectAll());
         // écouteurs lorsque changement de vue/période
-        Array.prototype.forEach.call(document.getElementsByClassName('fc-button'), e => {
-            e.addEventListener('click', () => this.updateDate());
-        });
+        for (const child of document.getElementsByClassName('fc-button')) {
+            child.addEventListener('click', () => this.updateDate());
+        };
     }
 
     // à partir de la liste des rendez-vous simples des agendas, ajoute les rendez-vous si nécessaire dans le calendrier
@@ -94,7 +87,7 @@ export class AgendaManager {
         const rendezVous = await this.getRdvFromServer(agendas);
         for (const rdv of rendezVous) {
             rdv.agendas = new Set(rdv.agendas);
-            const identifier = rdv.id + "_" + rdv.start;
+            rdv.id = rdv.groupId + "_" + rdv.start;
             // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
             if (this.unique_rdv[identifier]) {
                 this.unique_rdv[identifier].agendas = this.unique_rdv[identifier].agendas.union(rdv.agendas);
