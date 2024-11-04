@@ -1,11 +1,11 @@
 
-const boiteDialog = document.getElementById("viewDialogCreationAgenda");
-const boutonOuvreDialog = document.getElementById("ouvreDialogCreationAgenda");
+function openDialog() {
+    const boiteDialog = document.getElementById("viewDialogCreationAgenda");
+    boiteDialog.showModal()
 
-boutonOuvreDialog.addEventListener("click", ()=> boiteDialog.showModal());
-
-const boutonFermerDialog = document.getElementById("fermerDialogCreationAgenda");
-boutonFermerDialog.addEventListener("click", ()=>{
-    document.getElementById("nom").value = "";
-    boiteDialog.close();
-});
+    const boutonFermerDialog = document.getElementById("fermerDialogCreationAgenda");
+    boutonFermerDialog.addEventListener("click", ()=>{
+        document.getElementById("nom").value = "";
+        boiteDialog.close();
+    });   
+}
