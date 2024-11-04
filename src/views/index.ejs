@@ -16,13 +16,13 @@
     <!-- File for header -->
     <%- await include('partials/header.ejs') %>
 
-	<div class="p-3">
-		<a class="btn btn-primary d-lg-none text-white" data-bs-toggle="offcanvas" href="#offcanvas" role="button" aria-controls="offcanvas">
+	<div class="p-3 d-lg-none">
+		<a class="btn btn-primary text-white" data-bs-toggle="offcanvas" href="#offcanvas" role="button" aria-controls="offcanvas">
 			liste agendas
 		  </a>
 	</div>
 	  
-	  <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+	<div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
 		<div class="offcanvas-header">	
 		  <h5 class="offcanvas-title" id="offcanvasLabel">Liste de mes agendas</h5>
 		  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -38,7 +38,7 @@
 					</ul>
 					<ul id="agendaList" class="list-group px-3">
 						<% for (const agenda of locals.agendas) { %>
-							<li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.nom %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.nom) %>")'><%= agenda.nom %></li>
+							<li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.nom %>offcanvas" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.nom) %>offcanvas")'><%= agenda.nom %></li>
 						<% } %>
 					</ul>
 					<div class="w-100 d-flex h-fit-content p-3">
@@ -56,7 +56,6 @@
 			</nav>
 		</div>
 	  </div>
-
 
 
     <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1">
