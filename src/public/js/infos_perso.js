@@ -88,26 +88,61 @@ function modifyPassword(){
     showConfirmChanges();
     document.getElementById("password_change_info").disabled = false;
     document.getElementById("div_confirmationpswd_change_info").style = "display: block";
+    document.getElementById("togglePassword2").classList.remove("d-none");
 }
 
 /**
  * Change l'icone de la visualisation du mot de passe et le type de l'input
  */
 const togglePassword = document.getElementById('togglePassword');
-  const passwordInput = document.getElementById('password_change_info_confirmation');
+const passwordInput = document.getElementById('password_change_info_confirmation');
 
-  togglePassword.addEventListener('click', function () {
-    if (passwordInput.type === 'password') {
-      passwordInput.type = 'text';
-      togglePassword.src = '/img/oeil_2.svg';
-    } else {
-      passwordInput.type = 'password';
-      togglePassword.src = '/img/oeil.png';
-    }
-  });
+togglePassword.addEventListener('click', function () {
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    togglePassword.src = '/img/oeil_2.svg';
+  } else {
+    passwordInput.type = 'password';
+    togglePassword.src = '/img/oeil.png';
+  }
+});
+
 
 /**
- * Permet de faire des tooltips avec boostraps 
+ * Change l'icone de la visualisation du mot de passe et le type de l'input
+ */
+const togglePassword2 = document.getElementById('togglePassword2');
+const passwordInput2 = document.getElementById('password_change_info');
+
+togglePassword2.addEventListener('click', function () {
+  if (passwordInput2.type === 'password') {
+    passwordInput2.type = 'text';
+    togglePassword2.src = '/img/oeil_2.svg';
+  } else {
+    passwordInput2.type = 'password';
+    togglePassword2.src = '/img/oeil.png';
+  }
+});
+
+/**
+ * Change l'icone de la visualisation du mot de passe et le type de l'input
+ */
+const togglePassword3 = document.getElementById('togglePassword3');
+const passwordInput3 = document.getElementById('confirmationpswd_change_info');
+
+togglePassword3.addEventListener('click', function () {
+  if (passwordInput3.type === 'password') {
+    passwordInput3.type = 'text';
+    togglePassword3.src = '/img/oeil_2.svg';
+  } else {
+    passwordInput3.type = 'password';
+    togglePassword3.src = '/img/oeil.png';
+  }
+});
+
+
+/**
+ * Permet de faire des tooltips avec bootstrap
  */
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))

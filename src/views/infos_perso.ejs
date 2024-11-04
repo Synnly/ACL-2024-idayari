@@ -27,50 +27,55 @@
         </div>
 
         <!-- Form -->
-        <form method="post" id="mainForm" class="d-flex flex-row column-gap-5">
+        <form method="post" id="mainForm" class="d-flex flex-column flex-md-row column-gap-5">
 
             <!-- Username -->
-            <div class="w-50" style="max-width: 600px;">
+            <div class="w-100 w-md-50" >
                 <label for="username_change_info">Nom d'utilisateur</label>
-                <div class="d-flex justify-content-center align-items-center column-gap-3">
-                    <input id="username_change_info" type="text" name="user_username_change_info" value="<%= locals.user.username%>" disabled="" class="form-control">
+                <div class="d-flex justify-content-start align-items-center column-gap-3">
+                    <input id="username_change_info" type="text" name="user_username_change_info" value="<%= locals.user.username%>" disabled="" class="form-control" style="max-width: 600px;">
                     <img src="/img/pen.png" alt="pen" onclick="modifyUsername()" width="24" height="24" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Modifier votre nom d'utilisateur" style="cursor: pointer;">
                 </div>
             </div>
 
             <!-- Password & confirmation -->
-            <div class="w-50 d-flex flex-column colum row-gap-3" style="max-width: 600px;">
+            <div class="w-100 w-md-50 d-flex flex-column colum row-gap-3" >
                 
                 <!-- Password -->
                 <div>
                     <label for="password_change_info">Mot de passe</label>
-                    <div class="d-flex justify-content-center align-items-center column-gap-3">
-                        <input id="password_change_info" type="password" name="user_password_change_info" placeholder="**********" disabled="" class="form-control">
+                    <div class="d-flex justify-content-start align-items-center column-gap-3">
+                        <input id="password_change_info" type="password" name="user_password_change_info" placeholder="**********" disabled="" class="form-control" style="max-width: 600px;">
                         <img src="/img/pen.png" alt="pen" onclick="modifyPassword()" width="24" height="24" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Modifier votre mot de passe" style="cursor: pointer;">
+                        <img src="/img/oeil.png" alt="show password" id="togglePassword2" width="24" height="24" style="cursor: pointer;" class="d-none">
                     </div>
                 </div>
 
                 <!-- Confirmation  -->
                 <div id="div_confirmationpswd_change_info" style="display: none; max-width: 600px;">
                     <label for="confirmationpswd_change_info">Confirmer le nouveau mot de passe</label>
-                    <input id="confirmationpswd_change_info" type="password" name="user_confirmationpswd_change_info" placeholder="**********" class="form-control">
+                    <div class="d-flex justify-content-start align-items-center column-gap-3">
+                        <input id="confirmationpswd_change_info" type="password" name="user_confirmationpswd_change_info" placeholder="**********" class="form-control" style="max-width: 600px;">
+                        <img src="/img/oeil.png" alt="show password" id="togglePassword3" width="24" height="24" style="cursor: pointer;">
+                    </div>
+
                 </div>
                 <div id="errorMessage"></div>
-                <input type="hidden" id="hidden_password_confirmation" name="user_password_change_info_confirmation_hidden" style="max-width: 600px;">
+                <input type="hidden" id="hidden_password_confirmation" name="user_password_change_info_confirmation_hidden" >
             </div>
         </form>
 
         <!-- Confirmation change with write password -->
-        <div id="confirm_password" style="display: none">
+        <div id="confirm_password" style="display: none" class="mt-5">
 
             <h3>Entrez votre mot de passe actuel pour confirmer les modifications</h3>
             <div class="d-flex flex-column column-gap-3">
 
                 <label for="password_change_info">Mot de passe</label>
-                <div class="d-flex align-items-center column-gap-3" style="max-width: 600px;">
+                <div class="d-flex align-items-center column-gap-3" >
 
                     <input id="password_change_info_confirmation" type="password" name="user_password_change_info_confirmation" class="form-control" required style="max-width: 600px;">
-                    <img src="/img/oeil.png" alt="show password" id="togglePassword" style="width: 24px; cursor: pointer;">
+                    <img src="/img/oeil.png" alt="show password" id="togglePassword" width="24" height="24" style="cursor: pointer;">
                 </div>
             </div>
 
