@@ -73,22 +73,19 @@ export default class RendezVous extends Model {
         return this.dateFin.getMilliseconds() == 999;
     }
 
-    create_rendezVousSimple(debut, fin, agendas_id) {
-        return new RendezVousSimple(this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description, agendas_id);
+    create_rendezVousSimple(debut, fin) {
+        return new RendezVousSimple(this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description);
     }
 
-    // PAS DU TOUT TESTE
-    async get_rendezVous(periodeDebut, periodeFin) {
+    get_rendezVous(periodeDebut, periodeFin) {
         // si le rendezVous est après la période, pas besoin de regarder les récurrents
         if (this.dateDebut > periodeFin) {
             return [];
         }
-        // on pourrait être plus lazy
-        const agendas_id = [];
         if (this.type == 'Simple') {
             // s'il y a intersection (la condition sur la date de début est déjà vérifiée plus haut)
             if (this.dateFin >= periodeDebut) {
-                return [this.create_rendezVousSimple(this.dateDebut, this.dateFin, agendas_id)]
+                return [this.create_rendezVousSimple(this.dateDebut, this.dateFin)]
             }
             return [];
         }
@@ -107,7 +104,7 @@ export default class RendezVous extends Model {
             debut = add_function(debut, skip);
         }
         while ((!this.finRecurrence || debut <= this.finRecurrence) && debut < periodeFin) {
-            res.push(this.create_rendezVousSimple(debut, fin, agendas_id));
+            res.push(this.create_rendezVousSimple(debut, fin));
             debut = add_function(debut, this.frequence);
             fin = add_function(fin, this.frequence);
         }

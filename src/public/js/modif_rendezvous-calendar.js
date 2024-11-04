@@ -1,5 +1,5 @@
 import { agendaManager } from "./calendar_controleur.js";
-import { escapeHTML } from "./utils.js";
+import { escapeHTML, convertDate } from "./utils.js";
 
 /*Créer la modale de modification de rendez vous */
 export function creerModale(rdv, agendas) {
@@ -13,19 +13,20 @@ export function creerModale(rdv, agendas) {
     let all_day_text = "";
     let date_input_type = "date";
     if (all_day) {
-        dateDebut = rdv.start.slice(0, 10);
-        dateFin = rdv.end.slice(0, 10);
+        dateDebut = convertDate(rdv.start, false);
+        dateFin = convertDate(rdv.end, false);
         all_day_text = "checked";
     } else {
         date_input_type += "time-local";
-        dateDebut = rdv.start.slice(0, 16);
-        dateFin = rdv.end.slice(0, 16);
+        dateDebut = convertDate(rdv.start);
+        dateFin = convertDate(rdv.end);
     }
     let list_agendas = "";
     for (const elem of agendas) {
         let selected_text = "";
         let initvalue = "";
-        if (rdv.agendas.has(+elem.id)) {
+
+        if (rdv.agendas.includes(elem.id)) {
             selected_text = "selected";
             initvalue = "data-initial='yes'";
         }
@@ -111,12 +112,10 @@ export async function envoyerForm() {
     let titreInput = document.getElementById('titreRDV');
     let descriptionRDV = document.getElementById('descriptionRDV');
     let lieuRDV = document.getElementById('lieuRDV');
-    let idRDV = document.getElementById('idRDV');
     
     const selectElement = document.getElementById('select_agendas');
     // on récupère uniquement les agendas à ajouter/supprimer
-    const relevantOptions = Array.from(selectElement.options).filter(option => option.selected || option.getAttribute('data-initial') === 'yes')
-                                 .map(e => Object({id: e.value, to_add: e.selected}));
+    const new_agendas = Array.from(selectElement.options).filter(option => option.selected).map(e => e.value);
 
     let dateDebInput = document.getElementById('dateDebut');
     let dateFinInput = document.getElementById('dateFin');
@@ -132,12 +131,11 @@ export async function envoyerForm() {
     }
 
     const dateDeb = new Date(dateDebInput.value);
-    const dateDebInit = new Date(dateDebInput.getAttribute('data-initialValue'));
     const dateFin = new Date(dateFinInput.value);
-    const dateFinInit = new Date(dateFinInput.getAttribute('data-initialValue'));
-
+    const all_day = document.getElementById('all_day').checked;
+    
     if (document.getElementById('all_day').checked) {
-        dateDeb.setHours(0, 0, 0, 0);
+        dateDeb.setHours(0, 0, 0);
         dateFin.setHours(23, 59, 59);
     }
     let isValid = true;
@@ -170,25 +168,9 @@ export async function envoyerForm() {
     }
 
     if (isValid) {
-        let data = {
-            ecartDebut: dateDeb - dateDebInit,
-            ecartFin: dateFin - dateFinInit,
-            titre: titreInput.value,
-            description: descriptionRDV.value,
-            lieu: lieuRDV.value,
-            idRDV: idRDV.value,
-            relevantAgendas: relevantOptions,
-            // on envoie aussi la période actuellement visible
-            viewStart: agendaManager.calendrier.view.activeStart,
-            viewEnd: agendaManager.calendrier.view.activeEnd
-        }
-        /*Après récupération du rdv modifié, on demande au controleur de mettre à jour le full calendar pour ce rdv */
-        fetch("/calendar-rdv",{
-            method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
-        })
-        .then((response) => response.json())
-        .then((data) => agendaManager.updateRdv(data))
-        .catch((error) => console.log("Aucune données"));
+        console.log(dateDeb, dateFin);
+        agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
+                                    description: descriptionRDV.value, agendas: new_agendas, allDay: all_day});
 
         //Désactivation de la modale
         let modal = document.getElementById('staticBackdrop');

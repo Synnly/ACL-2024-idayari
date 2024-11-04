@@ -1,6 +1,6 @@
 import Agenda from "../model/Agenda.js";
-import RendezVous from "../model/RendezVous.js";
 import AgendaRendezVous from "../model/AgendaRendezVous.js";
+import RendezVous from "../model/RendezVous.js";
 import { Sequelize } from "sequelize";
 
 
@@ -11,42 +11,42 @@ export async function calendarGetData(req, res) {
     }
     const dateStart = new Date(req.query.start);
     const dateEnd = new Date(req.query.end);
-
-    //Récupération des agendas sélectionnés
-    const tabAgendas = JSON.parse(decodeURIComponent(req.query.agendas)).map(e => +e);
-    // requête pour récupérer tous les rendez-vous associés aux agendas
-    // et pour chaque rendez-vous les ids des agendas *SELECTIONNES* associés
-    // c'est-à-dire un rendez-vous peut être dans 5 agendas mais si seul 2 de ces agendas sont sélectionnés
-    // on retourne les 2 sélectionnés.
-    const options = {
-        separate: true,
+    
+    RendezVous.findAll({
+        attributes: {
+            include: [ 
+                [
+                    Sequelize.literal(`(
+                    SELECT GROUP_CONCAT(arv.idAgenda SEPARATOR ',')
+                    FROM AgendaRendezVous AS arv
+                    WHERE arv.idRendezVous = RendezVous.id)`),
+                    'agendas_id',
+                ],
+            ],
+        },
         include: [
             {
                 model: Agenda,
-                as: 'Agendas',
                 through: AgendaRendezVous,
                 where: {
                     id: {
-                        [Sequelize.Op.in]: tabAgendas
-                    }
+                        [Sequelize.Op.in]: JSON.parse(decodeURIComponent(req.query.agendas)).map(e => +e)
+                    },
                 },
-                attributes: ['id']
-            }
-        ]
-    };
-    RendezVous.findAll(options)
-    .then((results) => {
-        const rendez_vous_simples = [];
-        for (const rdv of results) {
-            for (const rdv2 of rdv.get_rendezVous(dateStart, dateEnd)) {
-                rdv2.agendas = rdv.Agendas.map(e => e.id);
-                rendez_vous_simples.push(rdv2);
-            }
+            },
+        ],
+    }).then(rendez_vous => {
+        const simples = [];
+        for (const rdv of rendez_vous) {
+            const agendas_id = rdv.dataValues.agendas_id.split(",");
+            for (const simple of rdv.get_rendezVous(dateStart, dateEnd)) {
+                simple.agendas = agendas_id;
+                simples.push(simple);
+            };
         }
-        return res.json(rendez_vous_simples);
-    })
-    .catch((error) => {
-        return res.json({err : error})
+        return res.json(simples);
+    }).catch(err => {
+        res.status(500).json({ err: "Internal Server Error" });
     });
 }
 
@@ -56,34 +56,34 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (res.locals.user) {
         try {
             //Récupération des champs du form
-            const { idRDV, titre, lieu, description, ecartDebut, ecartFin, relevantAgendas, viewStart, viewEnd } = req.body;
+            const { id, title, lieu, description, start, end, agendas_to_add, agendas_to_remove } = req.body;
+            console.log(id, title, lieu, description, start, end, agendas_to_add, agendas_to_remove);
             //Récupération du rdv avec l'id donné
-            const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
-
+            const rdvToUpdate = await RendezVous.findByPk(id);
             if (!rdvToUpdate) {
                 return res.status(404).json({ message: 'Rendez-vous introuvable' });
             }
             //Sauvegarde du rdv
-            rdvToUpdate.dateDebut = new Date(rdvToUpdate.dateDebut.valueOf() + ecartDebut);
-            rdvToUpdate.dateFin = new Date(rdvToUpdate.dateFin.valueOf() + ecartFin);
-            rdvToUpdate.titre = titre;
+            rdvToUpdate.dateDebut = new Date(start);
+            rdvToUpdate.dateFin = new Date(end);
+            rdvToUpdate.titre = title;
             rdvToUpdate.lieu = lieu;
             rdvToUpdate.description = description;
             await rdvToUpdate.save();
-
-            for (const agenda of relevantAgendas) {
-                if (agenda.to_add) {
-                    
-                } else {
-                    // à supprimer
-                }
-            }
             
-            //Récupération des rdvs
-            const dateStart = new Date(viewStart);
-            const dateEnd = new Date(viewEnd);
-
-            return res.json(rdvToUpdate.get_rendezVous(dateStart, dateEnd));
+            for (const agenda of agendas_to_add) {
+                await AgendaRendezVous.create({
+                    idRendezVous: id,
+                    idAgenda: +agenda
+                });
+            }
+            for (const agenda of agendas_to_remove) {
+                await (AgendaRendezVous.build({
+                    idRendezVous: id,
+                    idAgenda: +agenda
+                }).destroy());
+            }
+            return res.status(200).json();
 
         } catch (error) {
             console.error('Erreur lors de la modification du rdv:', error);
