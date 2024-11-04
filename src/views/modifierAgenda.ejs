@@ -10,16 +10,7 @@
 </head>
 
 <body class="container flex-column d-flex min-vh-100 min-vw-100 m-0 p-0" data-bs-theme="light">
-    <nav class="navbar bg-primary px-4">
-        <span class="g-0">
-            <a class="navbar-brand fs-2 text-light fw-medium" href="/">
-            <img class="logo" src="/img/favicon.ico"/>Idayari</a>
-            <span class="navbar-brand text-light align-items-center">Bienvenue, <%= locals.user.username %>.</span>
-        </span>
-        <span class="g-0">
-            <a href="/infos_perso" class="navbar-brand text-light align-items-center">Compte</a>
-        </span>
-    </nav>
+    <%- include('partials/header.ejs') %>
     <% if(locals.errMsg) { %><% "<p>" %><%= errMsg %><% "</p>" %><% }%>
     <div class="container p-3 d-flex flex-column align-items-center flex-grow-1">
         <form class="row needs-validation w-100" method="post" novalidate>
