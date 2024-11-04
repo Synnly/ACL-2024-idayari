@@ -77,12 +77,18 @@ document.getElementById('confirmationpswd_change_info').addEventListener('input'
     }
 });
 
+/**
+ * permet de modifier l'username (rend l'input editable)
+ */
 function modifyUsername(){
     event.preventDefault()
     showConfirmChanges();
     document.getElementById("username_change_info").disabled = false;
 }
 
+/**
+ * permet de modifier le mot de passe (rend l'input editable)
+ */
 function modifyPassword(){
     event.preventDefault()
     showConfirmChanges();
