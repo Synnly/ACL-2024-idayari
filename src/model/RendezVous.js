@@ -86,7 +86,7 @@ export default class RendezVous extends Model {
     }
 
     is_all_day() {
-        return dateFin.getMilliseconds() == 999;
+        return dateFin.getSeconds() == 59;
     }
 
     create_rendezVousSimple(debut, fin) {
@@ -113,7 +113,7 @@ export default class RendezVous extends Model {
         let finRec = null;
         if (this.fin_par_nb_occurrences()) {
             finRec = add_function(this.dateDebut, (this.nbOccurrences-1) * this.frequence);
-            finRec.setHours(23, 59, 59, 999);
+            finRec.setHours(23, 59, 59);
         }
         if (this.fin_par_date()) {
             finRec = this.finRecurrence;

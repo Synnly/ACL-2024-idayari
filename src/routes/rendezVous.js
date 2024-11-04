@@ -35,10 +35,9 @@ export async function creationRendezVousPOST(req, res) {
     try {
         const dateDebut = new Date(req.body.dateDebut);
         const dateFin = new Date(req.body.dateFin);
-        console.log("aze");
         if (req.body.all_day == "all_day") {
-            dateDebut.setHours(0, 0, 0, 0);
-            dateFin.setHours(23, 59, 59, 999);
+            dateDebut.setHours(0, 0, 0);
+            dateFin.setHours(23, 59, 59);
         }
         rendezVous = RendezVous.build({
             titre: req.body.titre,
@@ -58,7 +57,7 @@ export async function creationRendezVousPOST(req, res) {
             rendezVous.set("frequence", req.body.freq_type == "s" ? 7 * (+req.body.freq_number) : +req.body.freq_number);
             if (req.body.fin_recurrence == "0") {
                 const d = new Date(Date.parse(req.body.date_fin_recurrence));
-                d.setHours(23, 59, 59, 999);
+                d.setHours(23, 59, 59);
                 rendezVous.set("finRecurrence", d);
             } else if (req.body.fin_recurrence == "1") {
                 rendezVous.set('nbOccurrences', +req.body.nb_occurence);
