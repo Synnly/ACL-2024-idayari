@@ -86,7 +86,7 @@ export default class RendezVous extends Model {
     }
 
     is_all_day() {
-        return dateFin.getSeconds() == 59;
+        return this.dateFin.getSeconds() == 59;
     }
 
     create_rendezVousSimple(debut, fin) {

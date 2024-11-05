@@ -33,15 +33,24 @@ export class AgendaManager {
             // nombre de semaines dans la vue Mois non fixe, au lieu de toujours 6 (inclut donc parfois des semaines n'étant pas du tout dans le mois)
             fixedWeekCount: false,
             // permet de pas afficher des milliers de rendez-vous par case
-            dayMaxEventRows: 3, // pour la vue mois
-            eventMaxStack: 4, // pour les vues semaine et jour
+            dayMaxEventRows: 2, // pour la vue mois
+            eventMaxStack: 3, // pour les vues semaine et jour
             navLinks: true,
-            slotDuration: '01:00:00',      
+            slotDuration: '01:00:00',
+            height: "auto",
+            customButtons: {
+                new_event: {
+                    text: 'nouvel évènement',
+                    click: function() {
+                        window.location.href = '/rendezVous/new'
+                    }
+                }
+            },
             //Paramétrage des modes d'affichages du calendrier
             headerToolbar: {
-                left: 'prev,next today',
+                left: 'today prev,next',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                right: 'new_event dayGridMonth,timeGridWeek,timeGridDay'
             },
             buttonText: {
                 today:'Aujourd\'hui',
