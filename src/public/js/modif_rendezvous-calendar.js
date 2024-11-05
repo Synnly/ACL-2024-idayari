@@ -91,7 +91,7 @@ export function creerModale(rdv, agendas) {
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-outline-danger btn-modal" onclick="suppressionRDV(`+id+`)">Supprimer</button>
                     <div>
-                        <button type="button" class="btn btn-secondary btn-modal" data-bs-dismiss="modal" >Annuler</button>
+                        <button type="button" class="btn btn-secondary btn-modal" data-bs-dismiss="modal" onclick="deleteModal()">Annuler</button>
                         <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Valider</button>
                     </div>
                 </div>
