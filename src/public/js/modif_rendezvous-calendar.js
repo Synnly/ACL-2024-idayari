@@ -111,14 +111,26 @@ export function creerModale(rdv, agendas) {
 
 window.suppressionRDV = function(id){
   if(confirm("Êtes-vous sûr de vouloir supprimer le rendez-vous ?")){
-      window.location.href = `supprimerRDV/${id}`
+      window.supprimer_rdv(id)
   }
 }
 
 export function supprimer_rdv(id) {
-  fetch(`/supprimerRdv/${id}`)
+  fetch(`/supprimerRDV/${id}`)
   .then((_) => {
-  quitModal();
+    let modal = document.getElementById('staticBackdrop');
+    let modalInstance = bootstrap.Modal.getInstance(modal);
+    //Détruit les éléments liés à la modale (éléments bootstrap)
+    if(modalInstance){
+        modalInstance.dispose();
+        //Pour faire fonctionner le scroll à nouveau
+        document.body.style.overflow = '';
+    }
+    
+    //On supprime la modal pour pouvoir la recréer avec de nouvelles données
+    if (modal) {
+        modal.remove(); 
+    }
     agendaManager.remove_events(id);
   })
   .catch((error) => {
