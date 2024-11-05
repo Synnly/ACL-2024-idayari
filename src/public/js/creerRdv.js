@@ -178,15 +178,8 @@ export async function envoyerFormNouveauRdv() {
 }
 
 export function quitModalNouveauRdv(){
-    //Désactivation de la modale
     let modal = document.getElementById('staticBackdrop');
-    let modalInstance = bootstrap.Modal.getInstance(modal);
-
-    //Détruit les éléments liés à la modale (éléments bootstrap)
-    if(modalInstance){
-        modalInstance.dispose();
-        document.body.style.overflow = '';
+    if (modal) {
+        modal.remove();
     }
-
-    modal.remove();
 }
