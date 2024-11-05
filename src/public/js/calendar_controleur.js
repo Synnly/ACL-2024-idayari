@@ -58,6 +58,11 @@ export class AgendaManager {
                 week:'Semaine',
                 day:"Jour"
             },
+            views: {
+                dayGridMonth: {
+                    dayHeaderFormat: { weekday: 'long' }
+                }
+            },
             datesSet: function(info) {
                 manager.updateDate(info.start, info.end);
             },
