@@ -141,6 +141,16 @@ export async function envoyerFormNouveauRdv() {
         return;
     }
 
+    if(selectedAgendas.length === 0){
+        const msgErreur = document.createElement('div');
+        msgErreur.id = 'dateErreur';
+        msgErreur.className = 'text-danger';
+        msgErreur.textContent = "Au moins un agenda doit être sélectionné.";
+
+        selectElement.parentNode.appendChild(msgErreur);
+        return;
+    }
+
     if (isValid) {
         const data = {
             dateDebut: dateDeb,
