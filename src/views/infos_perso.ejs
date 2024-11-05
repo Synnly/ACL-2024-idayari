@@ -20,13 +20,22 @@
             <%= errMsg %>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    <% } %>    
+    
+    <% } %>   
+    <% if(locals.succesMsg) { %>
+        <div class="alert alert-success alert-dismissible fade show w-100" role="alert" style="z-index: 1050;">
+            <%= succesMsg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    
+    <% } %>   
+    
     <!-- Rest og the page -->
-    <div class="p-4">
+    <div class="px-4">
 
         <!-- Title and subtitle  -->
         <div class="mb-5">
-            <h1 class="pt-4 fs-2">Voici vos informations personnelles</h1>
+            <h1 class="pt-4 fs-3">Voici vos informations personnelles</h1>
             <h2 class="fs-5 fw-light">Vous pouvez consulter/modifier chacunes de vos informations ci-dessous</h2>
         </div>
 
@@ -72,7 +81,7 @@
         <!-- Confirmation change with write password -->
         <div id="confirm_password" style="display: none" class="mt-5">
 
-            <h3>Entrez votre mot de passe actuel pour confirmer les modifications</h3>
+            <h3 class="fs-4">Entrez votre mot de passe actuel pour confirmer les modifications</h3>
             <div class="d-flex flex-column column-gap-3">
 
                 <label for="password_change_info">Mot de passe</label>
