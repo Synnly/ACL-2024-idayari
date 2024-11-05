@@ -4,13 +4,13 @@ import { addDays, addMonths, addYears, daysDiff, monthDiff, yearDiff} from "../d
 
 
 function isAfterDateDebut(value) {
-    if (value < this.dateDebut) {
+    if (value <= this.dateDebut) {
         throw new Error("La date de fin doit être supérieur à la date de début.");
     }
 }
 
 function isAfterDateDebut2(value) {
-    if (value < this.dateDebut) {
+    if (value <= this.dateDebut) {
         throw new Error("La date de fin de récurrence doit être supérieur à la date de début.");
     }
 }
@@ -43,6 +43,10 @@ export default class RendezVous extends Model {
             validate: {
                 isAfterDateDebut 
             }
+        },
+        allDay: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         },
         lieu: {
             type: DataTypes.STRING
@@ -85,23 +89,19 @@ export default class RendezVous extends Model {
         return this.dateFin - this.dateDebut;
     }
 
-    is_all_day() {
-        return dateFin.getSeconds() == 59;
-    }
-
     create_rendezVousSimple(debut, fin) {
-        return new RendezVousSimple(this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description);
+        return new RendezVousSimple(this.titre, debut, fin, this.id, this.allDay, this.lieu, this.description,
+                                    this.type, this.finRecurrence);
     }
 
-    // PAS DU TOUT TESTE
     get_rendezVous(periodeDebut, periodeFin) {
         // si le rendezVous est après la période, pas besoin de regarder les récurrents
-        if (this.dateDebut > periodeFin) {
+        if (this.dateDebut >= periodeFin) {
             return [];
         }
         if (this.type == 'Simple') {
             // s'il y a intersection (la condition sur la date de début est déjà vérifiée plus haut)
-            if (this.dateFin >= periodeDebut) {
+            if (this.dateFin > periodeDebut) {
                 return [this.create_rendezVousSimple(this.dateDebut, this.dateFin)]
             }
             return [];
@@ -124,12 +124,19 @@ export default class RendezVous extends Model {
         let fin = this.dateFin;
         // le premier rendez vous récurrent ne rentre pas dans la période, au lieu de parcourir
         // tous les rendez vous récurrents qui ne rentreraient pas, on skip jusqu'au premier rendez-vous récurrent dans la période
-        if (fin < periodeDebut) {
-            const skip = Math.ceil(diff_function(periodeDebut, fin)/this.frequence);
+        if (fin <= periodeDebut) {
+            let diff = Math.ceil(diff_function(fin, periodeDebut)/this.frequence);
+            // le skip était de 0 car la différence n'était assez pas significative
+            // ex fin = 12-Nov, periodeDebut = 24-Nov avec une fréquence mensuelle
+            // la différence mensuelle est nulle (même mois) mais fin est toujours en arrière
+            if (diff == 0) {
+                diff = 1;
+            }
+            const skip = diff * this.frequence;
             fin = add_function(fin, skip);
             debut = add_function(debut, skip);
         }
-        while ((!finRec || debut <= finRec) && debut < periodeFin) {
+        while ((!finRec || debut < finRec) && debut < periodeFin) {
             res.push(this.create_rendezVousSimple(debut, fin));
             debut = add_function(debut, this.frequence);
             fin = add_function(fin, this.frequence);

@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import sequelize from "./database.js";
+
 dotenv.config(); // Récupère et parse le fichier .env pour récupérer clé SECRET
 
 /**

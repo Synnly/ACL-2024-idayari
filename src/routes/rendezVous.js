@@ -1,5 +1,6 @@
 import AgendaRendezVous from "../model/AgendaRendezVous.js";
 import {ValidationError} from "sequelize";
+import { addDays } from "../date_utils.js";
 import User from "../model/User.js";
 import RendezVous from "../model/RendezVous.js";
 import Agenda from "../model/Agenda.js";
@@ -35,10 +36,12 @@ export async function creationRendezVousPOST(req, res) {
                                                             req.body.agendas.map(n => +n);
     try {
         const dateDebut = new Date(req.body.dateDebut);
-        const dateFin = new Date(req.body.dateFin);
+        let dateFin = new Date(req.body.dateFin);
         if (req.body.all_day == "all_day") {
             dateDebut.setHours(0, 0, 0);
-            dateFin.setHours(23, 59, 59);
+            // date de fin exclusive, donc on ajoute un jour
+            dateFin = addDays(dateFin, 1);
+            dateFin.setHours(0, 0, 0);
         }
         rendezVous = RendezVous.build({
             titre: req.body.titre,
@@ -46,6 +49,7 @@ export async function creationRendezVousPOST(req, res) {
             description: (req.body.desc ?? null),
             dateDebut: dateDebut,
             dateFin: dateFin,
+            allDay: req.body.all_day == "all_day",
         });
         // si c'est un rendez-vous récurrent
         if (req.body.recurrent == "rec") {
@@ -57,8 +61,8 @@ export async function creationRendezVousPOST(req, res) {
             // si c'est des semaines, cela revient à 7 jours
             rendezVous.set("frequence", req.body.freq_type == "s" ? 7 * (+req.body.freq_number) : +req.body.freq_number);
             if (req.body.fin_recurrence == "0") {
-                const d = new Date(Date.parse(req.body.date_fin_recurrence));
-                d.setHours(23, 59, 59);
+                const d = addDays(new Date(req.body.date_fin_recurrence), 1);
+                d.setHours(0, 0, 0);
                 rendezVous.set("finRecurrence", d);
             } else if (req.body.fin_recurrence == "1") {
                 rendezVous.set('nbOccurrences', +req.body.nb_occurence);

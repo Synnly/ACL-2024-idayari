@@ -10,6 +10,8 @@ import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousGET, creationRendezVousPOST, supprimerRDVGET} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
+import { calendarGetData, modifierRendezVousCalendarPOST } from "./routes/calendar.js";
+
 import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaGET} from './routes/modifierAgenda.js';
 
 
@@ -26,6 +28,9 @@ app
     .use(express.json())
     .use(express.urlencoded({ extended: false }))
     .get("/", index)
+    
+    .post("/calendar-rdv",modifierRendezVousCalendarPOST)
+
     .post("/",modifierRendezVousPOST)
 
     .get("/deconnexion", deconnexion)
@@ -49,6 +54,8 @@ app
 
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
+
+    .get("/calendar-data/", calendarGetData)
 
     .use((req, res, next) => next(createError(404)))
     .use((err, req, res, next) => {

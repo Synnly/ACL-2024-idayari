@@ -1,11 +1,19 @@
 export default class RendezVousSimple {
-    constructor(titre, dateDebut, dateFin, idRendezVous, all_day, lieu, description) {
-        this.titre = titre;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
-        this.rendezVous = idRendezVous;
+    constructor(titre, dateDebut, dateFin, idRendezVous, all_day, lieu, description, 
+                type, dateFinRec) {
+        this.title = titre;
+        this.start = dateDebut;
+        this.end = dateFin;
+        this.allDay = all_day;
+        this.groupId = idRendezVous;
         this.lieu = lieu;
         this.description = description;
-        this.is_all_day = all_day;
+        this.allDay = all_day;
+        this.type = type;
+        this.dateFinRecurrence = dateFinRec;
+    }
+
+    est_recurrent() {
+        return this.type != 'Simple';
     }
 }

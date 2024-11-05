@@ -25,7 +25,7 @@ function daysDiff(d1, d2) {
     // nombre de millisecondes en un jour
     const ONE_DAY = 1000 * 60 * 60 * 24;
 
-    const differenceMs = Math.abs(date1 - date2);
+    const differenceMs = Math.abs(d1 - d2);
     return differenceMs / ONE_DAY;
 
 }
