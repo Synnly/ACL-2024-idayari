@@ -8,7 +8,10 @@
         "start": "sass --no-source-map --quiet public/css/main.scss public/css/main.css; nodemon server.js"
     },
     "dependencies": {
+        "@fullcalendar/bootstrap5": "^6.1.15",
+        "@fullcalendar/core": "^6.1.15",
         "bootstrap": "^5.3.3",
+        "bootstrap-icons": "^1.11.3",
         "cookie-parser": "^1.4.7",
         "crypto": "^1.0.1",
         "dotenv": "^16.4.5",

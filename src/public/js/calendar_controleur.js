@@ -1,3 +1,4 @@
+import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -25,7 +26,7 @@ export class AgendaManager {
 
         this.calendrier = new Calendar(elementCalendrier,{
             //Appel des différents composants 
-            plugins : [dayGridPlugin,timeGridPlugin,listPlugin],
+            plugins : [dayGridPlugin,timeGridPlugin,listPlugin, bootstrap5Plugin],
             // le format des dates dépend du navigateur
             locale:navigator.languages[0],
             // permet de commencer Lundi
@@ -37,15 +38,17 @@ export class AgendaManager {
             eventMaxStack: 3, // pour les vues semaine et jour
             navLinks: true,
             slotDuration: '01:00:00',
-            height: "auto",
+            height: "100%",
             customButtons: {
                 new_event: {
                     text: 'nouvel évènement',
+                    icon: 'bi bi-plus-lg',
                     click: function() {
                         window.location.href = '/rendezVous/new'
                     }
                 }
             },
+            themeSystem: 'bootstrap5',
             //Paramétrage des modes d'affichages du calendrier
             headerToolbar: {
                 left: 'today prev,next',
@@ -152,7 +155,7 @@ export class AgendaManager {
                 rdv.start = new Date(rdv.start);
                 rdv.end = new Date(rdv.end);
                 rdv.dateFinRecurrence = rdv.dateFinRecurrence ? new Date(rdv.dateFinRecurrence) : rdv.dateFinRecurrence;
-                const identifier = rdv.groupId + "_" + rdv.start;
+                const identifier = rdv.groupId + "_" + rdv.start.toISOString();
                 // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
                 if (!this.events.has(identifier)) {
                     this.events.add(identifier);
@@ -178,9 +181,9 @@ export class AgendaManager {
             delete this.agendas_periodes[agenda_id];
             for (const event of this.calendrier.getEvents()) {
                 if (!event.extendedProps.agendas.some(e => this.agendas_periodes[e] != undefined)) {
-                    event.remove();
                     const identifier = event.groupId + "_" + event.start.toISOString();
                     this.events.delete(identifier);
+                    event.remove();
                 }
             }
         } else {
