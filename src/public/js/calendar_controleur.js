@@ -4,6 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import {creerModale,envoyerForm,quitModal} from '/js/modif_rendezvous-calendar.js';
+import {creerModaleNouveauRdv, envoyerFormNouveauRdv, quitModalNouveauRdv} from "./creerRdv.js";
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/ 
@@ -41,10 +42,12 @@ export class AgendaManager {
             height: "100%",
             customButtons: {
                 new_event: {
-                    text: 'nouvel évènement',
+                    text: 'Nouvel évènement',
                     icon: 'bi bi-plus-lg',
                     click: function() {
-                        window.location.href = '/rendezVous/new'
+                        window.envoyerForm = envoyerFormNouveauRdv;
+                        window.quitModal = quitModalNouveauRdv;
+                        creerModaleNouveauRdv(agendas);
                     }
                 }
             },
