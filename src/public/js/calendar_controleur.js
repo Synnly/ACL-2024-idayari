@@ -151,7 +151,7 @@ export class AgendaManager {
                 // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
                 if (!this.events.has(identifier)) {
                     this.events.add(identifier);
-                    this.calendrier.addEvent(rdv);
+                    const x = this.calendrier.addEvent(rdv);
                 }
             }
             if (updateDate) {
@@ -268,7 +268,7 @@ export class AgendaManager {
             old_event.setProp('title', new_event.title);
         }
         if (new_event.start.valueOf() != old_event.start.valueOf() || new_event.end.valueOf() != old_event.end.valueOf() || new_event.allDay != old_event.allDay) {
-            old_event.setDates(new_event.start, new_event.end);
+            old_event.setDates(new_event.start, new_event.end, { allDay: new_event.allDay});
         }
         if (new_event.lieu != old_event.extendedProps.lieu) {
             old_event.setExtendedProp('lieu', new_event.lieu);

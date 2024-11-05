@@ -1,5 +1,5 @@
 import { agendaManager } from "./calendar_controleur.js";
-import { escapeHTML, convertDate } from "./utils.js";
+import { addDays, removeDays, escapeHTML, convertDate } from "./utils.js";
 
 /*Créer la modale de modification de rendez vous */
 export function creerModale(rdv, agendas) {
@@ -14,7 +14,7 @@ export function creerModale(rdv, agendas) {
     let date_input_type = "date";
     if (all_day) {
         dateDebut = convertDate(rdv.start, false);
-        dateFin = convertDate(rdv.end, false);
+        dateFin = convertDate(removeDays(rdv.end, 1), false);
         all_day_text = "checked";
     } else {
         date_input_type += "time-local";
@@ -78,7 +78,7 @@ export function creerModale(rdv, agendas) {
                         </div>
                       </div>
                       <div class="mb-3">
-                        <label for="agendas" class="form-label">Agenda(s) associé(s) au rendez-vous</label>
+                        <label for="select_agendas" class="form-label">Agenda(s) associé(s) au rendez-vous</label>
                         <select name="agendas" id="select_agendas" class="form-control" multiple required>
                             ${list_agendas}
                         </select>
@@ -131,12 +131,13 @@ export async function envoyerForm() {
     }
 
     const dateDeb = new Date(dateDebInput.value);
-    const dateFin = new Date(dateFinInput.value);
+    let dateFin = new Date(dateFinInput.value);
     const all_day = document.getElementById('all_day').checked;
     
-    if (document.getElementById('all_day').checked) {
+    if (all_day) {
         dateDeb.setHours(0, 0, 0);
-        dateFin.setHours(23, 59, 59);
+        dateFin = addDays(dateFin, 1);
+        dateFin.setHours(0, 0, 0);
     }
     let isValid = true;
 
