@@ -8,7 +8,10 @@
         "start": "sass --no-source-map --quiet public/css/main.scss public/css/main.css; nodemon server.js"
     },
     "dependencies": {
+        "@fullcalendar/bootstrap5": "^6.1.15",
+        "@fullcalendar/core": "^6.1.15",
         "bootstrap": "^5.3.3",
+        "bootstrap-icons": "^1.11.3",
         "cookie-parser": "^1.4.7",
         "crypto": "^1.0.1",
         "dotenv": "^16.4.5",
@@ -19,8 +22,8 @@
         "morgan": "^1.10.0",
         "mysql2": "^3.11.3",
         "nodemon": "^3.1.7",
-        "sequelize": "^6.37.4",
-        "sass": "^1.80.2"
+        "sass": "^1.80.2",
+        "sequelize": "^6.37.4"
     },
     "type": "module",
     "contributors": [

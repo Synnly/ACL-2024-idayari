@@ -1,6 +1,36 @@
+// oui c'est du code recopié mais j'ai vraiment pas l'énergie d'affronter les problèmes d'import
+function convertDate(date, withTime=true){
+    let year = date.getFullYear();
+    //PadStart(2,'0') : 2 = nb min de caratère, '0' = le caractère de remplissage qu'on ajoute 
+    let month = String(date.getMonth() + 1).padStart(2, '0'); // Mois (0-11)
+    let day = String(date.getDate()).padStart(2, '0');
+
+    if (withTime) {
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0'); 
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    } else {
+        return `${year}-${month}-${day}`;
+    }
+}
+
 function change_all_day_option(elem) {
-    document.getElementById('dateDebut').type = elem.checked ? 'date' : 'datetime-local';
-    document.getElementById('dateFin').type = elem.checked ? 'date' : 'datetime-local';
+    const date_debut = document.getElementById('dateDebut');
+    const date_fin = document.getElementById('dateFin');
+    const val_debut = date_debut.value ? new Date(date_debut.value) : "";
+    const val_fin = date_fin.value ? new Date(date_fin.value) : "";
+    if (elem.checked) {
+        date_debut.type = 'date';
+        date_fin.type = 'date';
+        date_debut.value = val_debut ? convertDate(val_debut, false) : val_debut;
+        date_fin.value = val_fin ? convertDate(val_fin, false) : val_fin;
+    } else {
+        date_debut.type = 'datetime-local';
+        date_fin.type = 'datetime-local';
+        date_debut.value = val_debut ? convertDate(val_debut) : val_debut;
+        date_fin.value = val_fin ? convertDate(val_fin) : val_fin;
+        
+    }
 }
 
 function change_recurrent_option(elem) {

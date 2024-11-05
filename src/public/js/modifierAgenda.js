@@ -1,8 +1,9 @@
-function confirmerSuppression(id, nom){
+function confirmerSuppression(id){
     event.preventDefault();
-    const nomTronque = nom.substring(0, 15);
+    const node = document.getElementById(id.toString());
+    const nomTronque = node.placeholder.substring(0, 15);
 
-    if(confirm(`Êtes vous sûr de supprimer ${nomTronque === nom ? nom : nomTronque+'...'} ?\nCette action est IRREVERSIBLE.`)){
+    if(confirm(`Êtes vous sûr de supprimer ${nomTronque === node.placeholder ? node.placeholder : nomTronque+'...'} ?\nCette action est IRREVERSIBLE.`)){
         window.location.href = `/supprimerAgenda/${id}`;
     }
 }
