@@ -87,5 +87,7 @@ export async function modifierInfosPersoPOST(req, res) {
 			console.log(error)
 			return res.render('infos_perso', {errMsg: "Une erreur s'est produite"});
 		}
+	}else {
+		return res.redirect('connexion');
 	}
 }
