@@ -31,7 +31,7 @@ export async function creationRendezVousPOST(req, res){
         rendezVous = RendezVous.build({
             titre: req.body.titre,
             lieu: (req.body.lieu ?? null),
-            description: (req.body.desc ?? null),
+            description: (req.body.description ?? null),
             dateDebut: dateDebut,
             dateFin: dateFin,
             allDay: req.body.all_day == "all_day",
