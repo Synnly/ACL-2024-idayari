@@ -22,7 +22,7 @@ export async function creationRendezVousPOST(req, res){
     try {
         const dateDebut = new Date(req.body.dateDebut);
         let dateFin = new Date(req.body.dateFin);
-        if (req.body.all_day == "all_day") {
+        if (req.body.all_day) {
             dateDebut.setHours(0, 0, 0);
             // date de fin exclusive, donc on ajoute un jour
             dateFin = addDays(dateFin, 1);
@@ -34,7 +34,7 @@ export async function creationRendezVousPOST(req, res){
             description: (req.body.description ?? null),
             dateDebut: dateDebut,
             dateFin: dateFin,
-            allDay: req.body.all_day == "all_day",
+            allDay: req.body.all_day,
         });
         // si c'est un rendez-vous récurrent
         if (req.body.recurrent == "rec") {

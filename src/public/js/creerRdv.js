@@ -149,7 +149,7 @@ export async function envoyerFormNouveauRdv() {
             lieu: lieuRDV.value,
             description: descriptionRDV.value,
             agendas: selectedAgendas,
-            allDay: all_day,
+            all_day: all_day,
         };
         fetch("/rendezVous/new", {
             method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
