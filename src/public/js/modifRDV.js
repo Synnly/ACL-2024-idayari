@@ -56,9 +56,12 @@ function creerModale(li) {
                       </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-modal" data-bs-dismiss="modal" >Annuler</button>
-                    <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Valider</button>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-danger btn-modal" onclick="suppressionRDV(`+id+`)">Supprimer</button>
+                    <div>
+                        <button type="button" class="btn btn-secondary btn-modal" data-bs-dismiss="modal" >Annuler</button>
+                        <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Valider</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,6 +75,14 @@ function creerModale(li) {
     const vraieModale = new bootstrap.Modal(fausseModale);
 
     vraieModale.show();
+}
+
+function suppressionRDV(id){
+    console.log(id + "    xxxxx");
+    if(confirm("Êtes-vous sûr de vouloir supprimer le rendez-vous ?")){
+        window.location.href = `supprimerRDV/${id}`
+    }
+
 }
 
 function envoyerForm() {

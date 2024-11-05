@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <title>Erreur</title>
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/index.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container text-center mt-5 d-flex flex-column justify-content-center align-items-center">
+        <h1 class="display-4 fw-bold">Erreur <%= status %></h1>
+        <p class="lead"><%= message %></p>
+        <img src="/img/lost.svg" alt="lost" class="img-fluid">
+        <a href="/" class="btn btn-primary mt-3 text-white">Retour à l'accueil</a>
+    </div>
+</body>
+</html>
