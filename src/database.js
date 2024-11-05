@@ -46,8 +46,8 @@ RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRend
 // si on a des modifications de la structure des tables
 // await User.sync({alter: true});
 // await Agenda.sync({alter: true});
-// await UserAgendaAccess.sync({force: true});
+// await UserAgendaAccess.sync({alter: true});
 // await RendezVous.sync({alter: true});
-// await AgendaRendezVous.sync({force: true});
+// await AgendaRendezVous.sync({alter: true});
 
 export default sequelize;
