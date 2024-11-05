@@ -1,6 +1,7 @@
 import {saveAuthentificationCookie} from "../token.js";
 import User from "../model/User.js";
 
+
 /**
  * Traite la requête GET sur /connexion.
  * Si l'user est connecté, renvoie vers /
