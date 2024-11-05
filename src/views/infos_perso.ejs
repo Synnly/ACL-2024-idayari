@@ -45,7 +45,7 @@
                 <div>
                     <label for="password_change_info">Nouveau mot de passe</label>
                     <div class="d-flex justify-content-start align-items-center column-gap-3">
-                        <input id="password_change_info" type="password" name="user_password_change_info" placeholder="**********" disabled="" class="form-control" style="max-width: 600px;">
+                        <input id="password_change_info" type="password" name="user_password_change_info" placeholder="**********" disabled="" class="form-control" style="max-width: 600px;" minlength="8">
                         <img src="/img/pen.png" alt="pen" onclick="modifyPassword()" width="24" height="24" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Modifier votre mot de passe" style="cursor: pointer;">
                         <img src="/img/oeil.png" alt="show password" id="togglePassword2" width="24" height="24" style="cursor: pointer;" class="d-none">
                     </div>
@@ -55,7 +55,7 @@
                 <div id="div_confirmationpswd_change_info" style="display: none; max-width: 600px;">
                     <label for="confirmationpswd_change_info">Confirmer le nouveau mot de passe</label>
                     <div class="d-flex justify-content-start align-items-center column-gap-3">
-                        <input id="confirmationpswd_change_info" type="password" name="user_confirmationpswd_change_info" placeholder="**********" class="form-control" style="max-width: 600px;">
+                        <input id="confirmationpswd_change_info" type="password" name="user_confirmationpswd_change_info" placeholder="**********" class="form-control" style="max-width: 600px;" minlength="8">
                         <img src="/img/oeil.png" alt="show password" id="togglePassword3" width="24" height="24" style="cursor: pointer;">
                     </div>
 

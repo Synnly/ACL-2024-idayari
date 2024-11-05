@@ -3,13 +3,13 @@
  * @returns true si tout est bon, false s'il manque le mdp de confirmation avec un message
  */
 function sendData() {
-    if (document.getElementById('password_change_info_confirmation').value) {
-        document.getElementById('hidden_password_confirmation').value = document.getElementById('password_change_info_confirmation').value;
-        document.getElementById('mainForm').submit();
-        return true;
-    }
-    document.getElementById('information_confirmation').textContent = 'Veuillez saisir votre mot de passe de confirmation';
-    return false;
+  if (document.getElementById('password_change_info_confirmation').value) {
+      document.getElementById('hidden_password_confirmation').value = document.getElementById('password_change_info_confirmation').value;
+      document.getElementById('mainForm').submit();
+      return true;
+  }
+  document.getElementById('information_confirmation').textContent = 'Veuillez saisir votre mot de passe de confirmation';
+  return false;
 }
 
 /**
@@ -41,18 +41,28 @@ function back() {
  * un message.
  */
 document.getElementById("password_change_info").addEventListener('input', function(event) {
+  const errorMessage = document.getElementById('errorMessage');
+  const confirmationPassword = document.getElementById('confirmationpswd_change_info');
+  const submitButton = document.getElementById("changeInfoSubmitComfirmation");
 
-    let errorMessage = document.getElementById('errorMessage');
-    let confirmationpswd_change_info = document.getElementById('confirmationpswd_change_info');
+  // Vérifie si les mots de passe correspondent
+  if (event.target.value === confirmationPassword.value) {
+      if (event.target.value.length < 8) {
+          errorMessage.textContent = 'Le mot de passe doit contenir au moins 8 caractères';
+          submitButton.disabled = true;
+      } else {
+          errorMessage.textContent = '';
+          submitButton.disabled = false;
+      }
+  } else if (confirmationPassword.value !== "") {
+      errorMessage.textContent = 'Mots de passe différents';
+      submitButton.disabled = true;
+  } else {
+      errorMessage.textContent = '';
+      submitButton.disabled = true;
+  }
+});
 
-    if (event.target.value === confirmationpswd_change_info.value) {
-        errorMessage.textContent = '';
-        document.getElementById("changeInfoSubmitComfirmation").disabled = false;
-    } else {
-        errorMessage.textContent = 'Mots de passe différents';
-        document.getElementById("changeInfoSubmitComfirmation").disabled = true;
-    }
-})
 
 /**
  * Ecouteur sur la confirmation du changement de mot de passe
@@ -61,20 +71,26 @@ document.getElementById("password_change_info").addEventListener('input', functi
  * et on cache la modale
  * Sinon tout est bon est il peut passer à la suite
  */
-document.getElementById('confirmationpswd_change_info').addEventListener('input', function (event) {
+document.getElementById('confirmationpswd_change_info').addEventListener('input', function(event) {
+  const errorMessage = document.getElementById('errorMessage');
+  const mainPassword = document.getElementById('password_change_info');
+  const submitButton = document.getElementById("changeInfoSubmitComfirmation");
 
-    let errorMessage = document.getElementById('errorMessage');
-    let password_change_info = document.getElementById('password_change_info');
-
-    if (event.target.value === '' && password_change_info.value) {
-        errorMessage.textContent = '';
-    } else if (event.target.value !== password_change_info.value) {
-        errorMessage.textContent = 'Mots de passe différents';
-        document.getElementById("changeInfoSubmitComfirmation").disabled = true;
-    } else {
-        errorMessage.textContent = '';
-        document.getElementById("changeInfoSubmitComfirmation").disabled = false;
-    }
+  if (event.target.value === mainPassword.value) {
+      if (event.target.value.length < 8) {
+          errorMessage.textContent = 'Le mot de passe doit contenir au moins 8 caractères';
+          submitButton.disabled = true;
+      } else {
+          errorMessage.textContent = '';
+          submitButton.disabled = false;
+      }
+  } else if (event.target.value !== "") {
+      errorMessage.textContent = 'Mots de passe différents';
+      submitButton.disabled = true;
+  } else {
+      errorMessage.textContent = '';
+      submitButton.disabled = true;
+  }
 });
 
 /**
