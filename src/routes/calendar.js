@@ -7,11 +7,10 @@ import { Sequelize } from "sequelize";
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
 export async function calendarGetData(req, res) {
     if (!res.locals.user) {
-        return res.json({err : "deconnecte"});
+        return res.json({err: "not auth"});
     }
-    const dateStart = new Date(req.query.start);
-    const dateEnd = new Date(req.query.end);
-    
+    const dateStart = new Date(+req.query.start);
+    const dateEnd = new Date(+req.query.end);
     RendezVous.findAll({
         attributes: {
             include: [ 
@@ -46,6 +45,7 @@ export async function calendarGetData(req, res) {
         }
         return res.json(simples);
     }).catch(err => {
+        console.log(err);
         res.status(500).json({ err: "Internal Server Error" });
     });
 }
@@ -57,7 +57,6 @@ export async function modifierRendezVousCalendarPOST(req, res) {
         try {
             //Récupération des champs du form
             const { id, title, lieu, description, start, end, agendas_to_add, agendas_to_remove } = req.body;
-            console.log(id, title, lieu, description, start, end, agendas_to_add, agendas_to_remove);
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findByPk(id);
             if (!rdvToUpdate) {

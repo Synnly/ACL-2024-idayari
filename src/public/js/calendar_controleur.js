@@ -35,18 +35,18 @@ export class AgendaManager {
             // permet de pas afficher des milliers de rendez-vous par case
             dayMaxEventRows: 3, // pour la vue mois
             eventMaxStack: 4, // pour les vues semaine et jour
-            navLinks: true,         
+            navLinks: true,
+            slotDuration: '01:00:00',      
             //Paramétrage des modes d'affichages du calendrier
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
             buttonText: {
                 today:'Aujourd\'hui',
                 month:'Mois',
                 week:'Semaine',
-                list:'Liste',
                 day:"Jour"
             },
             datesSet: function(info) {
@@ -58,7 +58,6 @@ export class AgendaManager {
                 manager.modified_event = event;
                 window.envoyerForm = envoyerForm;
                 window.quitModal = quitModal;
-                console.log(event.start, event.end);
                 creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
                             agendas: event.extendedProps.agendas}, agendas);   
@@ -66,25 +65,47 @@ export class AgendaManager {
 
             eventChange: function(info) {
                 const oldEvent = info.oldEvent;
-                // si seul le display a changé, pas de fetch
-                if (info.event.display == oldEvent.display) {
-                    let first_event = info.event;
-                    for (const ev in info.relatedEvents) {
-                        if (ev.start < first_event.start) {
-                            first_event = ev;
+                const first_event = info.event.toPlainObject();
+                let earliestStart = info.event.start;
+                let earliestEnd = info.event.end;
+
+                // si on modifie la date de début
+                // on met à jour la liste des "identifiants" (pour l'unicité...)
+                // et on supprime les rendez-vous ayant dépassé la date de fin de récurrence
+                if (earliestStart.valueOf() != oldEvent.start.valueOf()) {
+                    manager.events.forEach(e => {
+                        if (e.split("_")[0] == oldEvent.groupId) {
+                            manager.events.delete(e);
                         }
-                    }
-                    const data = {title: first_event.title, lieu: first_event.extendedProps.lieu, description: first_event.extendedProps.description,
-                                  id: first_event.groupId, start: first_event.start, end: first_event.end,
-                                  agendas_to_add: first_event.extendedProps.agendas.filter(e => !oldEvent.extendedProps.agendas.includes(e)),
-                                  agendas_to_remove: oldEvent.extendedProps.agendas.filter(e => !first_event.extendedProps.agendas.includes(e))}
-                    fetch("/calendar-rdv", {
-                        method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
-                    })
-                    .catch((error) => {
-                        info.revert();
                     });
+                    // date de fin exclusive
+                    if (!info.event.extendedProps.dateFinRecurrence || info.event.start < info.event.extendedProps.dateFinRecurrence) {
+                        manager.events.add(info.event.groupId + "_" + info.event.start.toISOString());
+                    } else {
+                        info.event.remove();
+                    }
                 }
+                for (const ev of info.relatedEvents) {
+                    if (ev.start < earliestStart) {
+                        earliestStart = ev.start;
+                        earliestEnd = ev.end;
+                    }
+                    if (!ev.extendedProps.dateFinRecurrence || ev.start < ev.extendedProps.dateFinRecurrence) {
+                        manager.events.add(ev.groupId + "_" + ev.start.toISOString());
+                    } else {
+                        ev.remove();
+                    }
+                }
+                const data = {title: first_event.title, lieu: first_event.extendedProps.lieu, description: first_event.extendedProps.description,
+                                id: first_event.groupId, start: earliestStart, end: earliestEnd,
+                                agendas_to_add: first_event.extendedProps.agendas.filter(e => !oldEvent.extendedProps.agendas.includes(e)),
+                                agendas_to_remove: oldEvent.extendedProps.agendas.filter(e => !first_event.extendedProps.agendas.includes(e))}
+                fetch("/calendar-rdv", {
+                    method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
+                })
+                .catch((error) => {
+                    info.revert();
+                });
             }
         });
     }
@@ -101,9 +122,22 @@ export class AgendaManager {
         // à partir de la liste des rendez-vous simples des agendas, ajoute les rendez-vous si nécessaire dans le calendrier
     // si déjà présent, met à jour la liste d'agendas d'où provient le rendez-vous
     addData(agendas, updateDate=true) {
-        this.getRdvFromServer(agendas)
+        const ag = encodeURIComponent(JSON.stringify(agendas));
+        fetch(
+            "/calendar-data?start=" + this.calendrier.view.activeStart.valueOf() +
+                "&end=" + this.calendrier.view.activeEnd.valueOf() +
+                "&agendas=" + ag
+        ).then((response) => response.json())
         .then(rendezVous => {
+            if (rendezVous.err == "not auth") {
+                window.location.href = "/";
+                return ;
+            }
             for (const rdv of rendezVous) {
+                // les dates sont récupérées sous forme de chaînes de caractères
+                rdv.start = new Date(rdv.start);
+                rdv.end = new Date(rdv.end);
+                rdv.dateFinRecurrence = rdv.dateFinRecurrence ? new Date(rdv.dateFinRecurrence) : rdv.dateFinRecurrence;
                 const identifier = rdv.groupId + "_" + rdv.start;
                 // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
                 if (!this.events.has(identifier)) {
@@ -116,6 +150,9 @@ export class AgendaManager {
                     this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
                 });
             }
+        })
+        .catch(err => {
+            console.log(err.message);
         });
     }
 
@@ -158,23 +195,6 @@ export class AgendaManager {
             }
             this.addData(new_agendas);
         }
-    }
-
-    // récupère les rendez-vous simples à partir d'une liste d'agendas et la période actuellement viisble
-    async getRdvFromServer(agendas) {
-        const ag = encodeURIComponent(JSON.stringify(agendas));
-        const res = await fetch(
-            "/calendar-data?start=" + this.calendrier.view.activeStart +
-                "&end=" + this.calendrier.view.activeEnd +
-                "&agendas=" + ag
-        ).then((response) => response.json());
-        if (res.err === "deconnecte") {
-            window.location.href = '/';
-            return;
-        } else if (res.err) {
-            return [];
-        }
-        return res;
     }
 
     /* Met à jours le calendrier selon la période actuellement visinle */
@@ -239,7 +259,6 @@ export class AgendaManager {
             old_event.setProp('title', new_event.title);
         }
         if (new_event.start.valueOf() != old_event.start.valueOf() || new_event.end.valueOf() != old_event.end.valueOf() || new_event.allDay != old_event.allDay) {
-            console.log(new_event.start, old_event.start);
             old_event.setDates(new_event.start, new_event.end);
         }
         if (new_event.lieu != old_event.extendedProps.lieu) {
@@ -253,7 +272,13 @@ export class AgendaManager {
             old_event.setExtendedProp('agendas', new_event.agendas);
         }
         if (!new_event.agendas.some(e => this.agendas_periodes[e.toString()] != undefined)) {
-            old_event.remove();
+            this.calendrier.getEvents().forEach(ev => {
+                if (ev.groupId == old_event.groupId) {
+                    ev.remove();
+                    const identifier = ev.groupId + "_" + ev.start.toISOString();
+                    this.events.delete(identifier);
+                }
+            });
         }
     }
 }

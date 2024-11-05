@@ -74,7 +74,8 @@ export default class RendezVous extends Model {
     }
 
     create_rendezVousSimple(debut, fin) {
-        return new RendezVousSimple(this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description);
+        return new RendezVousSimple(this.titre, debut, fin, this.id, this.is_all_day(), this.lieu, this.description,
+                                    this.type, this.finRecurrence);
     }
 
     get_rendezVous(periodeDebut, periodeFin) {
@@ -99,7 +100,14 @@ export default class RendezVous extends Model {
         // le premier rendez vous récurrent ne rentre pas dans la période, au lieu de parcourir
         // tous les rendez vous récurrents qui ne rentreraient pas, on skip jusqu'au premier rendez-vous récurrent dans la période
         if (fin < periodeDebut) {
-            const skip = Math.ceil(diff_function(fin, periodeDebut)/this.frequence) * this.frequence;
+            let diff = Math.ceil(diff_function(fin, periodeDebut)/this.frequence);
+            // le skip était de 0 car la différence n'était assez pas significative
+            // ex fin = 12-Nov, periodeDebut = 24-Nov avec une fréquence mensuelle
+            // la différence mensuelle est nulle (même mois) mais fin est toujours en arrière
+            if (diff == 0) {
+                diff = 1;
+            }
+            const skip = diff * this.frequence;
             fin = add_function(fin, skip);
             debut = add_function(debut, skip);
         }
