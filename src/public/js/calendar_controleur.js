@@ -64,6 +64,9 @@ export class AgendaManager {
             views: {
                 dayGridMonth: {
                     dayHeaderFormat: { weekday: 'long' }
+                },
+                timeGridWeek: {
+                    dayHeaderFormat: { weekday: 'long', month: 'numeric', day: 'numeric', omitCommas: true }
                 }
             },
             datesSet: function(info) {
@@ -114,7 +117,7 @@ export class AgendaManager {
                     }
                 }
                 const data = {title: first_event.title, lieu: first_event.extendedProps.lieu, description: first_event.extendedProps.description,
-                                id: first_event.groupId, start: earliestStart, end: earliestEnd,
+                                id: first_event.groupId, start: earliestStart, end: earliestEnd, allDay: first_event.allDay,
                                 agendas_to_add: first_event.extendedProps.agendas.filter(e => !oldEvent.extendedProps.agendas.includes(e)),
                                 agendas_to_remove: oldEvent.extendedProps.agendas.filter(e => !first_event.extendedProps.agendas.includes(e))}
                 fetch("/calendar-rdv", {
