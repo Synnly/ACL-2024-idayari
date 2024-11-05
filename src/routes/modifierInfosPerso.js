@@ -1,6 +1,8 @@
 import User from "../model/User.js";
 import {saveAuthentificationCookie} from "../token.js";
 
+let SUCCESMSG = '';
+
 /**
  * Affiche le template des informations personnelles de l'utilisateur
  * si l'utilisateur est connecté, sinon on le renvoie vers la page connexion
@@ -10,8 +12,9 @@ import {saveAuthentificationCookie} from "../token.js";
  */
 export async function modifierInfosPersoGET(req, res) {
 	if (res.locals.user) {
-		const succesMsg = req.query.succesMsg || null;
-    	res.render('infos_perso', { succesMsg });
+		console.log(res.locals);
+		const succesMsg = SUCCESMSG || null;
+    	res.render('infos_perso', { succesMsg: succesMsg })
 	} else {
 		return res.redirect('connexion');
 	}
@@ -74,7 +77,8 @@ export async function modifierInfosPersoPOST(req, res) {
 					hashedPassword: hasPasswordChanged ? data.hashedPassword : lastPassword,
 				};
 				saveAuthentificationCookie(updatedUser, res);
-				return res.redirect('/infos_perso?succesMsg=Vos modifications ont été effectuées avec succès.');
+				SUCCESMSG = "Vos modifications ont été effectuées avec succès.";
+				return res.redirect('/infos_perso');
 
 			}
 
