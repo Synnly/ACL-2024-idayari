@@ -8,7 +8,7 @@ import {index, modifierRendezVousPOST} from "./routes/index.js";
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST} from "./routes/creationAgenda.js";
-import {creationRendezVousGET, creationRendezVousPOST} from "./routes/rendezVous.js";
+import {creationRendezVousGET, creationRendezVousPOST, supprimerRDVGET} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 import { calendarGetData, modifierRendezVousCalendarPOST } from "./routes/calendar.js";
 
@@ -47,6 +47,7 @@ app
     .post('/modifierAgendas', modifierAgendaPOST)
 
     .get('/supprimerAgenda/:id', supprimerAgendaGET)
+    .get('/supprimerRDV/:id', supprimerRDVGET)
 
     .get("/rendezvous/new", creationRendezVousGET)
     .post("/rendezvous/new", creationRendezVousPOST)

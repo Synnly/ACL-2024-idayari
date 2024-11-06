@@ -39,7 +39,7 @@ export function creerModale(rdv, agendas) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Modifier le rendez-vous</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="quitModal()"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="window.quiModal"></button>
                 </div>
                 <div class="modal-body">
                     <form class="needs-validation" id="formModifRDV" action="/calendar-rdv" method="POST" novalidate>
@@ -88,9 +88,12 @@ export function creerModale(rdv, agendas) {
                       </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModal()">Annuler</button>
-                    <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Modifier</button>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-danger btn-modal" onclick="suppressionRDV(`+id+`)">Supprimer</button>
+                    <div>
+                        <button type="button" class="btn btn-secondary btn-modal" data-bs-dismiss="modal" onclick="deleteModal()">Annuler</button>
+                        <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Valider</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,8 +109,22 @@ export function creerModale(rdv, agendas) {
     vraieModale.show();
 }
 
+window.suppressionRDV = function(id){
+  if(confirm("Vous allez supprimer le rendez-vous.")){
+    fetch(`/supprimerRDV/${id}`)
+      .then((_) => {
+        deleteModal();
+        agendaManager.remove_events(id);
+      })
+      .catch((error) => {
+        console.log(error);
+    });
+  }
+}
+
+
 /* Post de la requête de modif du rdv puis demande de mise à jours du calendrier au controleur*/
-export async function envoyerForm() {
+window.envoyerForm = function() {
     event.preventDefault();
     let titreInput = document.getElementById('titreRDV');
     let descriptionRDV = document.getElementById('descriptionRDV');
@@ -172,28 +189,22 @@ export async function envoyerForm() {
         agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
                                     description: descriptionRDV.value, agendas: new_agendas, allDay: all_day});
 
-        //Désactivation de la modale
-        let modal = document.getElementById('staticBackdrop');
-        let modalInstance = bootstrap.Modal.getInstance(modal);
-
-        //Détruit les éléments liés à la modale (éléments bootstrap)
-        if(modalInstance){
-            modalInstance.dispose();
-            //Pour faire fonctionner le scroll à nouveau
-            document.body.style.overflow = '';
-        }
-        
-        //On supprime la modal pour pouvoir la recréer avec de nouvelles données
-        if (modal) {
-            modal.remove(); 
-        }
+      window.deleteModal
     }
 }
 
-export function quitModal(){
-    //Désactivation de la modale
-    let modal = document.getElementById('staticBackdrop');
-    modal.remove();
-   
-    
+window.deleteModal = function (){
+  let modal = document.getElementById('staticBackdrop');
+  let modalInstance = bootstrap.Modal.getInstance(modal);
+  //Détruit les éléments liés à la modale (éléments bootstrap)
+  if(modalInstance){
+      modalInstance.dispose();
+      //Pour faire fonctionner le scroll à nouveau
+      document.body.style.overflow = '';
+  }
+  
+  //On supprime la modal pour pouvoir la recréer avec de nouvelles données
+  if (modal) {
+      modal.remove(); 
+  }
 }
