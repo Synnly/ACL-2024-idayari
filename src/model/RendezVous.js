@@ -91,7 +91,7 @@ export default class RendezVous extends Model {
 
     create_rendezVousSimple(debut, fin) {
         return new RendezVousSimple(this.titre, debut, fin, this.id, this.allDay, this.lieu, this.description,
-                                    this.type, this.finRecurrence);
+                                    this.type, this.finRecurrence, this.nbOccurrences, this.frequence);
     }
 
     get_rendezVous(periodeDebut, periodeFin) {

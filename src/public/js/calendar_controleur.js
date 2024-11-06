@@ -80,6 +80,8 @@ export class AgendaManager {
                 window.quitModal = quitModal;
                 creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
+                            type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,
+                            frequence: event.extendedProps.frequence,
                             agendas: event.extendedProps.agendas}, agendas);   
             },
 
@@ -157,7 +159,7 @@ export class AgendaManager {
                 // les dates sont récupérées sous forme de chaînes de caractères
                 rdv.start = new Date(rdv.start);
                 rdv.end = new Date(rdv.end);
-                rdv.dateFinRecurrence = rdv.dateFinRecurrence ? new Date(rdv.dateFinRecurrence) : rdv.dateFinRecurrence;
+                rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
                 const identifier = rdv.groupId + "_" + rdv.start.toISOString();
                 // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
                 if (!this.events.has(identifier)) {

@@ -10,7 +10,7 @@ export default class RendezVousSimple {
         this.description = description;
         this.allDay = all_day;
         this.type = type;
-        this.dateFinRecurrence = dateFinRec;
+        this.endRec = dateFinRec;
         this.nbOccurrences = nbOccur;
         this.frequence = freq;
     }

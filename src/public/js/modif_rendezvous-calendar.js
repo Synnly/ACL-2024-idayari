@@ -10,6 +10,7 @@ export function creerModale(rdv, agendas) {
     let dateFin;
     const id = rdv.id;
     const all_day = rdv.allDay;
+	const type = rdv.type;
     let all_day_text = "";
     let date_input_type = "date";
     if (all_day) {
@@ -21,6 +22,49 @@ export function creerModale(rdv, agendas) {
         dateDebut = convertDate(rdv.start);
         dateFin = convertDate(rdv.end);
     }
+	let recurrence_check = "";
+	const hidden = 'style="display: none;"';
+	let style_freq_div = hidden;
+	let freq_number_value = "";
+	let jour_selected = "";
+	let semaine_selected = "";
+	let mois_selected = "";
+	let annee_selected = "";
+	let date_fin_selected = "";
+	let nb_occur_selected = "";
+	let no_end = "";
+	let style_input_fin_rec = hidden;
+	let style_input_nb_occur = hidden;
+	let value_fin_rec = "";
+	let value_nb_occur = "";
+	if (type != 'Simple') {
+		recurrence_check = "checked";
+		style_freq_div = "";
+		freq_number_value = rdv.frequence;
+		if (rdv.type == 'Regular') {
+			if (rdv.frequence % 7 == 0) {
+				semaine_selected = "selected";
+				freq_number_value = rdv.frequence/7;
+			} else {
+				jour_selected = "selected";
+			}
+		} else if (rdv.type == 'Monthly') {
+			mois_selected = "selected";
+		} else if (rdv.type == "Yearly") {
+			annee_selected = "selected";
+		}
+		if (rdv.fin_recurrence) {
+			date_fin_selected = "selected";
+			style_input_fin_rec = "";
+			value_fin_rec = convertDate(rdv.fin_recurrence, false);
+		} else if (rdv.nbOccurrences) {
+			nb_occur_selected = "selected";
+			style_input_nb_occur = "";
+			value_nb_occur = rdv.nbOccurrences;
+		} else {
+			no_end = "selected";
+		}
+	}
     let list_agendas = "";
     for (const elem of agendas) {
         let selected_text = "";
@@ -79,28 +123,28 @@ export function creerModale(rdv, agendas) {
                       </div>
 
 					  <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="recurrent" id="recurrent" onchange="change_recurrent_option(this)">
+                        <input type="checkbox" class="form-check-input" name="recurrent" ${recurrence_check} id="recurrent" onchange="change_recurrent_option(this)">
                         <label class="form-check-label" for="recurrent">Récurrent ?</label>
                       </div>
 
-                      <div id="recurrent_div" class="mb-3" style="display: none;">
+                      <div id="recurrent_div" class="mb-3" ${style_freq_div}>
                         <label>Tous/Toutes les</label>
-                        <input type="number" min="1" name="freq_number" id="freq_number" class="form-control d-inline w-25">
+                        <input type="number" min="1" name="freq_number" id="freq_number" value='${freq_number_value}' class="form-control d-inline w-25">
                         <select name="freq_type" id="select_freq" class="form-select d-inline w-50">
-                            <option value="j">jour(s)</option>
-                            <option value="s">semaine(s)</option>
-                            <option value="Monthly">Mois</option>
-                            <option value="Yearly">Année(s)</option>
+                            <option value="j" ${jour_selected}>jour(s)</option>
+                            <option value="s" ${semaine_selected}>semaine(s)</option>
+                            <option value="Monthly" ${mois_selected}>Mois</option>
+                            <option value="Yearly" ${annee_selected}>Année(s)</option>
                         </select>
       
                         <label>Fin de la répétition :</label>
                         <select onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence" class="form-select">
-                            <option value="0">Jusqu'à une certaine date (incluse)</option>
-                            <option value="1">Après x occurences</option>
-                            <option value="2">Jamais</option>
+                            <option value="0" ${date_fin_selected}>Jusqu'à une certaine date (incluse)</option>
+                            <option value="1" ${nb_occur_selected}>Après x occurences</option>
+                            <option value="2" ${no_end}>Jamais</option>
                         </select>
-                        <input type="date" name="date_fin_recurrence" id="date_fin_recurrence" class="form-control" style="display:none;">
-                        <input type="number" min="2" name="nb_occurence" id="nb_occurence" class="form-control" style="display:none;">
+                        <input type="date" name="date_fin_recurrence" id="date_fin_recurrence" value=${value_fin_rec} class="form-control" ${style_input_fin_rec}>
+                        <input type="number" min="2" name="nb_occurence" id="nb_occurence" value=${value_nb_occur} class="form-control" ${style_input_nb_occur}>
                       </div>
 
                       <div class="mb-3">
