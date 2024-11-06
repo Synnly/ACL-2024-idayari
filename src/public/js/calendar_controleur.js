@@ -75,6 +75,7 @@ export class AgendaManager {
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
                 const event = info.event;
+                manager.modified_event = event;
                 creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
                             agendas: event.extendedProps.agendas}, agendas);  
