@@ -3,6 +3,7 @@ import { addDays, removeDays, escapeHTML, convertDate } from "./utils.js";
 
 /*Créer la modale de modification de rendez vous */
 export function creerModale(rdv, agendas) {
+	deleteModal();
     const titre = rdv.title;
     const lieu = rdv.lieu;
     const description = rdv.description;
@@ -24,13 +25,11 @@ export function creerModale(rdv, agendas) {
     let list_agendas = "";
     for (const elem of agendas) {
         let selected_text = "";
-        let initvalue = "";
 
         if (rdv.agendas.includes(elem.id)) {
             selected_text = "selected";
-            initvalue = "data-initial='yes'";
         }
-        list_agendas += `<option value="${elem.id}" ${initvalue} ${selected_text}>${elem.nom}</option>\n`;
+        list_agendas += `<option value="${elem.id}" ${selected_text}>${elem.nom}</option>\n`;
     }
 
     let modaleHTML = `
@@ -39,7 +38,7 @@ export function creerModale(rdv, agendas) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Modifier le rendez-vous</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="window.quiModal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="deleteModal()"></button>
                 </div>
                 <div class="modal-body">
                     <form class="needs-validation" id="formModifRDV" action="/calendar-rdv" method="POST" novalidate>
@@ -65,14 +64,14 @@ export function creerModale(rdv, agendas) {
                       </div>
                       <div class="mb-3">
                         <label for="dateDebut" class="form-label">Début</label>
-                        <input type="${date_input_type}" class="form-control" id="dateDebut" value="${dateDebut}" data-initialValue = "${rdv.dateDebut}" name="dateDebut" required>
+                        <input type="${date_input_type}" class="form-control" id="dateDebut" value="${dateDebut}" name="dateDebut" required>
                         <div class="invalid-feedback">
                           Champ obligatoire
                         </div>
                       </div>
                       <div class="mb-3">
                         <label for="dateFin" class="form-label">Fin</label>
-                        <input type="${date_input_type}" class="form-control" id="dateFin" value="${dateFin}" data-initialValue = "${rdv.dateFin}" name="dateFin" required>
+                        <input type="${date_input_type}" class="form-control" id="dateFin" value="${dateFin}" name="dateFin" required>
                         <div class="invalid-feedback">
                           Champ obligatoire
                         </div>
@@ -131,7 +130,7 @@ window.envoyerForm = function() {
     let lieuRDV = document.getElementById('lieuRDV');
     
     const selectElement = document.getElementById('select_agendas');
-    // on récupère uniquement les agendas à ajouter/supprimer
+    // agendas selectionnés
     const new_agendas = Array.from(selectElement.options).filter(option => option.selected).map(e => e.value);
 
     let dateDebInput = document.getElementById('dateDebut');
@@ -193,18 +192,20 @@ window.envoyerForm = function() {
     }
 }
 
-window.deleteModal = function (){
-  let modal = document.getElementById('staticBackdrop');
-  let modalInstance = bootstrap.Modal.getInstance(modal);
-  //Détruit les éléments liés à la modale (éléments bootstrap)
-  if(modalInstance){
-      modalInstance.dispose();
-      //Pour faire fonctionner le scroll à nouveau
-      document.body.style.overflow = '';
-  }
+function deleteModal(){
+  	let modal = document.getElementById('staticBackdrop');
+  	let modalInstance = bootstrap.Modal.getInstance(modal);
+  	//Détruit les éléments liés à la modale (éléments bootstrap)
+  	if(modalInstance){
+     	modalInstance.dispose();
+      	//Pour faire fonctionner le scroll à nouveau
+      	document.body.style.overflow = '';
+  	}
   
-  //On supprime la modal pour pouvoir la recréer avec de nouvelles données
-  if (modal) {
-      modal.remove(); 
-  }
+  	//On supprime la modal pour pouvoir la recréer avec de nouvelles données
+  	if (modal) {
+      	modal.remove(); 
+  	}
 }
+
+window.deleteModal = deleteModal;
