@@ -3,6 +3,7 @@ import {ValidationError} from "sequelize";
 import { addDays } from "../date_utils.js";
 import User from "../model/User.js";
 import RendezVous from "../model/RendezVous.js";
+import Agenda from "../model/Agenda.js";
 
 
 /**
@@ -72,3 +73,46 @@ export async function creationRendezVousPOST(req, res){
         return res.status(500).json({ message: "Une erreur s'est produite" });
     }
 }
+
+
+export async function supprimerRDVGET(req, res) {
+    if (!res.locals.user) {
+        return res.redirect('/connexion')
+    }
+
+    try {
+        const agendaRdv = await AgendaRendezVous.findOne({
+            where: { idRendezVous: req.params.id }
+        });
+
+        if (!agendaRdv) {
+        
+            return res.render('error', {
+                status: 404,
+                message: "Rendez-vous introuvable."
+            });
+        }
+
+        const agenda = await Agenda.findOne({
+            where: { id: agendaRdv.idAgenda }
+        });
+
+        if (agenda.idOwner === res.locals.user.id) {
+            await RendezVous.destroy({
+                where: { id: req.params.id }
+            });
+            return res.redirect('/')
+        } else {
+            return res.render('error', {
+                status: 403,
+                message: "Vous n'êtes pas autorisé à supprimer ce rendez-vous."
+            });
+        }
+    } catch (error) {
+        return res.render('error', {
+            status: 500,
+            message: "Erreur serveur. Impossible de supprimer le rendez-vous."
+        })
+    }
+}
+

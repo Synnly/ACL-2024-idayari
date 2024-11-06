@@ -1,6 +1,8 @@
 import User from "../model/User.js";
 import {saveAuthentificationCookie} from "../token.js";
 
+let SUCCESMSG = '';
+
 /**
  * Affiche le template des informations personnelles de l'utilisateur
  * si l'utilisateur est connecté, sinon on le renvoie vers la page connexion
@@ -10,7 +12,9 @@ import {saveAuthentificationCookie} from "../token.js";
  */
 export async function modifierInfosPersoGET(req, res) {
 	if (res.locals.user) {
-		return res.render('infos_perso');
+		console.log(res.locals);
+		const succesMsg = SUCCESMSG || null;
+    	res.render('infos_perso', { succesMsg: succesMsg })
 	} else {
 		return res.redirect('connexion');
 	}
@@ -36,7 +40,7 @@ export async function modifierInfosPersoPOST(req, res) {
 			}
 
 			if (user) {
-				return res.render('infos_perso', {errMsg: 'Vous ne pouvez pas chosir cet username !'});
+				return res.render('infos_perso', {errMsg: 'Vous ne pouvez pas chosir ce nom d\'utilisateur !'});
 			} else {
 			//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
 			const username = req.body.user_username_change_info;
@@ -73,7 +77,9 @@ export async function modifierInfosPersoPOST(req, res) {
 					hashedPassword: hasPasswordChanged ? data.hashedPassword : lastPassword,
 				};
 				saveAuthentificationCookie(updatedUser, res);
+				SUCCESMSG = "Vos modifications ont été effectuées avec succès.";
 				return res.redirect('/infos_perso');
+
 			}
 
 				//Si le mdp de confirmation est incorrect alors on le prévient
@@ -87,5 +93,7 @@ export async function modifierInfosPersoPOST(req, res) {
 			console.log(error)
 			return res.render('infos_perso', {errMsg: "Une erreur s'est produite"});
 		}
+	}else {
+		return res.redirect('connexion');
 	}
 }

@@ -62,3 +62,13 @@
     margin-top: 32px;
     margin-bottom: 32px;
 }
+
+.offcanvas-backdrop.show {
+    opacity: 0 !important;
+}
+
+@media (min-width: 769px){
+    .w-md-50 {
+        width: 50% !important;
+    }
+}

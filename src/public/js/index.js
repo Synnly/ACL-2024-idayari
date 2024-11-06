@@ -24,4 +24,5 @@ function toggleAll(group, allButton){
             }
         }
     }
+
 }

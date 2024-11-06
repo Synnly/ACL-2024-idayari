@@ -56,7 +56,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (res.locals.user) {
         try {
             //Récupération des champs du form
-            const { id, title, lieu, description, start, end, agendas_to_add, agendas_to_remove } = req.body;
+            const { id, title, lieu, description, start, end, allDay, agendas_to_add, agendas_to_remove } = req.body;
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findByPk(id);
             if (!rdvToUpdate) {
@@ -67,6 +67,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             rdvToUpdate.dateFin = new Date(end);
             rdvToUpdate.titre = title;
             rdvToUpdate.lieu = lieu;
+            rdvToUpdate.allDay = allDay;
             rdvToUpdate.description = description;
             await rdvToUpdate.save();
             

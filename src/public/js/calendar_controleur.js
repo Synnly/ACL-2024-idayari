@@ -3,8 +3,7 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
-import {creerModale,envoyerForm,quitModal} from '/js/modif_rendezvous-calendar.js';
-import {creerModaleNouveauRdv, envoyerFormNouveauRdv, quitModalNouveauRdv} from "./creerRdv.js";
+import {creerModale} from '/js/modif_rendezvous-calendar.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/ 
@@ -67,6 +66,9 @@ export class AgendaManager {
             views: {
                 dayGridMonth: {
                     dayHeaderFormat: { weekday: 'long' }
+                },
+                timeGridWeek: {
+                    dayHeaderFormat: { weekday: 'long', month: 'numeric', day: 'numeric', omitCommas: true }
                 }
             },
             datesSet: function(info) {
@@ -76,11 +78,9 @@ export class AgendaManager {
             eventClick: function(info) {
                 const event = info.event;
                 manager.modified_event = event;
-                window.envoyerForm = envoyerForm;
-                window.quitModal = quitModal;
                 creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
-                            agendas: event.extendedProps.agendas}, agendas);   
+                            agendas: event.extendedProps.agendas}, agendas);  
             },
 
             eventChange: function(info) {
@@ -117,7 +117,7 @@ export class AgendaManager {
                     }
                 }
                 const data = {title: first_event.title, lieu: first_event.extendedProps.lieu, description: first_event.extendedProps.description,
-                                id: first_event.groupId, start: earliestStart, end: earliestEnd,
+                                id: first_event.groupId, start: earliestStart, end: earliestEnd, allDay: first_event.allDay,
                                 agendas_to_add: first_event.extendedProps.agendas.filter(e => !oldEvent.extendedProps.agendas.includes(e)),
                                 agendas_to_remove: oldEvent.extendedProps.agendas.filter(e => !first_event.extendedProps.agendas.includes(e))}
                 fetch("/calendar-rdv", {
@@ -300,6 +300,15 @@ export class AgendaManager {
                 }
             });
         }
+    }
+    remove_events(id) {
+        this.calendrier.getEvents().forEach(ev => {
+            if (ev.groupId == id) {
+                ev.remove();
+                const identifier = ev.groupId + "_" + ev.start.toISOString();
+                this.events.delete(identifier);
+            }
+        });
     }
 }
 
