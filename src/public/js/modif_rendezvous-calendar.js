@@ -77,6 +77,33 @@ export function creerModale(rdv, agendas) {
                           Champ obligatoire
                         </div>
                       </div>
+
+                      <div id="recurrent_div" class="mb-3" style="display: none;">
+                        <label>Tous/Toutes les</label>
+                        <input type="number" min="1" name="freq_number" id="freq_number" class="form-control d-inline w-25">
+                        <select name="freq_type" id="select_freq" class="form-select d-inline w-50">
+                            <option value="j">jour(s)</option>
+                            <option value="s">semaine(s)</option>
+                            <option value="Monthly">Mois</option>
+                            <option value="Yearly">Année(s)</option>
+                        </select>
+      
+                        <br><br>
+                        <label>Fin de la répétition :</label>
+                        <select onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence" class="form-select">
+                            <option value="0">Jusqu'à une certaine date (incluse)</option>
+                            <option value="1">Après x occurences</option>
+                            <option value="2">Jamais</option>
+                        </select>
+                        <input type="date" name="date_fin_recurrence" id="date_fin_recurrence" class="form-control" style="display:none;">
+                        <input type="number" min="2" name="nb_occurence" id="nb_occurence" class="form-control" style="display:none;">
+                      </div>
+
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="recurrent" id="recurrent" value="rec" onchange="change_recurrent_option(this)">
+                        <label class="form-check-label" for="recurrent">Récurrent ?</label>
+                      </div>
+
                       <div class="mb-3">
                         <label for="select_agendas" class="form-label">Agenda(s) associé(s) au rendez-vous</label>
                         <select name="agendas" id="select_agendas" class="form-control" multiple required>
@@ -109,6 +136,27 @@ export function creerModale(rdv, agendas) {
 /* Post de la requête de modif du rdv puis demande de mise à jours du calendrier au controleur*/
 export async function envoyerForm() {
     event.preventDefault();
+
+    //on met un type par défaut
+    type='Simple';
+
+    const recurrent = document.getElementById('recurrent').checked;
+    let recurrence ={};
+    let freq_type = null;
+    let freq_number = null;
+    let fin_recurrence = null;
+    let date_fin_recurrence = null;
+    let nb_occurrence = null;
+    if(recurrent){
+        freq_type = document.getElementById('select_freq').value;
+        freq_number = document.getElementById('freq_number').value;
+        fin_recurrence = document.getElementById('select_fin_recurrence').value;
+        date_fin_recurrence = document.getElementById('date_fin_recurrence').value;
+        nb_occurrence= document.getElementById('nb_occurence').value;
+
+        type='Regular';
+    }
+    
     let titreInput = document.getElementById('titreRDV');
     let descriptionRDV = document.getElementById('descriptionRDV');
     let lieuRDV = document.getElementById('lieuRDV');
@@ -170,7 +218,8 @@ export async function envoyerForm() {
 
     if (isValid) {
         agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
-                                    description: descriptionRDV.value, agendas: new_agendas, allDay: all_day});
+                                    description: descriptionRDV.value, agendas: new_agendas, allDay: all_day,
+                                     freq_type, freq_number, fin_recurrence, date_fin_recurrence, nb_occurrence, type});
 
         //Désactivation de la modale
         let modal = document.getElementById('staticBackdrop');
@@ -188,6 +237,45 @@ export async function envoyerForm() {
             modal.remove(); 
         }
     }
+}
+
+function change_recurrent_option(elem) {
+  document.getElementById('recurrent_div').style.display = elem.checked ? 'block' : 'none';
+  if (!elem.checked) {
+      reset(document.getElementById('freq_number'));
+      reset(document.getElementById('nb_occurence'));
+      reset(document.getElementById('date_fin_recurrence'));
+  } else {
+      document.getElementById('freq_number').required = true;
+      change_fin_recurrence_option(document.getElementById('select_fin_recurrence'));
+  }
+}
+
+function change_fin_recurrence_option(elem) {
+  const date_fin = document.getElementById('date_fin_recurrence');
+  const nb_occur = document.getElementById('nb_occurence');
+  if (elem.value == "0") {
+      date_fin.style.display = 'block';
+      date_fin.required = true;
+      reset2(nb_occur);
+  } else if (elem.value == "1") {
+      nb_occur.style.display = 'block';
+      nb_occur.required = true;
+      reset2(date_fin);
+  } else {
+      reset2(nb_occur);
+      reset2(date_fin);
+  }
+}
+
+function reset(elem) {
+  elem.required = false;
+  elem.value = '';
+}
+
+function reset2(elem) {
+  reset(elem);
+  elem.style.display = 'none';
 }
 
 export function quitModal(){

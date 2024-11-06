@@ -55,8 +55,9 @@ export async function calendarGetData(req, res) {
 export async function modifierRendezVousCalendarPOST(req, res) {
     if (res.locals.user) {
         try {
+            console.log("body data:", req.body);
             //Récupération des champs du form
-            const { id, title, lieu, description, start, end, allDay, agendas_to_add, agendas_to_remove } = req.body;
+            const { id, title, lieu, description, start, end, allDay, agendas_to_add, agendas_to_remove, freq_type, freq_number, fin_recurrence, date_fin_recurrence, nb_occurence, type} = req.body;
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findByPk(id);
             if (!rdvToUpdate) {
@@ -69,6 +70,41 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             rdvToUpdate.lieu = lieu;
             rdvToUpdate.allDay = allDay;
             rdvToUpdate.description = description;
+
+            //la
+            console.log("type de rdv:", type,"Type:", freq_type, "Frequency:", freq_number);
+            console.log("Fin recurrence:", fin_recurrence, "Occurrences:", nb_occurence, "End date:", date_fin_recurrence);
+            console.log("Updated rdv:", rdvToUpdate);
+            if(type === 'Regular'){
+                rdvToUpdate.set("type", freq_type === "s" ? "Regular" : freq_type);  // "Regular" for weekly recurrence
+                rdvToUpdate.set("frequence", freq_type === "s" ? 7 * Number(freq_number) : Number(freq_number));
+            
+                //si type recurrence: date de fin
+                if(fin_recurrence === "0"){ 
+                    const dateFin = addDays(new Date(date_fin_recurrence), 1);
+                    dateFin.setHours(0, 0, 0);
+                    rdvToUpdate.set("finRecurrence", dateFin);
+                    rdvToUpdate.set("nbOccurrences", null);
+
+                //si type recurrence: nombre d'occurrences limité   
+                }else if (fin_recurrence === "1"){
+                    rdvToUpdate.set("nbOccurrences", Number(nb_occurence));
+                    rdvToUpdate.set("finRecurrence", null);
+
+                //si type recurrence: sans fin / jamais de fin
+                }else{
+                    rdvToUpdate.set("finRecurrence", null);
+                    rdvToUpdate.set("nbOccurrences", null);
+                }
+            
+            //on vide tout si on enleve la recurrence
+            }else{
+                rdvToUpdate.set("type", null);
+                rdvToUpdate.set("frequence", null);
+                rdvToUpdate.set("finRecurrence", null);
+                rdvToUpdate.set("nbOccurrences", null);
+            }
+
             await rdvToUpdate.save();
             
             for (const agenda of agendas_to_add) {
