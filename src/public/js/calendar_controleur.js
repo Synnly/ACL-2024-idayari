@@ -4,6 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import {creerModale} from '/js/modif_rendezvous-calendar.js';
+import {creerModaleNouveauRdv, envoyerFormNouveauRdv, quitModalNouveauRdv} from "./creerRdv.js";
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/ 
