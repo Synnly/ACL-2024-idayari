@@ -137,9 +137,6 @@ export function creerModale(rdv, agendas) {
 export async function envoyerForm() {
     event.preventDefault();
 
-    //on met un type par défaut
-    type='Simple';
-
     const recurrent = document.getElementById('recurrent').checked;
     let recurrence ={};
     let freq_type = null;
@@ -153,8 +150,6 @@ export async function envoyerForm() {
         fin_recurrence = document.getElementById('select_fin_recurrence').value;
         date_fin_recurrence = document.getElementById('date_fin_recurrence').value;
         nb_occurrence= document.getElementById('nb_occurence').value;
-
-        type='Regular';
     }
     
     let titreInput = document.getElementById('titreRDV');
@@ -219,7 +214,7 @@ export async function envoyerForm() {
     if (isValid) {
         agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
                                     description: descriptionRDV.value, agendas: new_agendas, allDay: all_day,
-                                     freq_type, freq_number, fin_recurrence, date_fin_recurrence, nb_occurrence, type});
+                                     freq_type, freq_number, fin_recurrence, date_fin_recurrence, nb_occurrence, recurrent});
 
         //Désactivation de la modale
         let modal = document.getElementById('staticBackdrop');
