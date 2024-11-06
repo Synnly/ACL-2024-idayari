@@ -67,6 +67,12 @@
     opacity: 0 !important;
 }
 
+.listAgenda{
+    max-height: 75vh;
+    overflow:hidden;
+    overflow-y:scroll;
+}
+
 @media (min-width: 769px){
     .w-md-50 {
         width: 50% !important;

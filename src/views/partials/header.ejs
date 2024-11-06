@@ -4,7 +4,14 @@
         <img class="logo" src="/img/favicon.ico"/>Idayari</a>
         <span class="navbar-brand text-light d-none d-lg-inline">Bienvenue, <%= locals.user.username %>.</span>
     </span>
-    <span class="g-0">
-        <a href="/infos_perso" class="text-white" style="text-decoration: none !important;"><img src="/img/user.png" alt="user" class="border-1 border-white rounded-5 border ms-3"></a>
-    </span>
+    <div class="d-flex ms-auto align-items-center" style="gap: 10px;">
+        <a href="/infos_perso" class="text-white me-2" style="text-decoration: none;">
+            <img src="/img/user.png" alt="user" class="border-1 border-white rounded-5 border ms-3 align-self-center">
+        </a>
+        <a class="deconnexion bi bi-door-closed text-light fs-3" href="/deconnexion"
+           onmouseover="this.classList.remove('bi-door-closed'); this.classList.add('bi-door-open')"
+           onmouseout="this.classList.remove('bi-door-open'); this.classList.add('bi-door-closed')">
+        </a>
+    </div>
 </nav>
+
