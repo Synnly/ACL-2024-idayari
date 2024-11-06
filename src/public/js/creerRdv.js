@@ -61,7 +61,7 @@ export function creerModaleNouveauRdv(agendas) {
                                 <div class="flex-column flex-grow-1">
                                     <input class="form-control  me-2" type="number" min="1" name="freq_number" id="freq_number">
                                     <div class="invalid-feedback">
-                                        Veuillez entrer un entier > 1
+                                        Veuillez entrer un entier >= 1
                                     </div>
                                 </div>
                                 <div class="flex-column">
