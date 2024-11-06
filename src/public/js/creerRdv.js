@@ -166,7 +166,7 @@ export async function envoyerFormNouveauRdv() {
     }
 
     if(toggleRec.checked){
-        if(nbFreq.value === '' || +(nbFreq.value) < 1){
+        if(nbFreq.value === '' || !Number.isInteger(nbFreq.value) || +(nbFreq.value) < 1){
             nbFreq.classList.add("is-invalid");
             isValid = false;
         }
@@ -176,7 +176,7 @@ export async function envoyerFormNouveauRdv() {
             isValid = false;
         }
 
-        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || +(nbRec.value) < 2)){
+        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(nbFreq.value) || +(nbRec.value) < 2)){
             nbRec.classList.add("is-invalid");
             isValid = false;
         }
