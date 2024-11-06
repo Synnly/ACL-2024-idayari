@@ -189,11 +189,11 @@ window.envoyerForm = function() {
         agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
                                     description: descriptionRDV.value, agendas: new_agendas, allDay: all_day});
 
-      deleteModal()
+      window.deleteModal
     }
 }
 
-export function deleteModal(){
+window.deleteModal = function (){
   let modal = document.getElementById('staticBackdrop');
   let modalInstance = bootstrap.Modal.getInstance(modal);
   //Détruit les éléments liés à la modale (éléments bootstrap)
@@ -207,12 +207,4 @@ export function deleteModal(){
   if (modal) {
       modal.remove(); 
   }
-}
-
-window.quitModal = function(){
-    //Désactivation de la modale
-    let modal = document.getElementById('staticBackdrop');
-    modal.remove();
-   
-    
 }
