@@ -78,6 +78,11 @@ export function creerModale(rdv, agendas) {
                         </div>
                       </div>
 
+					  <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="recurrent" id="recurrent" onchange="change_recurrent_option(this)">
+                        <label class="form-check-label" for="recurrent">Récurrent ?</label>
+                      </div>
+
                       <div id="recurrent_div" class="mb-3" style="display: none;">
                         <label>Tous/Toutes les</label>
                         <input type="number" min="1" name="freq_number" id="freq_number" class="form-control d-inline w-25">
@@ -88,7 +93,6 @@ export function creerModale(rdv, agendas) {
                             <option value="Yearly">Année(s)</option>
                         </select>
       
-                        <br><br>
                         <label>Fin de la répétition :</label>
                         <select onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence" class="form-select">
                             <option value="0">Jusqu'à une certaine date (incluse)</option>
@@ -97,11 +101,6 @@ export function creerModale(rdv, agendas) {
                         </select>
                         <input type="date" name="date_fin_recurrence" id="date_fin_recurrence" class="form-control" style="display:none;">
                         <input type="number" min="2" name="nb_occurence" id="nb_occurence" class="form-control" style="display:none;">
-                      </div>
-
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="recurrent" id="recurrent" value="rec" onchange="change_recurrent_option(this)">
-                        <label class="form-check-label" for="recurrent">Récurrent ?</label>
                       </div>
 
                       <div class="mb-3">
