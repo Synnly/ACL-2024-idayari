@@ -92,7 +92,7 @@ export function creerModaleNouveauRdv(agendas) {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModalNouveauRdv()">Annuler</button>
-                <button type="button" class="btn btn-primary btn-modal" onClick="envoyerFormNouveauRdv()">Créer</button>
+                <input type="submit" class="btn btn-primary btn-modal" onClick="envoyerFormNouveauRdv()" value="Créer">
             </div>
         </div>
     </div>
@@ -166,7 +166,7 @@ export async function envoyerFormNouveauRdv() {
     }
 
     if(toggleRec.checked){
-        if(nbFreq.value === '' || !Number.isInteger(nbFreq.value) || +(nbFreq.value) < 1){
+        if(nbFreq.value === '' || !Number.isInteger(+nbFreq.value) || +(nbFreq.value) < 1){
             nbFreq.classList.add("is-invalid");
             isValid = false;
         }
@@ -176,7 +176,7 @@ export async function envoyerFormNouveauRdv() {
             isValid = false;
         }
 
-        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(nbRec.value) || +(nbRec.value) < 2)){
+        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(+nbRec.value) || +(nbRec.value) < 2)){
             nbRec.classList.add("is-invalid");
             isValid = false;
         }
