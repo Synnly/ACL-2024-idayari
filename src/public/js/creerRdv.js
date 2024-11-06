@@ -133,6 +133,10 @@ export async function envoyerFormNouveauRdv() {
     dateDebInput.classList.remove("is-invalid");
     dateFinInput.classList.remove("is-invalid");
 
+    nbFreq.classList.remove("is-invalid");
+    dateFinRec.classList.remove("is-invalid");
+    nbRec.classList.remove("is-invalid");
+
     let msgErreur = document.getElementById('dateErreur');
     if (msgErreur) {
         msgErreur.remove();
@@ -178,6 +182,12 @@ export async function envoyerFormNouveauRdv() {
 
         if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(+nbRec.value) || +(nbRec.value) < 2)){
             nbRec.classList.add("is-invalid");
+            isValid = false;
+        }
+
+        console.log(dateDeb, new Date(dateFinRec.value), dateDeb >= new Date(dateFinRec.value))
+        if(dateDebInput.value !== '' && dateFinRec.value !== '' && dateDeb >= new Date(dateFinRec.value)){
+            dateFinRec.classList.add("is-invalid");
             isValid = false;
         }
     }
