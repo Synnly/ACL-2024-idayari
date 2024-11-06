@@ -25,13 +25,11 @@ export function creerModale(rdv, agendas) {
     let list_agendas = "";
     for (const elem of agendas) {
         let selected_text = "";
-        let initvalue = "";
 
         if (rdv.agendas.includes(elem.id)) {
             selected_text = "selected";
-            initvalue = "data-initial='yes'";
         }
-        list_agendas += `<option value="${elem.id}" ${initvalue} ${selected_text}>${elem.nom}</option>\n`;
+        list_agendas += `<option value="${elem.id}" ${selected_text}>${elem.nom}</option>\n`;
     }
 
     let modaleHTML = `
@@ -66,14 +64,14 @@ export function creerModale(rdv, agendas) {
                       </div>
                       <div class="mb-3">
                         <label for="dateDebut" class="form-label">Début</label>
-                        <input type="${date_input_type}" class="form-control" id="dateDebut" value="${dateDebut}" data-initialValue = "${rdv.dateDebut}" name="dateDebut" required>
+                        <input type="${date_input_type}" class="form-control" id="dateDebut" value="${dateDebut}" name="dateDebut" required>
                         <div class="invalid-feedback">
                           Champ obligatoire
                         </div>
                       </div>
                       <div class="mb-3">
                         <label for="dateFin" class="form-label">Fin</label>
-                        <input type="${date_input_type}" class="form-control" id="dateFin" value="${dateFin}" data-initialValue = "${rdv.dateFin}" name="dateFin" required>
+                        <input type="${date_input_type}" class="form-control" id="dateFin" value="${dateFin}" name="dateFin" required>
                         <div class="invalid-feedback">
                           Champ obligatoire
                         </div>
@@ -132,7 +130,7 @@ window.envoyerForm = function() {
     let lieuRDV = document.getElementById('lieuRDV');
     
     const selectElement = document.getElementById('select_agendas');
-    // on récupère uniquement les agendas à ajouter/supprimer
+    // agendas selectionnés
     const new_agendas = Array.from(selectElement.options).filter(option => option.selected).map(e => e.value);
 
     let dateDebInput = document.getElementById('dateDebut');

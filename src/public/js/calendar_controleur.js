@@ -75,7 +75,6 @@ export class AgendaManager {
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
                 const event = info.event;
-                manager.modified_event = event;
                 creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
                             agendas: event.extendedProps.agendas}, agendas);  
@@ -290,13 +289,7 @@ export class AgendaManager {
             old_event.setExtendedProp('agendas', new_event.agendas);
         }
         if (!new_event.agendas.some(e => this.agendas_periodes[e.toString()] != undefined)) {
-            this.calendrier.getEvents().forEach(ev => {
-                if (ev.groupId == old_event.groupId) {
-                    ev.remove();
-                    const identifier = ev.groupId + "_" + ev.start.toISOString();
-                    this.events.delete(identifier);
-                }
-            });
+            this.remove_events(old_event.groupId);
         }
     }
     remove_events(id) {
