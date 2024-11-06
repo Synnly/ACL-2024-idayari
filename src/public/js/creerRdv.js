@@ -176,7 +176,7 @@ export async function envoyerFormNouveauRdv() {
             isValid = false;
         }
 
-        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(nbFreq.value) || +(nbRec.value) < 2)){
+        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(nbRec.value) || +(nbRec.value) < 2)){
             nbRec.classList.add("is-invalid");
             isValid = false;
         }
