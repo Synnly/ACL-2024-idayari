@@ -37,8 +37,9 @@ export async function creationRendezVousPOST(req, res){
             allDay: req.body.all_day,
         });
         // si c'est un rendez-vous récurrent
-        if (req.body.recurrent == "rec") {
-            if (req.body.freq_type == "j" || req.body.freq_type == "s") {
+        console.log(req.body.recurrent);
+        if (req.body.recurrent === "rec") {
+            if (req.body.freq_type === "j" || req.body.freq_type === "s") {
                 rendezVous.set("type", "Regular");
             } else {
                 rendezVous.set("type", req.body.freq_type);

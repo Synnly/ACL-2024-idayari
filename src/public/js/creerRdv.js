@@ -118,6 +118,8 @@ export async function envoyerFormNouveauRdv() {
     // on récupère uniquement les agendas à ajouter/supprimer
     const selectedAgendas = Array.from(selectElement.options).filter(option => option.selected).map(e => e.value);
 
+    let recurrence = document.getElementById("toggleRecurrence").checked ? "rec" : "";
+
     let dateDebInput = document.getElementById('dateDebut');
     let dateFinInput = document.getElementById('dateFin');
 
@@ -187,7 +189,7 @@ export async function envoyerFormNouveauRdv() {
             description: descriptionRDV.value,
             agendas: selectedAgendas,
             all_day: all_day,
-            recurrent: document.getElementById("toggleRecurrence").value,
+            recurrent: recurrence,
             freq_type: document.getElementById("select_freq").value,
             freq_number:  document.getElementById("freq_number").value ,
             date_fin_recurrence: document.getElementById("date_fin_recurrence").value,
