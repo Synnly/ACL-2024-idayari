@@ -45,8 +45,8 @@ export class AgendaManager {
                     text: 'Nouvel évènement',
                     icon: 'bi bi-plus-lg',
                     click: function() {
-                        window.envoyerForm = envoyerFormNouveauRdv;
-                        window.quitModal = quitModalNouveauRdv;
+                        window.envoyerFormNouveauRdv = envoyerFormNouveauRdv;
+                        window.quitModalNouveauRdv = quitModalNouveauRdv;
                         creerModaleNouveauRdv(agendas);
                     }
                 }

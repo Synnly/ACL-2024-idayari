@@ -26,7 +26,6 @@ export async function creationRendezVousPOST(req, res){
         if (req.body.all_day) {
             dateDebut.setHours(0, 0, 0);
             // date de fin exclusive, donc on ajoute un jour
-            dateFin = addDays(dateFin, 1);
             dateFin.setHours(0, 0, 0);
         }
         rendezVous = RendezVous.build({
@@ -38,7 +37,6 @@ export async function creationRendezVousPOST(req, res){
             allDay: req.body.all_day,
         });
         // si c'est un rendez-vous récurrent
-        console.log(req.body.recurrent);
         if (req.body.recurrent === "rec") {
             if (req.body.freq_type === "j" || req.body.freq_type === "s") {
                 rendezVous.set("type", "Regular");

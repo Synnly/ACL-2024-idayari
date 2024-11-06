@@ -2,6 +2,7 @@ import {addDays} from "./utils.js";
 import {agendaManager} from "/js/calendar_controleur.js";
 
 export function creerModaleNouveauRdv(agendas) {
+
     let list_agendas = "";
     for (const elem of agendas) {
         list_agendas += `<option value="${elem.id}">${elem.nom}</option>\n`;
@@ -9,11 +10,11 @@ export function creerModaleNouveauRdv(agendas) {
 
     let modaleHTML = `
  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">Créer un nouveau rendez-vous</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="quitModal()"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="deleteModal()"></button>
             </div>
             <div class="modal-body">
                 <form class="needs-validation" id="formModifRDV" action="/calendar-rdv" method="POST" novalidate>
@@ -90,8 +91,8 @@ export function creerModaleNouveauRdv(agendas) {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModal()">Annuler</button>
-                <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Créer</button>
+                <button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModalNouveauRdv()">Annuler</button>
+                <button type="button" class="btn btn-primary btn-modal" onClick="envoyerFormNouveauRdv()">Créer</button>
             </div>
         </div>
     </div>
@@ -143,6 +144,7 @@ export async function envoyerFormNouveauRdv() {
 
     if (all_day) {
         dateDeb.setHours(0, 0, 0);
+        dateFin = addDays(dateFin, 1);
         dateFin.setHours(0, 0, 1);
     }
     let isValid = true;
@@ -164,7 +166,7 @@ export async function envoyerFormNouveauRdv() {
     }
 
     if(toggleRec.checked){
-        if(nbFreq.value === ''){
+        if(nbFreq.value === '' || +(nbFreq.value) < 1){
             nbFreq.classList.add("is-invalid");
             isValid = false;
         }
@@ -174,7 +176,7 @@ export async function envoyerFormNouveauRdv() {
             isValid = false;
         }
 
-        if(typeFinRec.selectedOptions[0].value === "1" && nbRec.value === ''){
+        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || +(nbRec.value) < 2)){
             nbRec.classList.add("is-invalid");
             isValid = false;
         }
@@ -224,26 +226,20 @@ export async function envoyerFormNouveauRdv() {
         })
         .catch((error) => {console.log(error)});
 
-        //Désactivation de la modale
-        let modal = document.getElementById('staticBackdrop');
-        let modalInstance = bootstrap.Modal.getInstance(modal);
-
-        //Détruit les éléments liés à la modale (éléments bootstrap)
-        if(modalInstance){
-            modalInstance.dispose();
-            //Pour faire fonctionner le scroll à nouveau
-            document.body.style.overflow = '';
-        }
-
-        //On supprime la modal pour pouvoir la recréer avec de nouvelles données
-        if (modal) {
-            modal.remove();
-        }
+        quitModalNouveauRdv()
     }
 }
 
 export function quitModalNouveauRdv(){
     let modal = document.getElementById('staticBackdrop');
+    let modalInstance = bootstrap.Modal.getInstance(modal);
+
+    //Détruit les éléments liés à la modale (éléments bootstrap)
+    if(modalInstance){
+        modalInstance.dispose();
+        //Pour faire fonctionner le scroll à nouveau
+        document.body.style.overflow = '';
+    }
     if (modal) {
         modal.remove();
     }
