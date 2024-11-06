@@ -99,7 +99,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             
             //on vide tout si on enleve la recurrence
             }else{
-                rdvToUpdate.set("type", null);
+                rdvToUpdate.set("type", 'Simple');
                 rdvToUpdate.set("frequence", null);
                 rdvToUpdate.set("finRecurrence", null);
                 rdvToUpdate.set("nbOccurrences", null);

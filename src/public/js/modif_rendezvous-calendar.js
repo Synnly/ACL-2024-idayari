@@ -138,17 +138,17 @@ export async function envoyerForm() {
     event.preventDefault();
 
     const recurrent = document.getElementById('recurrent');
-    /*let freq_type = null;
+    let freq_type = null;
     let freq_number = null;
     let fin_recurrence = null;
     let date_fin_recurrence = null;
-    let nb_occurrence = null;*/
+    let nb_occurrence = null;
     if(recurrent.checked){
-        let freq_type = document.getElementById('select_freq').value;
-        let freq_number = document.getElementById('freq_number').value;
-        let fin_recurrence = document.getElementById('select_fin_recurrence').value;
-        let date_fin_recurrence = document.getElementById('date_fin_recurrence').value;
-        let nb_occurrence= document.getElementById('nb_occurence').value;
+        freq_type = document.getElementById('select_freq').value;
+        freq_number = document.getElementById('freq_number').value;
+        fin_recurrence = document.getElementById('select_fin_recurrence').value;
+        date_fin_recurrence = document.getElementById('date_fin_recurrence').value;
+        nb_occurrence= document.getElementById('nb_occurence').value;
     }
     
     let titreInput = document.getElementById('titreRDV');
