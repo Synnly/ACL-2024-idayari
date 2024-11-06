@@ -137,19 +137,18 @@ export function creerModale(rdv, agendas) {
 export async function envoyerForm() {
     event.preventDefault();
 
-    const recurrent = document.getElementById('recurrent').checked;
-    let recurrence ={};
-    let freq_type = null;
+    const recurrent = document.getElementById('recurrent');
+    /*let freq_type = null;
     let freq_number = null;
     let fin_recurrence = null;
     let date_fin_recurrence = null;
-    let nb_occurrence = null;
-    if(recurrent){
-        freq_type = document.getElementById('select_freq').value;
-        freq_number = document.getElementById('freq_number').value;
-        fin_recurrence = document.getElementById('select_fin_recurrence').value;
-        date_fin_recurrence = document.getElementById('date_fin_recurrence').value;
-        nb_occurrence= document.getElementById('nb_occurence').value;
+    let nb_occurrence = null;*/
+    if(recurrent.checked){
+        let freq_type = document.getElementById('select_freq').value;
+        let freq_number = document.getElementById('freq_number').value;
+        let fin_recurrence = document.getElementById('select_fin_recurrence').value;
+        let date_fin_recurrence = document.getElementById('date_fin_recurrence').value;
+        let nb_occurrence= document.getElementById('nb_occurence').value;
     }
     
     let titreInput = document.getElementById('titreRDV');
@@ -212,10 +211,15 @@ export async function envoyerForm() {
     }
 
     if (isValid) {
-        agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
-                                    description: descriptionRDV.value, agendas: new_agendas, allDay: all_day,
-                                     freq_type, freq_number, fin_recurrence, date_fin_recurrence, nb_occurrence, recurrent});
-
+        if (recurrent.checked) {
+          agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
+            description: descriptionRDV.value, agendas: new_agendas, allDay: all_day,
+             freq_type: freq_type.value, freq_number: freq_number.value, fin_recurrence: fin_recurrence.value, date_fin_recurrence: date_fin_recurrence.value, nb_occurrence: nb_occurrence.value, recurrent: recurrent.value});
+        }else{
+          agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
+            description: descriptionRDV.value, agendas: new_agendas, allDay: all_day});
+        }
+        
         //Désactivation de la modale
         let modal = document.getElementById('staticBackdrop');
         let modalInstance = bootstrap.Modal.getInstance(modal);

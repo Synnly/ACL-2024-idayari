@@ -287,6 +287,26 @@ export class AgendaManager {
         if (new_event.description != old_event.extendedProps.description) {
             old_event.setExtendedProp('description', new_event.description);
         }
+        if (new_event.freq_type != old_event.extendedProps.freq_type) {
+            old_event.setExtendedProp('freq_type', new_event.freq_type);
+        }
+        if (new_event.freq_number != old_event.extendedProps.freq_number) {
+            old_event.setExtendedProp('freq_number', new_event.freq_number);
+        }
+        if (new_event.fin_recurrence != old_event.extendedProps.fin_recurrence) {
+            old_event.setExtendedProp('fin_recurrence', new_event.fin_recurrence);
+        }
+        if (new_event.date_fin_recurrence != old_event.extendedProps.date_fin_recurrence) {
+            old_event.setExtendedProp('date_fin_recurrence', new_event.date_fin_recurrence);
+        }
+        if (new_event.nb_occurrence != old_event.extendedProps.nb_occurrence) {
+            old_event.setExtendedProp('nb_occurrence', new_event.nb_occurrence);
+        }
+        if (new_event.recurrent != old_event.extendedProps.recurrent) {
+            old_event.setExtendedProp('recurrent', new_event.recurrent);
+        }
+        
+
         const is_different = new Set(old_event.extendedProps.agendas).symmetricDifference(new Set(new_event.agendas)).size != 0;
         if (is_different) {
             old_event.setExtendedProp('agendas', new_event.agendas);
