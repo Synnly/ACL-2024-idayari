@@ -57,7 +57,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
         try {
             console.log("body data:", req.body);
             //Récupération des champs du form
-            const { id, title, lieu, description, start, end, allDay, agendas_to_add, agendas_to_remove, freq_type, freq_number, fin_recurrence, date_fin_recurrence, nb_occurence, type} = req.body;
+            const { id, title, lieu, description, start, end, allDay, agendas_to_add, agendas_to_remove, freq_type, freq_number, fin_recurrence, date_fin_recurrence, nb_occurence, recurrent} = req.body;
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findByPk(id);
             if (!rdvToUpdate) {
@@ -72,11 +72,11 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             rdvToUpdate.description = description;
 
             //la
-            console.log("type de rdv:", type,"Type:", freq_type, "Frequency:", freq_number);
+            console.log("type de rdv:", recurrent,"Type:", freq_type, "Frequency:", freq_number);
             console.log("Fin recurrence:", fin_recurrence, "Occurrences:", nb_occurence, "End date:", date_fin_recurrence);
             console.log("Updated rdv:", rdvToUpdate);
-            if(type === 'Regular'){
-                rdvToUpdate.set("type", freq_type === "s" ? "Regular" : freq_type);  // "Regular" for weekly recurrence
+            if(recurrent === "rec"){
+                rdvToUpdate.set("type", freq_type === "s" ? "Regular" : freq_type);
                 rdvToUpdate.set("frequence", freq_type === "s" ? 7 * Number(freq_number) : Number(freq_number));
             
                 //si type recurrence: date de fin
