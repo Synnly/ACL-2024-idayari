@@ -20,7 +20,7 @@ export function creerModaleNouveauRdv(agendas) {
                     <input type="hidden" id="idRDV" name="idRDV"> 
                     <div class="mb-3">
                         <label for="titreRDV" class="form-label">Titre</label>
-                        <input type="text" class="form-control" id="titreRDV" name="titre" required>
+                        <input type="text" class="form-control" id="titreRDV" name="titre">
                         <div class="invalid-feedback">
                             Champ obligatoire
                         </div>
@@ -39,14 +39,14 @@ export function creerModaleNouveauRdv(agendas) {
                     </div>
                     <div class="mb-3">
                         <label for="dateDebut" class="form-label">Début</label>
-                        <input type="datetime-local" class="form-control" id="dateDebut" name="dateDebut" required>
+                        <input type="datetime-local" class="form-control" id="dateDebut" name="dateDebut">
                         <div class="invalid-feedback">
                             Champ obligatoire
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="dateFin" class="form-label">Fin</label>
-                        <input type="datetime-local" class="form-control" id="dateFin" name="dateFin" required>
+                        <input type="datetime-local" class="form-control" id="dateFin" name="dateFin">
                         <div class="invalid-feedback">
                             Champ obligatoire
                         </div>
@@ -65,11 +65,10 @@ export function creerModaleNouveauRdv(agendas) {
                                     <option value="Yearly">Année(s)</option>
                                 </select>
                             </div>
-                            
                             <label for="select_fin_recurrence">Fin de la répétition</label>
                             <div class="mb-3 d-flex">
                                 <select class="form-control w-fit-content me-2" onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence">
-                                    <option value="0">Jusqu'à une certaine date (incluse)</option>
+                                    <option value="0">Jusqu'à une certaine date (excluse)</option>
                                     <option value="1">Après x occurences</option>
                                     <option value="2">Jamais</option>
                                 </select>
@@ -81,7 +80,7 @@ export function creerModaleNouveauRdv(agendas) {
                     
                     <div class="mb-3">
                         <label for="select_agendas" class="form-label">Agenda(s) associé(s) au rendez-vous</label>
-                        <select name="agendas" id="select_agendas" class="form-control" multiple required>
+                        <select name="agendas" id="select_agendas" class="form-control" multiple>
                             ${list_agendas}
                         </select>
                         <div class="invalid-feedback">
@@ -109,7 +108,6 @@ export function creerModaleNouveauRdv(agendas) {
 
 /* Post de la requête de modif du rdv puis demande de mise à jours du calendrier au controleur*/
 export async function envoyerFormNouveauRdv() {
-    event.preventDefault();
     let titreInput = document.getElementById('titreRDV');
     let descriptionRDV = document.getElementById('descriptionRDV');
     let lieuRDV = document.getElementById('lieuRDV');
@@ -122,6 +120,11 @@ export async function envoyerFormNouveauRdv() {
 
     let dateDebInput = document.getElementById('dateDebut');
     let dateFinInput = document.getElementById('dateFin');
+
+    let nbFreq = document.getElementById("freq_number");
+    let typeFinRec = document.getElementById("select_fin_recurrence");
+    let dateFinRec = document.getElementById("date_fin_recurrence");
+    let nbRec = document.getElementById("nb_occurence");
 
     //Clear des anciennes erreurs
     titreInput.classList.remove("is-invalid");
@@ -156,6 +159,21 @@ export async function envoyerFormNouveauRdv() {
 
     if (dateFinInput.value === '') {
         dateFinInput.classList.add("is-invalid");
+        isValid = false;
+    }
+
+    if(nbFreq.value === ''){
+        nbFreq.classList.add("is-invalid");
+        isValid = false;
+    }
+
+    if(typeFinRec.selectedOptions[0].value === "0" && dateFinRec.value === ''){
+        dateFinRec.classList.add("is-invalid");
+        isValid = false;
+    }
+
+    if(typeFinRec.selectedOptions[0].value === "1" && nbRec.value === ''){
+        nbRec.classList.add("is-invalid");
         isValid = false;
     }
 
