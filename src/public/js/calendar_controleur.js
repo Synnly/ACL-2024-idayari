@@ -120,6 +120,9 @@ export class AgendaManager {
                 }
                 const data = {title: first_event.title, lieu: first_event.extendedProps.lieu, description: first_event.extendedProps.description,
                                 id: first_event.groupId, start: earliestStart, end: earliestEnd, allDay: first_event.allDay,
+                                type: first_event.extendedProps.type, fin_recurrence: first_event.extendedProps.endRec, nbOccurrences: first_event.extendedProps.nbOccurrences,
+                                frequence: first_event.extendedProps.frequence,
+                                agendas: first_event.extendedProps.agendas,
                                 agendas_to_add: first_event.extendedProps.agendas.filter(e => !oldEvent.extendedProps.agendas.includes(e)),
                                 agendas_to_remove: oldEvent.extendedProps.agendas.filter(e => !first_event.extendedProps.agendas.includes(e))}
                 fetch("/calendar-rdv", {
