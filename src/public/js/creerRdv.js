@@ -121,6 +121,7 @@ export async function envoyerFormNouveauRdv() {
     let dateDebInput = document.getElementById('dateDebut');
     let dateFinInput = document.getElementById('dateFin');
 
+    let toggleRec = document.getElementById("toggleRecurrence");
     let nbFreq = document.getElementById("freq_number");
     let typeFinRec = document.getElementById("select_fin_recurrence");
     let dateFinRec = document.getElementById("date_fin_recurrence");
@@ -162,19 +163,21 @@ export async function envoyerFormNouveauRdv() {
         isValid = false;
     }
 
-    if(nbFreq.value === ''){
-        nbFreq.classList.add("is-invalid");
-        isValid = false;
-    }
+    if(toggleRec.checked){
+        if(nbFreq.value === ''){
+            nbFreq.classList.add("is-invalid");
+            isValid = false;
+        }
 
-    if(typeFinRec.selectedOptions[0].value === "0" && dateFinRec.value === ''){
-        dateFinRec.classList.add("is-invalid");
-        isValid = false;
-    }
+        if(typeFinRec.selectedOptions[0].value === "0" && dateFinRec.value === ''){
+            dateFinRec.classList.add("is-invalid");
+            isValid = false;
+        }
 
-    if(typeFinRec.selectedOptions[0].value === "1" && nbRec.value === ''){
-        nbRec.classList.add("is-invalid");
-        isValid = false;
+        if(typeFinRec.selectedOptions[0].value === "1" && nbRec.value === ''){
+            nbRec.classList.add("is-invalid");
+            isValid = false;
+        }
     }
 
     //Vérification des dates
