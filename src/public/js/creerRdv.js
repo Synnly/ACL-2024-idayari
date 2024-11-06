@@ -137,8 +137,7 @@ export async function envoyerFormNouveauRdv() {
 
     if (all_day) {
         dateDeb.setHours(0, 0, 0);
-        dateFin = addDays(dateFin, 1);
-        dateFin.setHours(0, 0, 0);
+        dateFin.setHours(0, 0, 1);
     }
     let isValid = true;
 
@@ -179,7 +178,6 @@ export async function envoyerFormNouveauRdv() {
         return;
     }
 
-    console.log();
     if (isValid) {
         const data = {
             dateDebut: dateDeb,
@@ -191,11 +189,10 @@ export async function envoyerFormNouveauRdv() {
             all_day: all_day,
             recurrent: document.getElementById("toggleRecurrence").value,
             freq_type: document.getElementById("select_freq").value,
-            freq_number:  document.getElementById("freq_number").value,
+            freq_number:  document.getElementById("freq_number").value ,
             date_fin_recurrence: document.getElementById("date_fin_recurrence").value,
             nb_reccurence: document.getElementById("nb_occurence").value
         };
-        console.log(data);
         fetch("/rendezVous/new", {
             method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
         }).then(() => {
