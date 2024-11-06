@@ -58,23 +58,39 @@ export function creerModaleNouveauRdv(agendas) {
                         <div id="recurrent_div" style="display: none;">
                             <label for="freq_number"> Tous\/Toutes les </label>
                             <div class="mb-3 d-flex">
-                                <input class="form-control  me-2" type="number" min="1" name="freq_number" id="freq_number">
-                                <select class="form-control w-fit-content" name="freq_type" id="select_freq">
-                                    <option value="j">jour(s)</option>
-                                    <option value="s">semaine(s)</option>
-                                    <option value="Monthly">Mois</option>
-                                    <option value="Yearly">Année(s)</option>
-                                </select>
+                                <div class="flex-column flex-grow-1">
+                                    <input class="form-control  me-2" type="number" min="1" name="freq_number" id="freq_number">
+                                    <div class="invalid-feedback">
+                                        Veuillez entrer un entier > 1
+                                    </div>
+                                </div>
+                                <div class="flex-column">
+                                    <select class="form-control w-fit-content" name="freq_type" id="select_freq">
+                                        <option value="j">jour(s)</option>
+                                        <option value="s">semaine(s)</option>
+                                        <option value="Monthly">Mois</option>
+                                        <option value="Yearly">Année(s)</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Champ obligatoire
+                                    </div>
+                                </div>
                             </div>
                             <label for="select_fin_recurrence">Fin de la répétition</label>
                             <div class="mb-3 d-flex">
-                                <select class="form-control w-fit-content me-2" onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence">
+                                <select class="form-control w-fit-content h-fit-content me-2" onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence">
                                     <option value="0">Jusqu'à une certaine date (excluse)</option>
                                     <option value="1">Après x occurences</option>
                                     <option value="2">Jamais</option>
                                 </select>
-                                <input class="form-control" type="date" name="date_fin_recurrence" id="date_fin_recurrence">
-                                <input class="form-control" type="number" min="2" name="nb_occurence" id="nb_occurence" style="display: none;">
+                                <div class="flex-column flex-grow-1">
+                                    <input class="form-control h-fit-content" type="date" name="date_fin_recurrence" id="date_fin_recurrence">
+                                    <input class="form-control h-fit-content" type="number" min="2" name="nb_occurence" id="nb_occurence" style="display: none;">
+                                    <div id="div_date_fin_recurrence" class="invalid-feedback">
+                                    </div>
+                                    <div id="div_nb_occurence" class="invalid-feedback">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -169,25 +185,24 @@ export async function envoyerFormNouveauRdv() {
         isValid = false;
     }
 
+    // Verifications si récurrent
     if(toggleRec.checked){
+        // Fréquence
         if(nbFreq.value === '' || !Number.isInteger(+nbFreq.value) || +(nbFreq.value) < 1){
             nbFreq.classList.add("is-invalid");
             isValid = false;
         }
 
-        if(typeFinRec.selectedOptions[0].value === "0" && dateFinRec.value === ''){
+        // Date fin non vide
+
+        if(typeFinRec.selectedOptions[0].value === "0" && ((dateFinRec.value === '') || (dateDebInput.value !== '' && dateDeb >= new Date(dateFinRec.value)))){
             dateFinRec.classList.add("is-invalid");
             isValid = false;
         }
 
+        // Nombre d'occurrences
         if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(+nbRec.value) || +(nbRec.value) < 2)){
             nbRec.classList.add("is-invalid");
-            isValid = false;
-        }
-
-        console.log(dateDeb, new Date(dateFinRec.value), dateDeb >= new Date(dateFinRec.value))
-        if(dateDebInput.value !== '' && dateFinRec.value !== '' && dateDeb >= new Date(dateFinRec.value)){
-            dateFinRec.classList.add("is-invalid");
             isValid = false;
         }
     }
@@ -225,6 +240,7 @@ export async function envoyerFormNouveauRdv() {
             recurrent: recurrence,
             freq_type: document.getElementById("select_freq").value,
             freq_number:  document.getElementById("freq_number").value ,
+            fin_recurrence: document.getElementById("select_fin_recurrence").value,
             date_fin_recurrence: document.getElementById("date_fin_recurrence").value,
             nb_reccurence: document.getElementById("nb_occurence").value
         };
