@@ -188,7 +188,7 @@ window.envoyerForm = function() {
         agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
                                     description: descriptionRDV.value, agendas: new_agendas, allDay: all_day});
 
-      deleteModal();
+        window.deleteModal();
     }
 }
 
