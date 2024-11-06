@@ -85,83 +85,82 @@ export function creerModale(rdv, agendas) {
                     <h5 class="modal-title" id="staticBackdropLabel">Modifier le rendez-vous</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="quitModal()"></button>
                 </div>
-                <div class="modal-body">
-                    <form class="needs-validation" id="formModifRDV" action="/calendar-rdv" method="POST" novalidate>
-                      <input type="hidden" id="idRDV" value="${id}" name="idRDV"> 
-                      <div class="mb-3">
-                        <label for="titreRDV" class="form-label">Titre</label>
-                        <input type="text" class="form-control" id="titreRDV" value="${escapeHTML(titre)}" name="titre" required>
-                        <div class="invalid-feedback">
-                          Champ obligatoire
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label for="lieuRDV" class="form-label">Lieu</label>
-                        <input type="text" class="form-control" id="lieuRDV" value="${escapeHTML(lieu)}" name="lieu">
-                      </div>
-                      <div class="mb-3">
-                        <label for="descriptionRDV" class="form-label">Description</label>
-                          <textarea class="form-control" id="descriptionRDV" rows="3" name="description">${escapeHTML(description)}</textarea>
-                      </div>
-                      <div class="mb-3">
-                        <label for="all_day" class="form-label">Toute la journée</label>
-                        <input type="checkbox" name="all_day" id="all_day" ${all_day_text} onChange="change_all_day_option(this)">
-                      </div>
-                      <div class="mb-3">
-                        <label for="dateDebut" class="form-label">Début</label>
-                        <input type="${date_input_type}" class="form-control" id="dateDebut" value="${dateDebut}" data-initialValue = "${rdv.dateDebut}" name="dateDebut" required>
-                        <div class="invalid-feedback">
-                          Champ obligatoire
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label for="dateFin" class="form-label">Fin</label>
-                        <input type="${date_input_type}" class="form-control" id="dateFin" value="${dateFin}" data-initialValue = "${rdv.dateFin}" name="dateFin" required>
-                        <div class="invalid-feedback">
-                          Champ obligatoire
-                        </div>
-                      </div>
+				<form class="needs-validation" id="formModifRDV" action="/calendar-rdv" method="POST" onsubmit="envoyerForm()">
+					<div class="modal-body">
+					<input type="hidden" id="idRDV" value="${id}" name="idRDV"> 
+					<div class="mb-3">
+					<label for="titreRDV" class="form-label">Titre</label>
+					<input type="text" class="form-control" id="titreRDV" value="${escapeHTML(titre)}" name="titre" required>
+					<div class="invalid-feedback">
+						Champ obligatoire
+					</div>
+					</div>
+					<div class="mb-3">
+					<label for="lieuRDV" class="form-label">Lieu</label>
+					<input type="text" class="form-control" id="lieuRDV" value="${escapeHTML(lieu)}" name="lieu">
+					</div>
+					<div class="mb-3">
+					<label for="descriptionRDV" class="form-label">Description</label>
+						<textarea class="form-control" id="descriptionRDV" rows="3" name="description">${escapeHTML(description)}</textarea>
+					</div>
+					<div class="mb-3">
+					<label for="all_day" class="form-label">Toute la journée</label>
+					<input type="checkbox" name="all_day" id="all_day" ${all_day_text} onChange="change_all_day_option(this)">
+					</div>
+					<div class="mb-3">
+					<label for="dateDebut" class="form-label">Début</label>
+					<input type="${date_input_type}" class="form-control" id="dateDebut" value="${dateDebut}" data-initialValue = "${rdv.dateDebut}" name="dateDebut" required>
+					<div class="invalid-feedback">
+						Champ obligatoire
+					</div>
+					</div>
+					<div class="mb-3">
+					<label for="dateFin" class="form-label">Fin</label>
+					<input type="${date_input_type}" class="form-control" id="dateFin" value="${dateFin}" data-initialValue = "${rdv.dateFin}" name="dateFin" required>
+					<div class="invalid-feedback">
+						Champ obligatoire
+					</div>
+					</div>
 
-					  <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="recurrent" ${recurrence_check} id="recurrent" onchange="change_recurrent_option(this)">
-                        <label class="form-check-label" for="recurrent">Récurrent ?</label>
-                      </div>
+					<div class="form-check">
+					<input type="checkbox" class="form-check-input" name="recurrent" ${recurrence_check} id="recurrent" onchange="change_recurrent_option(this)">
+					<label class="form-check-label" for="recurrent">Récurrent ?</label>
+					</div>
 
-                      <div id="recurrent_div" class="mb-3" ${style_freq_div}>
-                        <label>Tous/Toutes les</label>
-                        <input type="number" min="1" name="freq_number" id="freq_number" value='${freq_number_value}' class="form-control d-inline w-25">
-                        <select name="freq_type" id="select_freq" class="form-select d-inline w-50">
-                            <option value="j" ${jour_selected}>jour(s)</option>
-                            <option value="s" ${semaine_selected}>semaine(s)</option>
-                            <option value="Monthly" ${mois_selected}>Mois</option>
-                            <option value="Yearly" ${annee_selected}>Année(s)</option>
-                        </select>
-      
-                        <label>Fin de la répétition :</label>
-                        <select onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence" class="form-select">
-                            <option value="0" ${date_fin_selected}>Jusqu'à une certaine date (incluse)</option>
-                            <option value="1" ${nb_occur_selected}>Après x occurences</option>
-                            <option value="2" ${no_end}>Jamais</option>
-                        </select>
-                        <input type="date" name="date_fin_recurrence" id="date_fin_recurrence" value=${value_fin_rec} class="form-control" ${style_input_fin_rec}>
-                        <input type="number" min="2" name="nb_occurence" id="nb_occurence" value=${value_nb_occur} class="form-control" ${style_input_nb_occur}>
-                      </div>
+					<div id="recurrent_div" class="mb-3" ${style_freq_div}>
+					<label>Tous/Toutes les</label>
+					<input type="number" min="1" name="freq_number" id="freq_number" value='${freq_number_value}' class="form-control d-inline w-25">
+					<select name="freq_type" id="select_freq" class="form-select d-inline w-50">
+						<option value="j" ${jour_selected}>jour(s)</option>
+						<option value="s" ${semaine_selected}>semaine(s)</option>
+						<option value="Monthly" ${mois_selected}>Mois</option>
+						<option value="Yearly" ${annee_selected}>Année(s)</option>
+					</select>
+	
+					<label>Fin de la répétition :</label>
+					<select onchange="change_fin_recurrence_option(this)" id="select_fin_recurrence" name="fin_recurrence" class="form-select">
+						<option value="0" ${date_fin_selected}>Jusqu'à une certaine date (incluse)</option>
+						<option value="1" ${nb_occur_selected}>Après x occurences</option>
+						<option value="2" ${no_end}>Jamais</option>
+					</select>
+					<input type="date" name="date_fin_recurrence" id="date_fin_recurrence" value=${value_fin_rec} class="form-control" ${style_input_fin_rec}>
+					<input type="number" min="2" name="nb_occurence" id="nb_occurence" value=${value_nb_occur} class="form-control" ${style_input_nb_occur}>
+					</div>
 
-                      <div class="mb-3">
-                        <label for="select_agendas" class="form-label">Agenda(s) associé(s) au rendez-vous</label>
-                        <select name="agendas" id="select_agendas" class="form-control" multiple required>
-                            ${list_agendas}
-                        </select>
-                        <div class="invalid-feedback">
-                          Champ obligatoire
-                        </div>                        
-                      </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModal()">Annuler</button>
-                    <button type="button" class="btn btn-primary btn-modal" onClick="envoyerForm()">Modifier</button>
-                </div>
+					<div class="mb-3">
+					<label for="select_agendas" class="form-label">Agenda(s) associé(s) au rendez-vous</label>
+					<select name="agendas" id="select_agendas" class="form-control" multiple required>
+						${list_agendas}
+					</select>
+					<div class="invalid-feedback">
+						Champ obligatoire
+					</div>                        
+					</div>
+					<div class="modal-footer">
+					<button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModal()">Annuler</button>
+					<button type="submit" class="btn btn-primary btn-modal">Modifier</button>
+					</div>
+				</form>
             </div>
         </div>
     </div>
@@ -181,17 +180,29 @@ export async function envoyerForm() {
     event.preventDefault();
 
     const recurrent = document.getElementById('recurrent');
-    let freq_type = null;
+    let freq_type = 'Simple';
     let freq_number = null;
-    let fin_recurrence = null;
     let date_fin_recurrence = null;
     let nb_occurrence = null;
     if(recurrent.checked){
-        freq_type = document.getElementById('select_freq').value;
-        freq_number = document.getElementById('freq_number').value;
-        fin_recurrence = document.getElementById('select_fin_recurrence').value;
-        date_fin_recurrence = document.getElementById('date_fin_recurrence').value;
-        nb_occurrence= document.getElementById('nb_occurence').value;
+		const select_freq = document.getElementById('select_freq').value;
+		freq_number = +document.getElementById('freq_number').value;
+		if (select_freq == 'j') {
+			freq_type = 'Regular';
+		} else if (select_freq == 's') {
+			freq_type = 'Regular';
+			freq_number = freq_number * 7;
+		} else {
+			freq_type == select_freq;
+		}
+		const sel_fin_rect = document.getElementById('select_fin_recurrence').value;
+        if (sel_fin_rect == "0") {
+			date_fin_recurrence = new Date(document.getElementById('date_fin_recurrence').value);
+			date_fin_recurrence.setDate(date_fin_recurrence.getDate() + 1);
+			date_fin_recurrence.setHours(0, 0, 0);
+		} else if (sel_fin_rect == "1") {
+			nb_occurrence = +document.getElementById('nb_occurence').value
+		}
     }
     
     let titreInput = document.getElementById('titreRDV');
@@ -254,14 +265,9 @@ export async function envoyerForm() {
     }
 
     if (isValid) {
-        if (recurrent.checked) {
-          agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
+        agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
             description: descriptionRDV.value, agendas: new_agendas, allDay: all_day,
-             freq_type: freq_type.value, freq_number: freq_number.value, fin_recurrence: fin_recurrence.value, date_fin_recurrence: date_fin_recurrence.value, nb_occurrence: nb_occurrence.value, recurrent: recurrent.value});
-        }else{
-          agendaManager.update_event({start: dateDeb, end: dateFin, title: titreInput.value, lieu: lieuRDV.value, 
-            description: descriptionRDV.value, agendas: new_agendas, allDay: all_day});
-        }
+             freq_type: freq_type, freq_number: freq_number, date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence});
         
         //Désactivation de la modale
         let modal = document.getElementById('staticBackdrop');
