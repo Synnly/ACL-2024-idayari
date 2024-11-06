@@ -201,7 +201,7 @@ export async function envoyerFormNouveauRdv() {
         }
 
         // Nombre d'occurrences
-        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(+nbRec.value) || +(nbRec.value) <= 2)){
+        if(typeFinRec.selectedOptions[0].value === "1" && (nbRec.value === '' || !Number.isInteger(+nbRec.value) || +(nbRec.value) < 2)){
             nbRec.classList.add("is-invalid");
             isValid = false;
         }
@@ -242,7 +242,7 @@ export async function envoyerFormNouveauRdv() {
             freq_number:  document.getElementById("freq_number").value ,
             fin_recurrence: document.getElementById("select_fin_recurrence").value,
             date_fin_recurrence: document.getElementById("date_fin_recurrence").value,
-            nb_reccurence: document.getElementById("nb_occurence").value
+            nb_occurence: document.getElementById("nb_occurence").value
         };
         fetch("/rendezVous/new", {
             method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
