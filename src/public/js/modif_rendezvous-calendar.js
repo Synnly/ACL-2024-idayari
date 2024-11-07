@@ -201,7 +201,8 @@ export async function envoyerForm() {
 			date_fin_recurrence.setDate(date_fin_recurrence.getDate() + 1);
 			date_fin_recurrence.setHours(0, 0, 0);
 		} else if (sel_fin_rect == "1") {
-			nb_occurrence = +document.getElementById('nb_occurence').value
+			console.log(document.getElementById('nb_occurence').value);
+			nb_occurrence = +document.getElementById('nb_occurence').value;
 		}
 
     }

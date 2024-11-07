@@ -336,6 +336,7 @@ export class AgendaManager {
             new_event.date_fin_recurrence != old_event.extendedProps.endRec ||
             new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
             const id = old_event.groupId;
+            console.log(new_event.nb_occurrence);
             this.remove_events(id);
             const data = {id: id, dateFinRecurrence: new_event.date_fin_recurrence ? new Date(new_event.date_fin_recurrence) : new_event.date_fin_recurrence,
                           frequence: new_event.freq_number, type: new_event.freq_type, nbOccurrences: new_event.nb_occurrence}

@@ -116,7 +116,7 @@ export async function modifierRendezVousRecurrencePOST(req, res) {
     if (res.locals.user) {
         try {
             //Récupération des champs du form
-            const {id, type, frequence, dateFinRecurrence, nbOccurences} = req.body;
+            const {id, type, frequence, dateFinRecurrence, nbOccurrences} = req.body;
             console.log(id);
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findByPk(id);
@@ -127,7 +127,7 @@ export async function modifierRendezVousRecurrencePOST(req, res) {
             rdvToUpdate.set("type", type);
             rdvToUpdate.set("frequence", frequence);
             rdvToUpdate.set("finRecurrence", dateFinRecurrence ? new Date(dateFinRecurrence) : dateFinRecurrence);
-            rdvToUpdate.set("nbOccurrences", nbOccurences);
+            rdvToUpdate.set("nbOccurrences", nbOccurrences);
 
             await rdvToUpdate.save();
             
