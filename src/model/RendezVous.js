@@ -10,7 +10,7 @@ function isAfterDateDebut(value) {
 }
 
 function isAfterDateDebut2(value) {
-    if (value <= this.dateDebut) {
+    if (value && value <= this.dateDebut) {
         throw new Error("La date de fin de récurrence doit être supérieur à la date de début.");
     }
 }

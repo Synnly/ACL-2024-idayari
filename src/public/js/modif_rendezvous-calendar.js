@@ -85,7 +85,7 @@ export function creerModale(rdv, agendas) {
                     <h5 class="modal-title" id="staticBackdropLabel">Modifier le rendez-vous</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="quitModal()"></button>
                 </div>
-				<form class="needs-validation" id="formModifRDV" action="/calendar-rdv" method="POST" onsubmit="envoyerForm()">
+				<form class="needs-validation" method="POST" onsubmit="envoyerForm()">
 					<div class="modal-body">
 					<input type="hidden" id="idRDV" value="${id}" name="idRDV"> 
 					<div class="mb-3">
@@ -203,6 +203,7 @@ export async function envoyerForm() {
 		} else if (sel_fin_rect == "1") {
 			nb_occurrence = +document.getElementById('nb_occurence').value
 		}
+
     }
     
     let titreInput = document.getElementById('titreRDV');
