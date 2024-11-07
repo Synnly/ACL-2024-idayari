@@ -3,21 +3,8 @@ import {ValidationError} from "sequelize";
 import { addDays } from "../date_utils.js";
 import User from "../model/User.js";
 import RendezVous from "../model/RendezVous.js";
+import Agenda from "../model/Agenda.js";
 
-/**
- * Traite la requête GET sur /rendezVous.
- * Si l'user est déconnecté, renvoie vers /
- * @param req La requête
- * @param res La réponse
- */
-export async function creationRendezVousGET(req, res) {
-    if (res.locals.user) {
-        const user = await User.getById(res.locals.user.id);
-        return res.render("rendezVous", { agendas: await user.getMyAgendas() });
-    } else {
-        return res.redirect("/");
-    }
-}
 
 /**
  * Traite la requête POST sur /rendezVous.
@@ -25,34 +12,33 @@ export async function creationRendezVousGET(req, res) {
  * @param req La requête
  * @param res La réponse
  */
-export async function creationRendezVousPOST(req, res) {
+export async function creationRendezVousPOST(req, res){
     if (!res.locals.user) {
-        return res.redirect('/')
+        return res.status(403).json({ message: 'Unauthorized access' });
     }
+
     let rendezVous = null;
-    let errMsgs = [];
-    const agendas = !(req.body.agendas instanceof Object) ? [(+req.body.agendas)] : 
-                                                            req.body.agendas.map(n => +n);
+    const agendas = !(req.body.agendas instanceof Object) ? [(+req.body.agendas)] :
+        req.body.agendas.map(n => +n);
     try {
         const dateDebut = new Date(req.body.dateDebut);
         let dateFin = new Date(req.body.dateFin);
-        if (req.body.all_day == "all_day") {
+        if (req.body.all_day) {
             dateDebut.setHours(0, 0, 0);
             // date de fin exclusive, donc on ajoute un jour
-            dateFin = addDays(dateFin, 1);
             dateFin.setHours(0, 0, 0);
         }
         rendezVous = RendezVous.build({
             titre: req.body.titre,
             lieu: (req.body.lieu ?? null),
-            description: (req.body.desc ?? null),
+            description: (req.body.description ?? null),
             dateDebut: dateDebut,
             dateFin: dateFin,
-            allDay: req.body.all_day == "all_day",
+            allDay: req.body.all_day,
         });
         // si c'est un rendez-vous récurrent
-        if (req.body.recurrent == "rec") {
-            if (req.body.freq_type == "j" || req.body.freq_type == "s") {
+        if (req.body.recurrent === "rec") {
+            if (req.body.freq_type === "j" || req.body.freq_type === "s") {
                 rendezVous.set("type", "Regular");
             } else {
                 rendezVous.set("type", req.body.freq_type);
@@ -70,32 +56,61 @@ export async function creationRendezVousPOST(req, res) {
         await rendezVous.save();
         try {
             for (const agenda_id of agendas) {
-                await AgendaRendezVous.create({
-                    idAgenda: agenda_id,
-                    idRendezVous: rendezVous.id
-                })
+                await AgendaRendezVous.create({idAgenda: agenda_id, idRendezVous: rendezVous.id})
             }
-        } catch (e) {
+            return res.status(200).json();
+        }
+        catch (e) {
             await rendezVous.destroy();
             rendezVous = null;
-            errMsgs = ["Une erreur inattendue est survenue. Veuillez réessayer plus tard."];
+            console.error('Erreur lors de la modification du rdv:', e);
+            return res.status(500).json({ message: "Une erreur s'est produite" });
         }
     } catch (e) {
-        rendezVous = null;
-        if (e instanceof ValidationError) {
-            errMsgs = e.errors.map(x => x.message);
-        } else {
-            errMsgs = ["Une erreur inattendue est survenue. Veuillez réessayer plus tard."];
-        }
-    }
-    // si rendezVous = null alors on a pas réussi à créer les lignes
-    if (!rendezVous) {
-        const user = await User.getById(res.locals.user.id);
-        return res.render("rendezVous", { errMsgs: errMsgs, agendas: await user.getMyAgendas(),
-            titre: req.body.titre, lieu: req.body.lieu, desc: req.body.desc, dateDebut: req.body.dateDebut, dateFin: req.body.dateFin,
-            agendasSelectionnes: agendas
-        });
-    } else {
-        return res.redirect("/");
+        console.error('Erreur lors de la modification du rdv:', e);
+        return res.status(500).json({ message: "Une erreur s'est produite" });
     }
 }
+
+
+export async function supprimerRDVGET(req, res) {
+    if (!res.locals.user) {
+        return res.redirect('/connexion')
+    }
+
+    try {
+        const agendaRdv = await AgendaRendezVous.findOne({
+            where: { idRendezVous: req.params.id }
+        });
+
+        if (!agendaRdv) {
+        
+            return res.render('error', {
+                status: 404,
+                message: "Rendez-vous introuvable."
+            });
+        }
+
+        const agenda = await Agenda.findOne({
+            where: { id: agendaRdv.idAgenda }
+        });
+
+        if (agenda.idOwner === res.locals.user.id) {
+            await RendezVous.destroy({
+                where: { id: req.params.id }
+            });
+            return res.redirect('/')
+        } else {
+            return res.render('error', {
+                status: 403,
+                message: "Vous n'êtes pas autorisé à supprimer ce rendez-vous."
+            });
+        }
+    } catch (error) {
+        return res.render('error', {
+            status: 500,
+            message: "Erreur serveur. Impossible de supprimer le rendez-vous."
+        })
+    }
+}
+

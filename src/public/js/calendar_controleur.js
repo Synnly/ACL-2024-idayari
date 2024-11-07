@@ -3,7 +3,8 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
-import {creerModale,envoyerForm,quitModal} from '/js/modif_rendezvous-calendar.js';
+import {creerModale} from '/js/modif_rendezvous-calendar.js';
+import {creerModaleNouveauRdv, envoyerFormNouveauRdv, quitModalNouveauRdv} from "./creerRdv.js";
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/ 
@@ -41,10 +42,12 @@ export class AgendaManager {
             height: "100%",
             customButtons: {
                 new_event: {
-                    text: 'nouvel évènement',
+                    text: 'Nouvel évènement',
                     icon: 'bi bi-plus-lg',
                     click: function() {
-                        window.location.href = '/rendezVous/new'
+                        window.envoyerFormNouveauRdv = envoyerFormNouveauRdv;
+                        window.quitModalNouveauRdv = quitModalNouveauRdv;
+                        creerModaleNouveauRdv(agendas);
                     }
                 }
             },
@@ -76,8 +79,6 @@ export class AgendaManager {
             eventClick: function(info) {
                 const event = info.event;
                 manager.modified_event = event;
-                window.envoyerForm = envoyerForm;
-                window.quitModal = quitModal;
                 creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
                             type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,

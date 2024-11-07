@@ -14,7 +14,10 @@ npm install && npm start
 - Authentification
 - Modifications des informations personnelles
 - Création d'agendas
-- Création de rendez-vous (non récurrents)
+- Création de rendez-vous récurrents ou simples
+- Modification ou suppresson d'agendas        
+- Modification ou suppresson de rendez-vous 
+- Sélection des agendas affichés             
 
 ## Auteurs
 - FERNANDES DOS SANTOS Emanuel (Synnly)

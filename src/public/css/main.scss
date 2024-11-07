@@ -11,5 +11,6 @@ $accent: #3D799C;
 @use "../../node_modules/bootstrap/scss/bootstrap" with (
     $primary : $primary,
     $secondary : $secondary,
-    $body-bg : $background-color
+    $body-bg : $background-color,
+    $modal-lg: 600px,
 );
