@@ -143,7 +143,9 @@ export function creerModale(rdv, agendas) {
 						<option value="1" ${nb_occur_selected}>Après x occurences</option>
 						<option value="2" ${no_end}>Jamais</option>
 					</select>
-					<input type="date" name="date_fin_recurrence" id="date_fin_recurrence" value=${value_fin_rec} class="form-control" ${style_input_fin_rec}>
+					<div class="mb-3" id='div_fin_rec'>
+						<input type="date" name="date_fin_recurrence" id="date_fin_recurrence" value=${value_fin_rec} class="form-control" ${style_input_fin_rec}>
+					</div>
 					<input type="number" min="2" name="nb_occurence" id="nb_occurence" value=${value_nb_occur} class="form-control" ${style_input_nb_occur}>
 					</div>
 
@@ -177,7 +179,36 @@ export function creerModale(rdv, agendas) {
 
 /* Post de la requête de modif du rdv puis demande de mise à jours du calendrier au controleur*/
 export async function envoyerForm() {
-    event.preventDefault();
+	event.preventDefault();
+	let dateDebInput = document.getElementById('dateDebut');
+    let dateFinInput = document.getElementById('dateFin');
+	const date_fin_rec = document.getElementById('date_fin_recurrence');
+	let titreInput = document.getElementById('titreRDV');
+    let descriptionRDV = document.getElementById('descriptionRDV');
+    let lieuRDV = document.getElementById('lieuRDV');
+	let isValid = true;
+
+    //Clear des anciennes erreurs
+    titreInput.classList.remove("is-invalid");
+    dateDebInput.classList.remove("is-invalid");
+    dateFinInput.classList.remove("is-invalid");
+	date_fin_rec.classList.remove("is-invalid");
+	
+
+    let msgErreur = document.getElementById('dateErreur');
+    if (msgErreur) {
+        msgErreur.remove();
+    }
+
+    const dateDeb = new Date(dateDebInput.value);
+    let dateFin = new Date(dateFinInput.value);
+    const all_day = document.getElementById('all_day').checked;
+    
+    if (all_day) {
+        dateDeb.setHours(0, 0, 0);
+        dateFin = addDays(dateFin, 1);
+        dateFin.setHours(0, 0, 0);
+    }
 
     const recurrent = document.getElementById('recurrent');
     let freq_type = 'Simple';
@@ -197,64 +228,34 @@ export async function envoyerForm() {
 		}
 		const sel_fin_rect = document.getElementById('select_fin_recurrence').value;
         if (sel_fin_rect == "0") {
-			date_fin_recurrence = new Date(document.getElementById('date_fin_recurrence').value);
+			date_fin_recurrence = new Date(date_fin_rec.value);
 			date_fin_recurrence.setDate(date_fin_recurrence.getDate() + 1);
 			date_fin_recurrence.setHours(0, 0, 0);
+			if (date_fin_recurrence <= dateDeb) {
+				date_fin_rec.classList.add("is-invalid");
+				isValid = false;
+				const msgErreur2 = document.createElement('div');
+				msgErreur2.id = 'dateErreur2';
+				msgErreur2.className = 'text-danger';
+				msgErreur2.textContent = "La date de fin de récurrence doit être supérieure à la date de début.";
+
+				document.getElementById('div_fin_rec').appendChild(msgErreur2);
+			}
 		} else if (sel_fin_rect == "1") {
-			console.log(document.getElementById('nb_occurence').value);
 			nb_occurrence = +document.getElementById('nb_occurence').value;
 		}
 
     }
     
-    let titreInput = document.getElementById('titreRDV');
-    let descriptionRDV = document.getElementById('descriptionRDV');
-    let lieuRDV = document.getElementById('lieuRDV');
-    
     const selectElement = document.getElementById('select_agendas');
     // on récupère uniquement les agendas à ajouter/supprimer
     const new_agendas = Array.from(selectElement.options).filter(option => option.selected).map(e => e.value);
-
-    let dateDebInput = document.getElementById('dateDebut');
-    let dateFinInput = document.getElementById('dateFin');
-
-    //Clear des anciennes erreurs
-    titreInput.classList.remove("is-invalid");
-    dateDebInput.classList.remove("is-invalid");
-    dateFinInput.classList.remove("is-invalid");
-
-    let msgErreur = document.getElementById('dateErreur');
-    if (msgErreur) {
-        msgErreur.remove();
-    }
-
-    const dateDeb = new Date(dateDebInput.value);
-    let dateFin = new Date(dateFinInput.value);
-    const all_day = document.getElementById('all_day').checked;
-    
-    if (all_day) {
-        dateDeb.setHours(0, 0, 0);
-        dateFin = addDays(dateFin, 1);
-        dateFin.setHours(0, 0, 0);
-    }
-    let isValid = true;
 
     //Vérification des champs obligatoires
     if (titreInput.value.trim() === '') {
         titreInput.classList.add("is-invalid");
         isValid = false;
     }
-
-    if (dateDebInput.value === '') {
-        dateDebInput.classList.add("is-invalid");
-        isValid = false;
-    }
-
-    if (dateFinInput.value === '') {
-        dateFinInput.classList.add("is-invalid");
-        isValid = false;
-    }
-
     //Vérification des dates
     if (isValid && dateFin <= dateDeb) {
         const msgErreur = document.createElement('div');

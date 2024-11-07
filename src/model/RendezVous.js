@@ -9,12 +9,6 @@ function isAfterDateDebut(value) {
     }
 }
 
-function isAfterDateDebut2(value) {
-    if (value && value <= this.dateDebut) {
-        throw new Error("La date de fin de récurrence doit être supérieur à la date de début.");
-    }
-}
-
 export default class RendezVous extends Model {
     /**
      * Crée la table RendezVous dans la base de données
@@ -61,10 +55,7 @@ export default class RendezVous extends Model {
         },
         finRecurrence: {
             type: DataTypes.DATE,
-            allowNull: true,
-            validate: {
-                isAfterDateDebut2
-            }
+            allowNull: true
         },
         nbOccurrences: {
             type: DataTypes.INTEGER,
@@ -113,7 +104,8 @@ export default class RendezVous extends Model {
         let finRec = null;
         if (this.fin_par_nb_occurrences()) {
             finRec = add_function(this.dateDebut, (this.nbOccurrences-1) * this.frequence);
-            finRec.setHours(23, 59, 59);
+            // on décale d'un peu car exclusif
+            finRec.setHours(finRec.getHours() + 1);
         }
         if (this.fin_par_date()) {
             finRec = this.finRecurrence;
