@@ -1,7 +1,5 @@
 import AgendaRendezVous from "../model/AgendaRendezVous.js";
-import {ValidationError} from "sequelize";
-import { addDays } from "../date_utils.js";
-import User from "../model/User.js";
+import { addDays } from "../public/js/utils.js";
 import RendezVous from "../model/RendezVous.js";
 import Agenda from "../model/Agenda.js";
 

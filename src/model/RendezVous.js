@@ -1,6 +1,6 @@
 import {DataTypes, Model} from "sequelize";
 import RendezVousSimple from "./RendezVousSimple.js";
-import { addDays, addMonths, addYears, daysDiff, monthDiff, yearDiff} from "../date_utils.js";
+import { addDays, addMonths, addYears, daysDiff, monthDiff, yearDiff} from "../public/js/utils.js";
 
 
 function isAfterDateDebut(value) {

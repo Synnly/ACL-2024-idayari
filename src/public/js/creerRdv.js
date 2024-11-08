@@ -2,7 +2,7 @@ import {addDays} from "./utils.js";
 import {agendaManager} from "/js/calendar_controleur.js";
 
 export function creerModaleNouveauRdv(agendas) {
-
+    addDays(new Date(), 2);
     let list_agendas = "";
     for (const elem of agendas) {
         list_agendas += `<option value="${elem.id}">${elem.nom}</option>\n`;

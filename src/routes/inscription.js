@@ -30,7 +30,7 @@ export async function inscriptionPOST(req, res) {
             hashedPassword: User.hashPassowrd(req.body.user_password),
         });
         //Pour que le server authenthifie l'utilisateur à partir du cookie
-        saveAuthentificationCookie(usr, res);
+        saveAuthentificationCookie(usr.id, res);
         return res.redirect("/");
     } catch (e) {
         return res.render("inscription", {

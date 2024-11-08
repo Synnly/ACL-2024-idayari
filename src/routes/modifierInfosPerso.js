@@ -12,7 +12,6 @@ let SUCCESMSG = '';
  */
 export async function modifierInfosPersoGET(req, res) {
 	if (res.locals.user) {
-		console.log(res.locals);
 		const succesMsg = SUCCESMSG || null;
     	res.render('infos_perso', { succesMsg: succesMsg })
 	} else {
@@ -45,15 +44,10 @@ export async function modifierInfosPersoPOST(req, res) {
 			//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
 			const username = req.body.user_username_change_info;
 			const password = req.body.user_password_change_info;
-			const lastUsername = res.locals.user.username;
 
-
-			const user = await User.findOne({where: {username: lastUsername}});
+			const user = await User.findByPk(res.locals.user.id);
 
 			const lastPassword = user.hashedPassword;
-			let hasUsernameChanged = false;
-			let hasPasswordChanged = false;
-			let data = {};
 			const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
 
 			/* Si le formulaire est pas vide oet que le mdp de confirmation est correct on effectue les
@@ -61,22 +55,15 @@ export async function modifierInfosPersoPOST(req, res) {
 
 			if ((username || password) && lastPassword === User.hashPassowrd(passwordConfirm)) {
 				if (username) {
-					data.username = username;
-					hasUsernameChanged = true;
+					user.username = username;
 				}
 				if (password) {
-					data.hashedPassword = User.hashPassowrd(password);
-					hasPasswordChanged = true;
+					user.hashedPassword = User.hashPassowrd(password);
 				}
 
-				await User.update(data, {where: {username: lastUsername}});
+				await user.save();
 
-				let updatedUser = {
-					id: user.id,
-					username: hasUsernameChanged ? data.username : user.username,
-					hashedPassword: hasPasswordChanged ? data.hashedPassword : lastPassword,
-				};
-				saveAuthentificationCookie(updatedUser, res);
+				saveAuthentificationCookie(user, res);
 				SUCCESMSG = "Vos modifications ont été effectuées avec succès.";
 				return res.redirect('/infos_perso');
 
@@ -90,7 +77,7 @@ export async function modifierInfosPersoPOST(req, res) {
 				return res.render('infos_perso', {errMsg: "Aucunes modifications n'est effectué car le formulaire était vide."});
 			}
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			return res.render('infos_perso', {errMsg: "Une erreur s'est produite"});
 		}
 	}else {

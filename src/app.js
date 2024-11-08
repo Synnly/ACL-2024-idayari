@@ -11,22 +11,23 @@ import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousPOST, supprimerRDVGET} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 import { calendarGetData, modifierRendezVousCalendarPOST } from "./routes/calendar.js";
-
 import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaGET} from './routes/modifierAgenda.js';
 
 
 export const app = express();
-app.use('/bootstrap', express.static(fileURLToPath(new URL('./node_modules/bootstrap/dist', import.meta.url))));
-app.set('views', fileURLToPath(new URL('./views', import.meta.url)));
-app.set('view engine', 'ejs');
-
 app
+    .set('views', fileURLToPath(new URL('./views', import.meta.url)))
+    .set('view engine', 'ejs')
+
+    // middlewares
+    .use('/bootstrap', express.static(fileURLToPath(new URL('./node_modules/bootstrap/dist', import.meta.url))))
+    .use(express.static(fileURLToPath(new URL("./public", import.meta.url))))
     .use(cookieParser()) //Permet de gérer les cookies dans req.cookie
     .use(authenticate)
     .use(morgan("dev"))
-    .use(express.static(fileURLToPath(new URL("./public", import.meta.url))))
     .use(express.json())
     .use(express.urlencoded({ extended: false }))
+
     .get("/", index)
     
     .post("/calendar-rdv",modifierRendezVousCalendarPOST)
@@ -57,7 +58,7 @@ app
     .get("/calendar-data/", calendarGetData)
 
     .use((req, res, next) => next(createError(404)))
-    .use((err, req, res, next) => {
+    .use((err, req, res) => {
     res
         .status(err.status || 500)
         .send(`<h1>${err.message || "Internal error"}</h1>`);
