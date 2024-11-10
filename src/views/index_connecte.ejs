@@ -1,26 +1,54 @@
 <%- await include('partials/header.ejs') %>
 <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1" >
     <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
-        <div class="w-100 h-fit-content">
-            <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center"><span>Vos agendas </span>
-                <button onclick="window.location.href='/modifierAgendas'" class="btn btn-sm btn-secondary text-white">Modifier</button>
+        <div class="w-100">
+            <div class="w-100 h-fit-content">
+                <div class="nav-link text-secondary p-3">
+                    <span>Fonctionnalités</span>
+                </div>
+                <div class="p-3">
+                    <a class="btn btn-primary-hover w-100 d-flex justify-content-start align-items-center column-gap-3" href="/export">
+                        <span class="bi bi-arrow-bar-up fs-5" role="img"></span>
+                        Exporter
+                    </a>
+                </div>
+                <div class="p-3">
+                    <a class="btn btn-primary-hover w-100 d-flex justify-content-start align-items-center column-gap-3" href="">
+                        <span class="bi bi-arrow-bar-down fs-5" role="img"></span>
+                        Importer
+                    </a>
+                </div>
+                <div class="p-3">
+                    <a class="btn btn-primary-hover w-100 d-flex justify-content-start align-items-center column-gap-3" href="">
+                        <span class="bi bi-share fs-5" role="img"></span>
+                        Partager
+                    </a>
+                </div>
             </div>
-            <div class="w-100 d-flex h-fit-content p-3">
-                <button class="btn btn-outline-secondary w-100" id="ouvreDialogCreationAgenda" onclick="openDialog()">
+            <div class="w-100 h-fit-content">
+                <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center" onclick="toggleAgendas()">
+                  <span>Vos agendas</span>
+                  <button onclick="window.location.href='/modifierAgendas'" class="btn btn-sm btn-secondary text-white">
+                    Modifier
+                  </button>
+                </div>
+
+                <div class="w-100 d-flex h-fit-content p-3">
+                    <button class="btn btn-sm btn-outline-secondary w-100" id="ouvreDialogCreationAgenda" onclick="openDialog()">
                     <span class="bi bi-plus-lg" role="img"></span>
-                </button>
-            </div>
-            <ul class="list-group px-3 py-2">
-                <li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
-            </ul>
-            <ul id="agendaList" class="list-group px-3 listAgenda align-self-end">
-                <% for (const agenda of locals.agendas) { %>
-                    <li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.id %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.id) %>")'><%= agenda.nom %></li>
-                <% } %>
-            </ul>
-
+                    </button>
+                </div>
+                
+                <ul class="list-group px-3 py-2">
+                    <li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
+                </ul>
+                <ul id="agendaList" class="list-group px-3 listAgenda align-self-end">
+                    <% for (const agenda of locals.agendas) { %>
+                        <li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.id %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.id) %>")'><%= agenda.nom %></li>
+                    <% } %>
+                </ul>
+            </div> 
         </div>
-
     </nav>
     <div class="col col-10 p-3 d-flex flex-column">
         <div id="calendar"></div>

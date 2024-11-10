@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Exporter</title>
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+</head>
+
+<body>
+    <%- include('partials/header.ejs') %>
+        <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1">
+            <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
+                <div class="w-100 h-fit-content">
+                    <div class="nav-link text-secondary p-3">
+                        <span>Liste des agendas</span>
+                    </div>
+                    <ul id="agendaList" class="list-group px-3 align-self-end">
+                        <% for (const agenda of locals.agendas) { %>
+                            <li class="list-group-item list-group-item-light user-select-none cursor-pointer" id="<%= agenda.id %>" onclick='selectAgenda("<%= agenda.id %>", "<%= agenda.nom %>")'>
+                                <%= agenda.nom %>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div>
+            </nav>
+            
+            <div class="col col-10 p-3 d-flex flex-column align-content-center align-items-center gap-4">
+                <a href="/" class="d-flex justify-content-start w-100">Retour à l'accueil</a>
+               <div>
+                <h1 class="fs-3 text-center">Exporter votre agenda pour pouvoir l'utiliser sur n'importe quelle autre application en un simple clique.</h1>
+                <h2 class="fs-6 text-center">Choissisez parmi la liste de vos agendas celui que vous voulez exporter, un seul agenda exportable à la fois.</h2>
+               </div>
+                <img src="/img/export_1.svg" alt="export" class="img-fluid" width="60%">
+                <button class="btn btn-outline-secondary d-none" id="exportBtn" onclick="">
+                    Exporter en JSON
+                </button>
+            </div>
+        </div>
+        <!-- Spinner HTML -->
+<div class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75" id="spinner">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+        
+        <script src="/js/export.js"></script>
+</body>
+
+</html>
