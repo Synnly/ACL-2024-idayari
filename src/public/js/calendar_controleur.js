@@ -23,7 +23,9 @@ class AgendaManager {
         this.agendas = {};
         for (const child of document.getElementById('agendaList').children) {
             const id = child.id.split("_")[1];
-            this.agendas[id] = {nom: child.textContent, displayed: child.classList.contains("active")};
+            const label = child.firstElementChild;
+            const  checkbox = label.firstElementChild;
+            this.agendas[id] = {nom: label.title, displayed: checkbox.checked};
         }
 
         //Récupération de la balise contenant le calendar
@@ -212,9 +214,9 @@ class AgendaManager {
     // click sur "Tout sélectionner"
     selectAll() {
         // on récupère la nouvelle liste des agendas sélectionnés du DOM
-        const agendasSelectionnes = document.getElementById('agendaList').getElementsByClassName('active');
+        const all_selected = document.getElementById('selectAll').checked;
         // si tout a été désélectionné, pas besoin de query
-        if (agendasSelectionnes.length == 0) {
+        if (!all_selected) {
             this.agendas_periodes = {};
             Object.keys(this.agendas).forEach(id => this.agendas[id].displayed = false);
             this.events.clear();
@@ -222,7 +224,7 @@ class AgendaManager {
         } else {
             // sinon on récupère les rendez-vous simples des agendas dont on n'a pas encore les infos
             const new_agendas = [];
-            for (const elem of agendasSelectionnes) {
+            for (const elem of document.getElementById('agendaList').children) {
                 const id = elem.id.split("_")[1];
                 if (!this.agendas_periodes[id]) {
                     new_agendas.push(id);

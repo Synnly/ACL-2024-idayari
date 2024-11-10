@@ -1,5 +1,13 @@
-<% const active_text = agenda.displayed ? "active" : ""; %>
-<li class="list-group-item list-group-item-light li_agenda <%= active_text %>" id="agenda_<%= id %>" onclick='toggleAgenda("agenda_<%= id %>")'>
-    <label class="nom_agenda" title="<%= agenda.nom %>"><%= agenda.nom %></label>
-    <i class="bi bi-three-dots btn options"></i>
+<li class="li_agenda" id="agenda_<%= id %>" onclick='toggleAgenda("agenda_<%= id %>", event)'>
+    <label class="nom_agenda" for="check_agenda_<%= id %>" title="<%= agenda.nom %>">
+        <input type="checkbox" id="check_agenda_<%= id %>" <%= agenda.displayed ? "checked" : "" %>>
+        <%= agenda.nom %></label>
+    <div class="dropdown options">
+        <i class="bi bi-three-dots btn"></i>
+        <div id="myDropdown_<%= id %>" class="dropdown-content" style="display: none;">
+            <a href="#">Link 1</a>
+            <a href="#">Link 2</a>
+            <a href="#">Link 3</a>
+          </div>
+    </div>
 </li>

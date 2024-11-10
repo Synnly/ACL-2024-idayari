@@ -248,7 +248,7 @@ export async function envoyerFormNouveauRdv() {
         json_fetch("/rendezVous/new", "POST", data)
         .then(() => {
             // Agendas sélectionnés dans l'affichage et dans la modale
-            agendaManager.addData(selectedAgendas.filter((id) => document.getElementById("agenda_"+id).classList.contains("active")));
+            agendaManager.addData(selectedAgendas.filter((id) => document.getElementById("check_agenda_"+id).checked));
         })
         .catch((error) => {console.log(error)});
 
