@@ -1,4 +1,4 @@
-<%- await include('partials/header.ejs') %>
+<%- include('partials/header.ejs') %>
 <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1" >
     <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
         <div class="w-100 h-fit-content">
@@ -14,8 +14,9 @@
                 <li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
             </ul>
             <ul id="agendaList" class="list-group px-3 listAgenda align-self-end">
-                <% for (const agenda of locals.agendas) { %>
-                    <li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.id %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.id) %>")'><%= agenda.nom %></li>
+                <% for (const agenda_id of Object.keys(locals.agendas)) { %>
+                    <% const active_text = locals.agendas[agenda_id].displayed ? "active" : ""; %>
+                    <li class="list-group-item list-group-item-light user-select-none <%= active_text %>" id="agenda_<%= agenda_id %>" onclick='toggleAgenda("agenda_<%= agenda_id %>")'><%= locals.agendas[agenda_id].nom %></li>
                 <% } %>
             </ul>
 
@@ -39,7 +40,7 @@
     window.addEventListener('load', adjustListHeight);
     window.addEventListener('resize', adjustListHeight);
 </script>
-<%- await include('viewDialogCreationAgenda.ejs') %>
+<%- include('viewDialogCreationAgenda.ejs') %>
 <script src="/js/dialogCreationAgenda.js"></script>
 <script type='importmap'>
     {

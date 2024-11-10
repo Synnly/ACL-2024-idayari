@@ -1,6 +1,6 @@
 export function escapeHTML(str) {
     return str.replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
+		.replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
@@ -18,16 +18,16 @@ export function addDays(date, days) {
     return result;
 }
 
-// quick addMonth and addYears functions, should use moment.js in the future
+    // quick addMonth and addYears functions, should use moment.js in the future
 export function addMonths(date, months) {
     const result = new Date(date.getTime());
     const d = date.getDate();
     result.setMonth(result.getMonth() + months);
     if (result.getDate() != d) {
-      result.setDate(0);
+    	result.setDate(0);
     }
     return result;
-  }
+}
 
 export function addYears(date, years) {
     const result = new Date(date.getTime());
@@ -41,7 +41,6 @@ export function daysDiff(d1, d2) {
 
     const differenceMs = Math.abs(d1 - d2);
     return differenceMs / ONE_DAY;
-
 }
 
 // on suppose que d1 <= d2

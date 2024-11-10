@@ -1,10 +1,17 @@
 function confirmerSuppression(id){
-    event.preventDefault();
     const node = document.getElementById(id.toString());
     const nomTronque = node.placeholder.substring(0, 15);
 
     if(confirm(`Êtes vous sûr de supprimer ${nomTronque === node.placeholder ? node.placeholder : nomTronque+'...'} ?\nCette action est IRREVERSIBLE.`)){
-        window.location.href = `/supprimerAgenda/${id}`;
+        fetch(`/supprimerAgenda/${id}`, { method: "DELETE" })
+        .then(res => {
+            if (res.status === 202) {
+                document.getElementById(`div_${id}`).remove();
+            }
+        })
+        .catch(error => {
+            console.log(`erreur suppression agenda: ${error}`);
+        })
     }
 }
 

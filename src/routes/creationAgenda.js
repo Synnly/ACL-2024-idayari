@@ -2,20 +2,6 @@ import UserAgendaAccess from "../model/UserAgendaAccess.js";
 import Agenda from "../model/Agenda.js";
 
 /**
- * Traite la requête GET sur /creerAgenda.
- * Si l'user est déconnecté, renvoie vers /
- * @param req La requête
- * @param res La réponse
- */
-export async function creationAgendaGET(req, res) {
-    if (res.locals.user) {
-        return res.render("creerAgenda");
-    } else {
-        return res.redirect("/");
-    }
-}
-
-/**
  * Traite la requête POST sur /creerAgenda.
 
  * Si la creation d'agenda échoue, affiche un message d'erreur, sinon renvoie vers /

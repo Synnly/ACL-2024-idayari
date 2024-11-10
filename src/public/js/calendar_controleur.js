@@ -9,13 +9,9 @@ import {creerModaleNouveauRdv, envoyerFormNouveauRdv, quitModalNouveauRdv} from 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/ 
 
-//Récupération de la balise contenant le calendar
-const elementCalendrier = document.getElementById('calendar');
-
-export class AgendaManager {
+class AgendaManager {
 
     constructor() {
-
         // "tableau associatif" qui associe chaque agenda (id) à un ensemble de périodes ({debut, fin})
         // dont les rendez-vous simples sont stockées dans le calendrier
         // ex : '12': Set [ {start: 2 Nov 2024, end: 3 Nov 2024} ]
@@ -23,8 +19,14 @@ export class AgendaManager {
         this.events = new Set();
         const manager = this;
         // liste des agendas
-        const agendas = Array.prototype.map.call(document.getElementById('agendaList').children, (li) => Object({nom: li.textContent, id: li.id.split("_")[1]}));
+        this.agendas = {};
+        for (const child of document.getElementById('agendaList').children) {
+            const id = child.id.split("_")[1];
+            this.agendas[id] = {nom: child.textContent, displayed: child.classList.contains("active")};
+        }
 
+        //Récupération de la balise contenant le calendar
+        const elementCalendrier = document.getElementById('calendar');
         this.calendrier = new Calendar(elementCalendrier,{
             //Appel des différents composants 
             plugins : [dayGridPlugin,timeGridPlugin,listPlugin, bootstrap5Plugin],
@@ -47,7 +49,7 @@ export class AgendaManager {
                     click: function() {
                         window.envoyerFormNouveauRdv = envoyerFormNouveauRdv;
                         window.quitModalNouveauRdv = quitModalNouveauRdv;
-                        creerModaleNouveauRdv(agendas);
+                        creerModaleNouveauRdv(manager.agendas);
                     }
                 }
             },
@@ -81,7 +83,7 @@ export class AgendaManager {
                 manager.modified_event = event;
                 creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
-                            agendas: event.extendedProps.agendas}, agendas);  
+                            agendas: event.extendedProps.agendas}, manager.agendas);  
             },
 
             eventChange: function(info) {
@@ -133,6 +135,11 @@ export class AgendaManager {
 
     init() {
         this.calendrier.render();
+        // s'il y a des agendas sélectionnés
+        const selected_agendas = Object.keys(this.agendas).filter(a_id => this.agendas[a_id].displayed);
+        if (selected_agendas.length > 0) {
+            this.addData(selected_agendas);
+        }
         // écouteur selections d'agenda
         for (const child of document.getElementById('agendaList').children) {
             child.addEventListener('click', (event) => this.selectionAgenda(event.target.id.split("_")[1]));
@@ -183,6 +190,7 @@ export class AgendaManager {
         if (this.agendas_periodes[agenda_id]) {
             // on enlève l'agenda
             delete this.agendas_periodes[agenda_id];
+            this.agendas[agenda_id].displayed = false;
             for (const event of this.calendrier.getEvents()) {
                 if (!event.extendedProps.agendas.some(e => this.agendas_periodes[e] != undefined)) {
                     const identifier = event.groupId + "_" + event.start.toISOString();
@@ -192,8 +200,16 @@ export class AgendaManager {
             }
         } else {
             // l'agenda a été sélectionné
+            this.agendas[agenda_id].displayed = true;
             this.addData([agenda_id]);
         }
+        this.updateCookie();
+    }
+
+    updateCookie() {
+        fetch("/setAgendasCookie", {
+            method: "PUT", headers: {"Content-Type": "application/json"},body: JSON.stringify({agendas: this.agendas})
+        })
     }
 
     // click sur "Tout sélectionner"
@@ -203,6 +219,7 @@ export class AgendaManager {
         // si tout a été désélectionné, pas besoin de query
         if (agendasSelectionnes.length == 0) {
             this.agendas_periodes = {};
+            Object.keys(this.agendas).forEach(id => this.agendas[id].displayed = false);
             this.events.clear();
             this.calendrier.removeAllEvents();
         } else {
@@ -212,10 +229,12 @@ export class AgendaManager {
                 const id = elem.id.split("_")[1];
                 if (!this.agendas_periodes[id]) {
                     new_agendas.push(id);
+                    this.agendas[id].displayed = true;
                 }
             }
             this.addData(new_agendas);
         }
+        this.updateCookie();
     }
 
     /* Met à jours le calendrier selon la période actuellement visinle */
@@ -308,7 +327,5 @@ export class AgendaManager {
 }
 
 //Initialisation du model
-const agendaManager = new AgendaManager();
+export const agendaManager = new AgendaManager();
 agendaManager.init();
-
-export { agendaManager };

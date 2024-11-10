@@ -20,21 +20,19 @@ export function inscriptionGET(req, res) {
  * @param req La requête
  * @param res La réponse
  */
-export async function inscriptionPOST(req, res) {
+export function inscriptionPOST(req, res) {
     if (res.locals.user) {
         return res.redirect("/");
     }
-    try {
-        const usr = await User.create({
-            username: req.body.user_username,
-            hashedPassword: User.hashPassowrd(req.body.user_password),
-        });
-        //Pour que le server authenthifie l'utilisateur à partir du cookie
-        saveAuthentificationCookie(usr.id, res);
-        return res.redirect("/");
-    } catch (e) {
-        return res.render("inscription", {
+    User.create({
+        username: req.body.user_username,
+        hashedPassword: User.hashPassword(req.body.user_password),
+    }).then(user => {
+        // Pour que le server authenthifie l'utilisateur à partir du cookie
+        saveAuthentificationCookie(user, res).then(_ => res.redirect("/"));
+    }).catch(e => {
+        res.render("inscription", {
             errMsg: e.name === "SequelizeUniqueConstraintError" ? "Un compte existe déjà avec ce nom d'utilisateur !" : "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
         });
-    }
+    });
 }

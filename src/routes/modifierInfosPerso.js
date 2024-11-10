@@ -1,5 +1,5 @@
 import User from "../model/User.js";
-import {saveAuthentificationCookie} from "../token.js";
+import { updateUsernameCookie } from "../token.js";
 
 let SUCCESMSG = '';
 
@@ -41,36 +41,35 @@ export async function modifierInfosPersoPOST(req, res) {
 			if (user) {
 				return res.render('infos_perso', {errMsg: 'Vous ne pouvez pas chosir ce nom d\'utilisateur !'});
 			} else {
-			//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
-			const username = req.body.user_username_change_info;
-			const password = req.body.user_password_change_info;
+				//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
+				const username = req.body.user_username_change_info;
+				const password = req.body.user_password_change_info;
 
-			const user = await User.findByPk(res.locals.user.id);
+				const user = await User.findByPk(res.locals.user.id);
 
-			const lastPassword = user.hashedPassword;
-			const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
+				const lastPassword = user.hashedPassword;
+				const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
 
-			/* Si le formulaire est pas vide oet que le mdp de confirmation est correct on effectue les
-		modification de la bdd sinon on le préviens du problème */
+				/* Si le formulaire est pas vide oet que le mdp de confirmation est correct on effectue les
+					modification de la bdd sinon on le préviens du problème */
+				const mdp_correct = lastPassword === User.hashPassword(passwordConfirm);
+				if ((username || password) && mdp_correct) {
+					if (username) {
+						user.username = username;
+					}
+					if (password) {
+						user.hashedPassword = User.hashPassword(password);
+					}
 
-			if ((username || password) && lastPassword === User.hashPassowrd(passwordConfirm)) {
-				if (username) {
-					user.username = username;
+					await user.save();
+					// met à jour le cookie avec le nom d'utilisateur
+					updateUsernameCookie(username, res);
+					SUCCESMSG = "Vos modifications ont été effectuées avec succès.";
+					return res.redirect('/infos_perso');
 				}
-				if (password) {
-					user.hashedPassword = User.hashPassowrd(password);
-				}
-
-				await user.save();
-
-				saveAuthentificationCookie(user, res);
-				SUCCESMSG = "Vos modifications ont été effectuées avec succès.";
-				return res.redirect('/infos_perso');
-
-			}
 
 				//Si le mdp de confirmation est incorrect alors on le prévient
-				if (lastPassword !== User.hashPassowrd(passwordConfirm)) {
+				if (!mdp_correct) {
 					return res.render('infos_perso', {errMsg: 'Le mot de passe est incorrect.'});
 				}
 				//Si le formulaire est vide on le prévient

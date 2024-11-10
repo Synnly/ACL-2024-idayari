@@ -9,6 +9,13 @@ export async function calendarGetData(req, res) {
     if (!res.locals.user) {
         return res.json({err: "not auth"});
     }
+    const agendas_cookie = res.locals.agendas;
+    const agendas_id = [];
+    for (const agenda of JSON.parse(decodeURIComponent(req.query.agendas))) {
+        agendas_id.push(+agenda);
+        agendas_cookie[agenda].displayed = true;
+    }
+    res.cookie("agendas", agendas_cookie);
     const dateStart = new Date(+req.query.start);
     const dateEnd = new Date(+req.query.end);
     RendezVous.findAll({
@@ -29,7 +36,7 @@ export async function calendarGetData(req, res) {
                 through: AgendaRendezVous,
                 where: {
                     id: {
-                        [Sequelize.Op.in]: JSON.parse(decodeURIComponent(req.query.agendas)).map(e => +e)
+                        [Sequelize.Op.in]: agendas_id
                     },
                 },
             },

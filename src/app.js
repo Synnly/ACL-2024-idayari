@@ -1,17 +1,16 @@
 import express from 'express';
-import createError from 'http-errors';
 import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
-import {index, modifierRendezVousPOST} from "./routes/index.js";
+import { updateAgendasCookie } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousPOST, supprimerRDVGET} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 import { calendarGetData, modifierRendezVousCalendarPOST } from "./routes/calendar.js";
-import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaGET} from './routes/modifierAgenda.js';
+import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaDELETE} from './routes/modifierAgenda.js';
 
 
 export const app = express();
@@ -28,11 +27,11 @@ app
     .use(express.json())
     .use(express.urlencoded({ extended: false }))
 
-    .get("/", index)
+    .get("/", (req, res) => res.render("index"))
     
-    .post("/calendar-rdv",modifierRendezVousCalendarPOST)
+    .put("/setAgendasCookie", updateAgendasCookie)
 
-    .post("/",modifierRendezVousPOST)
+    .post("/calendar-rdv",modifierRendezVousCalendarPOST)
 
     .get("/deconnexion", deconnexion)
 
@@ -47,7 +46,7 @@ app
     .get('/modifierAgendas', modifierAgendaGET)
     .post('/modifierAgendas', modifierAgendaPOST)
 
-    .get('/supprimerAgenda/:id', supprimerAgendaGET)
+    .delete('/supprimerAgenda/:id', supprimerAgendaDELETE)
     .get('/supprimerRDV/:id', supprimerRDVGET)
 
     .post("/rendezvous/new", creationRendezVousPOST)
@@ -57,9 +56,9 @@ app
 
     .get("/calendar-data/", calendarGetData)
 
-    .use((req, res, next) => next(createError(404)))
+    .use((req, res, next) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))
     .use((err, req, res) => {
     res
         .status(err.status || 500)
-        .send(`<h1>${err.message || "Internal error"}</h1>`);
+        .render('error', {message: err.message || "Internal Error", status: err.status || 500});
 });

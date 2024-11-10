@@ -1,8 +1,4 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-
-
-dotenv.config(); // Récupère et parse le fichier .env pour récupérer clé SECRET
 
 /**
  * Authentifie l'utilisateur. Si `res.locals.user` est défini, alors l'utilisateur est authentifié. S'il est expiré, le cookie est supprimé
@@ -15,25 +11,36 @@ export function authenticate(req, res, next) {
         const token = req.cookies.accessToken;
         const user = jwt.verify(token, process.env.SECRET); //La fonction décripte le token
         res.locals.user = user;
+        res.locals.username = req.cookies.username;
+        res.locals.agendas = req.cookies.agendas;
     } catch (err) {
         //On peut au gérer ici les autres cas de déconnexion
         if (err.name === "TokenExpiredError") {
-          res.clearCookie("accessToken");
+            clearAllCookies(res);
         }
     }
     next();
 }
 
+/**
+ * Supprime tous les cookies
+ * @param {*} res La réponse
+ */
+export function clearAllCookies(res) {
+    res.clearCookie("accessToken");
+    res.clearCookie("username");
+    res.clearCookie("agendas");
+}
 
 /**
- * Gérère un token JWT avec l'id et le login de l'utilisateur, et un sel aléatoire. Ce token est enregistré dans la BDD avec le sel et sa date d'expiration.
+ * Gérère un token JWT avec l'id de l'utilisateur, et un sel aléatoire. Ce token est enregistré dans la BDD avec le sel et sa date d'expiration.
  * Le token a une durée de vie de 1h.
- * @param user L'utilisateur
- * @returns {*} Le token
+ * @param id L'id de l'utilisateur
+ * @returns {String} Le token
  */
-function createJWT(user) {
+function createJWT(id) {
     return jwt.sign(
-        { id: user.id, username: user.username }, // données à chiffrer
+        { id: id }, // données à chiffrer
         process.env.SECRET, //Clé de chiffrement dans .env
         { expiresIn: "1h" } //Durée de 1h
     );
@@ -41,10 +48,37 @@ function createJWT(user) {
 
 /**
  * Sauvegarde le token dans un cookie
- * @param savedUser L'utilisateur
+ * @param {User} user L'utilisateur
  * @param res La réponse
  */
-export function saveAuthentificationCookie(savedUser, res) {
-    const token = createJWT(savedUser); // On crée le token représentant notre user
-    res.cookie("accessToken", token, { httpOnly: true, sameSite: "Strict" });
+export function saveAuthentificationCookie(user, res) {
+    const token = createJWT(user.id); // On crée le token représentant notre user
+    createCookie("accessToken", token, res);
+    createCookie("username", user.username, res);
+    // les agendas sont sauvegardés dans un cookie
+    // pour, entre autres, se rappeler de ceux affichés quand on recharge la page
+    return user.getAgendas({ attributes: ['id', 'nom', 'idOwner'] }).then(agendas => {
+        const saved_agendas = {};
+        agendas.forEach(a => saved_agendas[a.id] = {nom: a.nom, displayed: false, isOwner: user.id === a.idOwner});
+        createCookie("agendas", saved_agendas, res);
+    });
+}
+
+/**
+ * crée ou met à jour un cookie (permet de factoriser les options)
+ * @param {String} name le nom du cookie
+ * @param {String} value la valeur qu'on veut sauvegarder
+ * @param {object} res la réponse
+ */
+export function createCookie(name, value, res) {
+    res.cookie(name, value, { httpOnly: true, sameSite: "Strict" });
+}
+
+/**
+ * Change la valeur du nom d'utilisateur dans le cookie
+ * @param {String} newUsername Le nouveau nom d'utilisateur
+ * @param res pour avoir accès au cookie
+ */
+export function updateUsernameCookie(newUsername, res) {
+    createCookie("username", newUsername, res);
 }

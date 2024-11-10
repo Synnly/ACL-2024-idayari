@@ -1,11 +1,12 @@
-import {addDays} from "./utils.js";
+import { convertDate, addDays } from "./utils.js";
 import {agendaManager} from "/js/calendar_controleur.js";
 
 export function creerModaleNouveauRdv(agendas) {
     addDays(new Date(), 2);
     let list_agendas = "";
-    for (const elem of agendas) {
-        list_agendas += `<option value="${elem.id}">${elem.nom}</option>\n`;
+    for (const id of Object.keys(agendas)) {
+        const nom = agendas[id].nom;
+        list_agendas += `<option value="${id}">${nom}</option>\n`;
     }
 
     let modaleHTML = `
@@ -268,22 +269,6 @@ export function quitModalNouveauRdv(){
     }
     if (modal) {
         modal.remove();
-    }
-}
-
-
-function convertDate(date, withTime=true){
-    let year = date.getFullYear();
-    //PadStart(2,'0') : 2 = nb min de caratère, '0' = le caractère de remplissage qu'on ajoute
-    let month = String(date.getMonth() + 1).padStart(2, '0'); // Mois (0-11)
-    let day = String(date.getDate()).padStart(2, '0');
-
-    if (withTime) {
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-    } else {
-        return `${year}-${month}-${day}`;
     }
 }
 

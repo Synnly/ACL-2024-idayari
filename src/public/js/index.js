@@ -1,5 +1,5 @@
 function toggleAgenda(agenda){
-    let node = document.getElementById(decodeURI(agenda));
+    let node = document.getElementById(agenda);
     node.classList.contains('active') ? node.classList.remove('active') : node.classList.add('active');
     document.getElementById('selectAll').classList.remove('active');
 }
