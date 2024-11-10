@@ -44,7 +44,7 @@ export function supprimerAgendaDELETE(req, res){
             // on met à jour le cookie
             const agendas = res.locals.agendas;
             delete agendas[req.params.id];
-            createCookie("agendas", agendas);
+            createCookie("agendas", agendas, res);
             res.status(202).end();
         } else {
             res.status(204).end();

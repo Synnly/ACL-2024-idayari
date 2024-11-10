@@ -1,13 +1,15 @@
-<li class="li_agenda" id="agenda_<%= id %>" onclick='toggleAgenda("agenda_<%= id %>", event)'>
+<li class="li_agenda" id="agenda_<%= id %>">
     <label class="nom_agenda" for="check_agenda_<%= id %>" title="<%= agenda.nom %>">
         <input type="checkbox" id="check_agenda_<%= id %>" <%= agenda.displayed ? "checked" : "" %>>
-        <%= agenda.nom %></label>
+        <%= agenda.nom %>
+    </label>
     <div class="dropdown options">
-        <i class="bi bi-three-dots btn"></i>
-        <div id="myDropdown_<%= id %>" class="dropdown-content" style="display: none;">
-            <a href="#">Link 1</a>
-            <a href="#">Link 2</a>
-            <a href="#">Link 3</a>
-          </div>
+        <i class="bi bi-three-dots btn dropbtn"></i>
+        <div class="dropdown-content noshow">
+            <i class="bi bi-pencil-square option-icon" title="Modifier l'agenda"></i>
+            <i class="bi bi-trash3 option-icon sup-btn" title="Supprimer l'agenda" data-id="<%= id %>" data-nom="<%= agenda.nom %>"></i>
+            <i class="bi bi-share option-icon" title="Partager l'agenda"></i>
+            <i class="bi bi-file-earmark-arrow-down option-icon" title="Exporter l'agenda"></i>
+        </div>
     </div>
 </li>

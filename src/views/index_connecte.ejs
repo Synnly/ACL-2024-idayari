@@ -4,9 +4,9 @@
         <div class="w-100 h-fit-content">
             <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center">
                 <span>Vos agendas</span>
-                <input type="checkbox" id="selectAll" onclick="toggleAll('agendaList', 'selectAll')" <%= locals.all_selected ? "checked" : "" %>></input>
-                <button class="btn" id="ouvreDialogCreationAgenda">
-                    <span class="bi bi-plus-lg" role="img"></span>
+                <input type="checkbox" title='Tout (dé)sélectionner' id="selectAll" <%= locals.all_selected ? "checked" : "" %>></input>
+                <button class="btn" id="newAgenda">
+                    <span class="bi bi-calendar-plus" title="Nouvel Agenda" role="img"></span>
                 </button>
             </div>
             <ul id="agendaList" class="list-group px-3 listAgenda align-self-end">
@@ -33,7 +33,7 @@
     window.addEventListener('load', adjustListHeight);
     window.addEventListener('resize', adjustListHeight);
 </script>
-<%- include('viewDialogCreationAgenda.ejs') %>
+<%- include('partials/dialogAgenda.ejs') %>
 <script type='importmap'>
     {
       "imports": {
@@ -45,6 +45,5 @@
       }
     }
 </script>
-<script type="module" src="/js/agenda.js"></script>
 <script type="module" src="./js/calendar_controleur.js"></script>
-<script src="./js/script_rendezvous.js"></script>
+<script type="module" src="/js/agenda.js"></script>

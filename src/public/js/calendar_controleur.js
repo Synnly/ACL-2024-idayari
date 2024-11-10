@@ -25,7 +25,7 @@ class AgendaManager {
             const id = child.id.split("_")[1];
             const label = child.firstElementChild;
             const  checkbox = label.firstElementChild;
-            this.agendas[id] = {nom: label.title, displayed: checkbox.checked};
+            this.agendas[id] = {nom: label.title, displayed: checkbox.checked, isOwner: true};
         }
 
         //Récupération de la balise contenant le calendar
@@ -141,11 +141,6 @@ class AgendaManager {
         if (selected_agendas.length > 0) {
             this.addData(selected_agendas);
         }
-        // écouteur selections d'agenda
-        for (const child of document.getElementById('agendaList').children) {
-            child.addEventListener('click', (event) => this.selectionAgenda(event.currentTarget.id.split("_")[1]));
-        }
-        document.getElementById('selectAll').addEventListener('click', () => this.selectAll());
     }
 
         // à partir de la liste des rendez-vous simples des agendas, ajoute les rendez-vous si nécessaire dans le calendrier
@@ -185,25 +180,26 @@ class AgendaManager {
         });
     }
 
-    // click sur un agenda
-    selectionAgenda(agenda_id) {
-        // l'agenda a été déselectionné
-        if (this.agendas_periodes[agenda_id]) {
-            // on enlève l'agenda
-            delete this.agendas_periodes[agenda_id];
-            this.agendas[agenda_id].displayed = false;
-            for (const event of this.calendrier.getEvents()) {
-                if (!event.extendedProps.agendas.some(e => this.agendas_periodes[e] != undefined)) {
-                    const identifier = event.groupId + "_" + event.start.toISOString();
-                    this.events.delete(identifier);
-                    event.remove();
-                }
+    deselectionAgenda(agenda_id, updateCookie=true) {
+        // on enlève l'agenda
+        delete this.agendas_periodes[agenda_id];
+        this.agendas[agenda_id].displayed = false;
+        for (const event of this.calendrier.getEvents()) {
+            if (!event.extendedProps.agendas.some(e => this.agendas_periodes[e] != undefined)) {
+                const identifier = event.groupId + "_" + event.start.toISOString();
+                this.events.delete(identifier);
+                event.remove();
             }
-        } else {
-            // l'agenda a été sélectionné
-            this.agendas[agenda_id].displayed = true;
-            this.addData([agenda_id]);
         }
+        if (updateCookie) {
+            this.updateCookie();
+        }
+    }
+
+    selectionAgenda(agenda_id) {
+        // l'agenda a été sélectionné
+        this.agendas[agenda_id].displayed = true;
+        this.addData([agenda_id]);
         this.updateCookie();
     }
 
@@ -211,28 +207,29 @@ class AgendaManager {
         json_fetch("/setAgendasCookie", "PUT", {agendas: this.agendas});
     }
 
-    // click sur "Tout sélectionner"
-    selectAll() {
-        // on récupère la nouvelle liste des agendas sélectionnés du DOM
-        const all_selected = document.getElementById('selectAll').checked;
-        // si tout a été désélectionné, pas besoin de query
-        if (!all_selected) {
-            this.agendas_periodes = {};
-            Object.keys(this.agendas).forEach(id => this.agendas[id].displayed = false);
-            this.events.clear();
-            this.calendrier.removeAllEvents();
-        } else {
-            // sinon on récupère les rendez-vous simples des agendas dont on n'a pas encore les infos
-            const new_agendas = [];
-            for (const elem of document.getElementById('agendaList').children) {
-                const id = elem.id.split("_")[1];
-                if (!this.agendas_periodes[id]) {
-                    new_agendas.push(id);
-                    this.agendas[id].displayed = true;
-                }
+    deselectAll() {
+        this.agendas_periodes = {};
+        Object.keys(this.agendas).forEach(id => this.agendas[id].displayed = false);
+        this.events.clear();
+        this.calendrier.removeAllEvents();
+        this.updateCookie();
+    }
+
+    /**
+     * 
+     * @param {HTMLCollection} list_agendas 
+     */
+    selectAll(list_agendas) {
+        // sinon on récupère les rendez-vous simples des agendas dont on n'a pas encore les infos
+        const new_agendas = [];
+        for (const elem of list_agendas.children) {
+            const id = elem.id.split("_")[1];
+            if (!this.agendas_periodes[id]) {
+                new_agendas.push(id);
+                this.agendas[id].displayed = true;
             }
-            this.addData(new_agendas);
         }
+        this.addData(new_agendas);
         this.updateCookie();
     }
 
@@ -245,6 +242,14 @@ class AgendaManager {
         if (data.agenda.displayed) {
             this.agendas_periodes[data.id] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
         }
+    }
+
+    removeAgenda(id, was_selected) {
+        if (was_selected) {
+            this.deselectionAgenda(id, false);
+        }
+        delete this.agendas[id];
+        // On ne met pas à jour le cookie ici, c'est déjà fait
     }
 
     /* Met à jours le calendrier selon la période actuellement visinle */

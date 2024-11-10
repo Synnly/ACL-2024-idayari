@@ -18,12 +18,9 @@ export async function index(req, res) {
         for (const agenda of await user.getAgendas()) {
             const id = agenda.id.toString();
             const cookie_agenda = res.locals.agendas[id];
-            if (cookie_agenda) {
-                agendas[id] = cookie_agenda;
-            } else {
-                agendas[id] = {nom: agenda.nom, displayed: DISPLAYED_BY_DEFAULT, 
-                                isOwner: agenda.idOwner === user.id}
-            }
+            agendas[id] = {nom: agenda.nom, isOwner: agenda.idOwner === user.id};
+            agendas[id].displayed = cookie_agenda ? cookie_agenda.displayed : DISPLAYED_BY_DEFAULT;
+            
             if (agendas[id].isOwner && !agendas[id].displayed) {
                 my_agendas_all_selected = false;
             }
