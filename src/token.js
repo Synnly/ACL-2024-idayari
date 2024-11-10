@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { DISPLAYED_BY_DEFAULT } from "./public/js/utils.js";
 
 /**
  * Authentifie l'utilisateur. Si `res.locals.user` est défini, alors l'utilisateur est authentifié. S'il est expiré, le cookie est supprimé
@@ -11,7 +12,6 @@ export function authenticate(req, res, next) {
         const token = req.cookies.accessToken;
         const user = jwt.verify(token, process.env.SECRET); //La fonction décripte le token
         res.locals.user = user;
-        res.locals.username = req.cookies.username;
         res.locals.agendas = req.cookies.agendas;
     } catch (err) {
         //On peut au gérer ici les autres cas de déconnexion
@@ -28,7 +28,6 @@ export function authenticate(req, res, next) {
  */
 export function clearAllCookies(res) {
     res.clearCookie("accessToken");
-    res.clearCookie("username");
     res.clearCookie("agendas");
 }
 
@@ -54,12 +53,12 @@ function createJWT(id) {
 export function saveAuthentificationCookie(user, res) {
     const token = createJWT(user.id); // On crée le token représentant notre user
     createCookie("accessToken", token, res);
-    createCookie("username", user.username, res);
     // les agendas sont sauvegardés dans un cookie
     // pour, entre autres, se rappeler de ceux affichés quand on recharge la page
     return user.getAgendas({ attributes: ['id', 'nom', 'idOwner'] }).then(agendas => {
         const saved_agendas = {};
-        agendas.forEach(a => saved_agendas[a.id] = {nom: a.nom, displayed: false, isOwner: user.id === a.idOwner});
+        agendas.forEach(a => saved_agendas[a.id] = {nom: a.nom, displayed: DISPLAYED_BY_DEFAULT, 
+                                                    isOwner: user.id === a.idOwner});
         createCookie("agendas", saved_agendas, res);
     });
 }
@@ -72,13 +71,4 @@ export function saveAuthentificationCookie(user, res) {
  */
 export function createCookie(name, value, res) {
     res.cookie(name, value, { httpOnly: true, sameSite: "Strict" });
-}
-
-/**
- * Change la valeur du nom d'utilisateur dans le cookie
- * @param {String} newUsername Le nouveau nom d'utilisateur
- * @param res pour avoir accès au cookie
- */
-export function updateUsernameCookie(newUsername, res) {
-    createCookie("username", newUsername, res);
 }

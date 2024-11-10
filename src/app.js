@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
+import { index } from './routes/index.js';
 import { updateAgendasCookie } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
@@ -12,7 +13,6 @@ import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierIn
 import { calendarGetData, modifierRendezVousCalendarPOST } from "./routes/calendar.js";
 import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaDELETE} from './routes/modifierAgenda.js';
 
-
 export const app = express();
 app
     .set('views', fileURLToPath(new URL('./views', import.meta.url)))
@@ -20,6 +20,7 @@ app
 
     // middlewares
     .use('/bootstrap', express.static(fileURLToPath(new URL('./node_modules/bootstrap/dist', import.meta.url))))
+    .use('/ejs', express.static(fileURLToPath(new URL('./node_modules/ejs/', import.meta.url))))
     .use(express.static(fileURLToPath(new URL("./public", import.meta.url))))
     .use(cookieParser()) //Permet de gérer les cookies dans req.cookie
     .use(authenticate)
@@ -27,7 +28,7 @@ app
     .use(express.json())
     .use(express.urlencoded({ extended: false }))
 
-    .get("/", (req, res) => res.render("index"))
+    .get("/", index)
     
     .put("/setAgendasCookie", updateAgendasCookie)
 

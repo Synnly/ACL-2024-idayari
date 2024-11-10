@@ -1,0 +1,21 @@
+.options {
+    margin-right: 0; 
+    margin-left: auto;
+    opacity: 0;
+}
+
+.nom_agenda {
+    text-overflow: ellipsis; 
+    overflow: hidden; 
+    white-space: nowrap;
+}
+
+.li_agenda {
+    display: flex; 
+    align-items: center; 
+    padding: 0 0 0 5px;
+}
+
+.li_agenda:hover > .options {
+    opacity: 1;
+}

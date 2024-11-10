@@ -5,6 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import {creerModale} from '/js/modif_rendezvous-calendar.js';
 import {creerModaleNouveauRdv, envoyerFormNouveauRdv, quitModalNouveauRdv} from "./creerRdv.js";
+import { json_fetch } from './utils.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/ 
@@ -123,9 +124,7 @@ class AgendaManager {
                                 id: first_event.groupId, start: earliestStart, end: earliestEnd, allDay: first_event.allDay,
                                 agendas_to_add: first_event.extendedProps.agendas.filter(e => !oldEvent.extendedProps.agendas.includes(e)),
                                 agendas_to_remove: oldEvent.extendedProps.agendas.filter(e => !first_event.extendedProps.agendas.includes(e))}
-                fetch("/calendar-rdv", {
-                    method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
-                })
+                json_fetch("/calendar-rdv", "POST", data)
                 .catch((error) => {
                     info.revert();
                 });
@@ -142,7 +141,7 @@ class AgendaManager {
         }
         // écouteur selections d'agenda
         for (const child of document.getElementById('agendaList').children) {
-            child.addEventListener('click', (event) => this.selectionAgenda(event.target.id.split("_")[1]));
+            child.addEventListener('click', (event) => this.selectionAgenda(event.currentTarget.id.split("_")[1]));
         }
         document.getElementById('selectAll').addEventListener('click', () => this.selectAll());
     }
@@ -207,13 +206,11 @@ class AgendaManager {
     }
 
     updateCookie() {
-        fetch("/setAgendasCookie", {
-            method: "PUT", headers: {"Content-Type": "application/json"},body: JSON.stringify({agendas: this.agendas})
-        })
+        json_fetch("/setAgendasCookie", "PUT", {agendas: this.agendas});
     }
 
     // click sur "Tout sélectionner"
-    async selectAll() {
+    selectAll() {
         // on récupère la nouvelle liste des agendas sélectionnés du DOM
         const agendasSelectionnes = document.getElementById('agendaList').getElementsByClassName('active');
         // si tout a été désélectionné, pas besoin de query
@@ -235,6 +232,17 @@ class AgendaManager {
             this.addData(new_agendas);
         }
         this.updateCookie();
+    }
+
+    /**
+     * ajoute un agenda à la liste des agendas
+     * @param {object} data Les données de l'agenda {id: _, agenda: {nom: _, displayed: _, isOwner: _}}
+     */
+    addAgenda(data) {
+        this.agendas[data.id] = {nom: data.agenda.nom, displayed: data.agenda.displayed};
+        if (data.agenda.displayed) {
+            this.agendas_periodes[data.id] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
+        }
     }
 
     /* Met à jours le calendrier selon la période actuellement visinle */

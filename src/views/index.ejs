@@ -3,6 +3,9 @@
 	<head>
 		<%- include('partials/head.ejs') %>
 		<link href="/css/index.css" rel="stylesheet">
+		<% if (locals.user) { %>
+			<link href="/css/agenda_display.css" rel="stylesheet"></link>		
+		<% } %>
 		<script src="/js/index.js"></script>
 	</head>
 

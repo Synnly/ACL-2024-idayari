@@ -1,4 +1,4 @@
-import { convertDate, addDays } from "./utils.js";
+import { convertDate, addDays, json_fetch } from "./utils.js";
 import {agendaManager} from "/js/calendar_controleur.js";
 
 export function creerModaleNouveauRdv(agendas) {
@@ -245,9 +245,8 @@ export async function envoyerFormNouveauRdv() {
             date_fin_recurrence: document.getElementById("date_fin_recurrence").value,
             nb_occurence: document.getElementById("nb_occurence").value
         };
-        fetch("/rendezVous/new", {
-            method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
-        }).then(() => {
+        json_fetch("/rendezVous/new", "POST", data)
+        .then(() => {
             // Agendas sélectionnés dans l'affichage et dans la modale
             agendaManager.addData(selectedAgendas.filter((id) => document.getElementById("agenda_"+id).classList.contains("active")));
         })

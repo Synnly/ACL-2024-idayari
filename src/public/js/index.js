@@ -1,27 +1,26 @@
 function toggleAgenda(agenda){
     let node = document.getElementById(agenda);
-    node.classList.contains('active') ? node.classList.remove('active') : node.classList.add('active');
-    document.getElementById('selectAll').classList.remove('active');
+    if (node.classList.contains('active')) {
+        node.classList.remove('active');
+        document.getElementById('selectAll').checked = false;
+    } else {
+        node.classList.add('active');
+        document.getElementById('selectAll').checked = Array.from(document.getElementById("agendaList").children).every(child => child.classList.contains("active"));
+    }
+    
 }
 
 function toggleAll(group, allButton){
-    let node = document.getElementById(group);
-    let button = document.getElementById(allButton);
-
-    if(button.classList.contains("active")){
-        button.classList.remove("active");
-        for(let child of node.children){
-            if(child.classList.contains('active')){
-                child.classList.remove('active');
-            }
+    const node = document.getElementById(group);
+    const button = document.getElementById(allButton);
+    // on vérifie le contraire car le listener par défaut est le premier et change l'état avant cette fonction
+    if(!button.checked){
+        for(const child of node.children){
+            child.classList.remove('active');
         }
-    }
-    else{
-        button.classList.add("active");
-        for(let child of node.children){
-            if(!child.classList.contains('active')){
-                child.classList.add('active');
-            }
+    } else {
+        for(const child of node.children){
+            child.classList.add('active');
         }
     }
 

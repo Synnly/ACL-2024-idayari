@@ -1,0 +1,5 @@
+<% const active_text = agenda.displayed ? "active" : ""; %>
+<li class="list-group-item list-group-item-light li_agenda <%= active_text %>" id="agenda_<%= id %>" onclick='toggleAgenda("agenda_<%= id %>")'>
+    <label class="nom_agenda" title="<%= agenda.nom %>"><%= agenda.nom %></label>
+    <i class="bi bi-three-dots btn options"></i>
+</li>

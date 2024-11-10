@@ -1,5 +1,4 @@
 import User from "../model/User.js";
-import { updateUsernameCookie } from "../token.js";
 
 let SUCCESMSG = '';
 
@@ -12,8 +11,11 @@ let SUCCESMSG = '';
  */
 export async function modifierInfosPersoGET(req, res) {
 	if (res.locals.user) {
-		const succesMsg = SUCCESMSG || null;
-    	res.render('infos_perso', { succesMsg: succesMsg })
+		// récupère les informations (qui peuvent avoir changé)
+        const user = await User.findByPk(res.locals.user.id);
+        res.locals.username = user.username;
+		res.locals.succesMsg = SUCCESMSG || null;
+    	res.render('infos_perso');
 	} else {
 		return res.redirect('connexion');
 	}
@@ -62,8 +64,6 @@ export async function modifierInfosPersoPOST(req, res) {
 					}
 
 					await user.save();
-					// met à jour le cookie avec le nom d'utilisateur
-					updateUsernameCookie(username, res);
 					SUCCESMSG = "Vos modifications ont été effectuées avec succès.";
 					return res.redirect('/infos_perso');
 				}

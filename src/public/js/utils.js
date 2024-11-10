@@ -74,3 +74,14 @@ export function convertDate(date, withTime=true){
         return `${year}-${month}-${day}`;
     }
 }
+
+export function json_fetch(url, method, data) {
+    return fetch(url, {
+        method: method, 
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    })
+}
+
+// listes des constantes
+export const DISPLAYED_BY_DEFAULT = false;
