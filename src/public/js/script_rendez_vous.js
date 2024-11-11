@@ -23,31 +23,33 @@ function reset_and_hide(elem) {
 }
 
 
-function change_recurrent_option(is_checked, recurrent_div, freq_input, rec_type, end_date_rec, nb_occurrence) {
+function change_recurrent_option(is_checked, recurrent_div, freq_input, rec_type, end_date_rec, nb_occurrence, nb_occurrence_div) {
     if (!is_checked) {
         recurrent_div.style.display = 'none';
         reset(freq_input);
         reset(nb_occurrence);
+        nb_occurrence_div.style.display = 'none';
         reset(end_date_rec);
     } else {
         recurrent_div.style.display = 'block';
         freq_input.required = true;
-        change_fin_recurrence_option(rec_type, end_date_rec, nb_occurrence);
+        change_fin_recurrence_option(rec_type, end_date_rec, nb_occurrence, nb_occurrence_div);
     }
 }
 
-function change_fin_recurrence_option(elem, end_date_rec, nb_occurrence) {
-    if (elem.value === "0") {
+function change_fin_recurrence_option(elem, end_date_rec, nb_occurrence, nb_occurrence_div) {
+    if (elem.value === "date") {
         end_date_rec.style.display = 'block';
         end_date_rec.required = true;
-        reset_and_hide(nb_occur);
-    } else if (elem.value === "1") {
-        nb_occurrence.style.display = 'block';
-        nb_occurrence.required = true;
-        reset_and_hide(end_date_rec);
     } else {
-        reset_and_hide(nb_occurrence);
-        reset_and_hide(end_date_rec);
+        reset_and_hide(end_date_rec)
+    }
+    if (elem.value === "nb") {
+        nb_occurrence_div.classList.add('d-flex');
+        nb_occurrence.required = true;
+    } else {
+        reset(nb_occurrence);
+        nb_occurrence_div.classList.remove('d-flex');
     }
 }
 
@@ -82,10 +84,11 @@ function setRendezVousModal(html) {
     const recurrent_checkbox = form['recurrent'];
     const frequence = form['frequence'];
     const end_date_rec = form['end_date_recurrence'];
+    const nb_occurrence_div = document.getElementById('occurrence_div');
     const nb_occurrence = form['nb_occurrence'];
     const type_end_recurrence = form['end_recurrence'];
-    recurrent_checkbox.addEventListener('change', () => change_recurrent_option(recurrent_checkbox.checked, recurrence_div, frequence, type_end_recurrence, end_date_rec, nb_occurrence));
-    type_end_recurrence.addEventListener('change', () => change_fin_recurrence_option(type_end_recurrence, end_date_rec, nb_occurrence));
+    recurrent_checkbox.addEventListener('change', () => change_recurrent_option(recurrent_checkbox.checked, recurrence_div, frequence, type_end_recurrence, end_date_rec, nb_occurrence, nb_occurrence_div));
+    type_end_recurrence.addEventListener('change', () => change_fin_recurrence_option(type_end_recurrence, end_date_rec, nb_occurrence, nb_occurrence_div));
 
     vraieModale.show();
 }

@@ -1,4 +1,4 @@
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true"></div>
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" style="overflow: hidden;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,87 +6,91 @@
             </div>
             <div class="modal-body">
                 <form class="needs-validation" id="rendezvous_form" method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <i class="bi bi-card-heading"></i>
-                            <input type="text" class="form-control" placeholder="Titre du rendez-vous" name="titre" required>
-                        </label>
-                        <div class="invalid-feedback">
-                            Champ obligatoire
+                    <div style="overflow: scroll; padding-left: 32px; padding-right: 32px; max-height: 60vh;">
+                        <div class="d-flex mb-3 align-items-center">
+                            <i class="bi bi-card-heading mr"></i>
+                            <div class="d-flex flex-grow-1">
+                                <input type="text" class="form-control" placeholder="Titre du rendez-vous" name="titre" required>    
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <i class="bi bi-geo-alt"></i>
-                            <input type="text" class="form-control" placeholder="Lieu du rendez-vous" name="lieu">
-                        </label>
-                        
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <i class="bi bi-text-left"></i>
-                            <textarea class="form-control" rows="3" name="description"></textarea>
-                        </label>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-calendar"></i></label>
-                        <select name="agendas" class="form-control" required>
-                            <% for (const elem of locals.agendas) { %>
-                                <option value="<%= elem.id %>"><%= elem.nom %></option>
-                            <% } %>
-                        </select>
-                        <div class="invalid-feedback">
-                            Champ obligatoire
-                        </div>             
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <input type="checkbox" name="all_day" id="all_day">
-                            Toute la journée
-                        </label>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <i class="bi bi-clock"></i>
-                            <input type="date" class="form-control" name="startDate">
-                            <input type="time" class="form-control" name="startTime">
-                        </label>
-                        <div class="invalid-feedback">
-                            Champ obligatoire
+                        <div class="d-flex mb-3 align-items-center">
+                            <i class="bi bi-geo-alt mr"></i>
+                            <div class="d-flex flex-grow-1">
+                                <input type="text" class="form-control" placeholder="Lieu du rendez-vous" name="lieu">
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <input type="date" class="form-control" name="endDate">
-                            <input type="time" class="form-control" name="endTime">
-                        </label>
-                        <div class="invalid-feedback">
-                            Champ obligatoire
+                        <div class="d-flex mb-3 align-items-center">
+                            <i class="bi bi-text-left mr"></i>
+                            <div class="d-flex flex-grow-1">
+                                <textarea class="form-control" rows="2" placeholder="description" name="description"></textarea>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label>
-                            <input type="checkbox" name="recurrent"> 
-                            Récurrent ?
-                        </label>
-                        <div id="recurrent_div" style="display: none;">
-                            <label> Toutes les 
-                                <input class="form-control  me-2" type="number" min="1" name="frequence">
-                                <select class="form-control w-fit-content" name="recurrence_type">
-                                    <option value="Daily">Jour(s)</option>
-                                    <option value="Weekly">Semaine(s)</option>
-                                    <option value="Monthly">Mois</option>
-                                    <option value="Yearly">Année(s)</option>
+                        <div class="d-flex mb-3 align-items-center">
+                            <i class="bi bi-calendar mr"></i>
+                            <div class="d-flex flex-grow-1">
+                                <select name="agendas" required>
+                                    <% for (const elem of locals.agendas) { %>
+                                        <option value="<%= elem.id %>"><%= elem.nom %></option>
+                                    <% } %>
                                 </select>
+                            </div> 
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label">
+                                <input type="checkbox" name="all_day" id="all_day">
+                                Toute la journée
                             </label>
-                            <label>S'arrête</label>
-                            <select class="form-control w-fit-content h-fit-content me-2" name="end_recurrence">
-                                <option value="0">Avant</option>
-                                <option value="1">Après</option>
-                                <option value="2">Jamais</option>
-                            </select>
-                            <input class="form-control h-fit-content" type="date" name="end_date_recurrence">
-                            <input class="form-control h-fit-content" type="number" min="2" name="nb_occurrence" style="display: none;">
+                        </div>
+                        <div class="mb-1 d-flex align-items-center">
+                            <i class="bi bi-clock mr"></i>
+                            <div class="d-flex flex-grow-1 mr">
+                                <input type="date" class="form-control mr" name="startDate" required>
+                                <input type="time" class="form-control" name="startTime" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 d-flex align-items-center">
+                            <!-- Pour que le décalage soit le même -->
+                            <i class="bi bi-clock mr opacity-0"></i>
+                            <div class="d-flex flex-grow-1 mr">
+                                <input type="date" class="form-control mr" name="endDate" required>
+                                <input type="time" class="form-control" name="endTime" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="mb-1">
+                                <label>
+                                    <input type="checkbox" name="recurrent"> Récurrent ?
+                                </label>
+                            </div>
+                            <div id="recurrent_div" style="display: none;">
+                                <div class="mb-3 d-flex align-items-center">
+                                    <span class="mr">Tous les</span>
+                                    <div class="d-flex flex-grow-1 align-items-center">
+                                        <input class="form-control me-2" style="width: fit-content;" type="number" min="1" name="frequence">
+                                        <select class="w-fit-content" name="recurrence_type">
+                                            <option value="Daily">Jour(s)</option>
+                                            <option value="Weekly">Semaine(s)</option>
+                                            <option value="Monthly">Mois</option>
+                                            <option value="Yearly">Année(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <span class="mr">S'arrête</span>
+                                    <div class="d-flex align-items-center flex-grow-1">
+                                        <select class="w-fit-content h-fit-content me-2" name="end_recurrence">
+                                            <option value="date">Avant</option>
+                                            <option value="nb">Après</option>
+                                            <option value="never">Jamais</option>
+                                        </select>
+                                        <input class="form-control h-fit-content" type="date" name="end_date_recurrence">
+                                        <div id="occurrence_div" class="d-flex align-items-center" style="display: none;">
+                                            <input class="form-control mr" type="number" min="2" name="nb_occurrence">
+                                            occurrences 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
