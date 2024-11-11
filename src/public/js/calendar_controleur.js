@@ -23,9 +23,8 @@ class AgendaManager {
         this.agendas = {};
         for (const child of document.getElementById('agendaList').children) {
             const id = child.id.split("_")[1];
-            const label = child.firstElementChild;
-            const  checkbox = label.firstElementChild;
-            this.agendas[id] = {nom: label.title, displayed: checkbox.checked, isOwner: true};
+            const  checkbox = child.firstElementChild.firstElementChild;
+            this.agendas[id] = {displayed: checkbox.checked, isOwner: true};
         }
 
         //Récupération de la balise contenant le calendar
@@ -179,7 +178,12 @@ class AgendaManager {
             console.log(err.message);
         });
     }
-
+    
+    /**
+     * On déselectionne un agenda
+     * @param {String} agenda_id id de l'agenda
+     * @param {*} updateCookie booléen pour savoir si on doit mettre à jour le cookie
+     */
     deselectionAgenda(agenda_id, updateCookie=true) {
         // on enlève l'agenda
         delete this.agendas_periodes[agenda_id];
@@ -196,6 +200,10 @@ class AgendaManager {
         }
     }
 
+    /**
+     * On sélectionne un agenda
+     * @param {String} agenda_id id de l'agenda sélectionné
+     */
     selectionAgenda(agenda_id) {
         // l'agenda a été sélectionné
         this.agendas[agenda_id].displayed = true;
@@ -203,10 +211,16 @@ class AgendaManager {
         this.updateCookie();
     }
 
+    /**
+     * Met à jour les cookies
+     */
     updateCookie() {
         json_fetch("/setAgendasCookie", "PUT", {agendas: this.agendas});
     }
 
+    /**
+     * On déselectionne tous les agendas
+     */
     deselectAll() {
         this.agendas_periodes = {};
         Object.keys(this.agendas).forEach(id => this.agendas[id].displayed = false);
@@ -216,8 +230,8 @@ class AgendaManager {
     }
 
     /**
-     * 
-     * @param {HTMLCollection} list_agendas 
+     * ajoute les rendez-vous de tous les agendas (qui n'étaient pas sélectionnés)
+     * @param {HTMLCollection} list_agendas liste de tous les agendas
      */
     selectAll(list_agendas) {
         // sinon on récupère les rendez-vous simples des agendas dont on n'a pas encore les infos
@@ -235,15 +249,21 @@ class AgendaManager {
 
     /**
      * ajoute un agenda à la liste des agendas
-     * @param {object} data Les données de l'agenda {id: _, agenda: {nom: _, displayed: _, isOwner: _}}
+     * @param {object} data Les données de l'agenda 
+     * {id: _, agenda: {nom: _, displayed: _, isOwner: _}}
      */
     addAgenda(data) {
-        this.agendas[data.id] = {nom: data.agenda.nom, displayed: data.agenda.displayed};
+        this.agendas[data.id] = {displayed: data.agenda.displayed, isOwner: data.agenda.isOwner};
         if (data.agenda.displayed) {
             this.agendas_periodes[data.id] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
         }
     }
 
+    /**
+     * Supprime l'agenda
+     * @param {String} id id de l'agenda supprimé
+     * @param {boolean} was_selected si l'agenda était sélectionné avant suppression
+     */
     removeAgenda(id, was_selected) {
         if (was_selected) {
             this.deselectionAgenda(id, false);

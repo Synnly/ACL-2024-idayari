@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
-		<%- include('partials/head.ejs') %>
+		<%- include('partials/head.ejs', {title: "Idayari"}) %>
 		<link href="/css/index.css" rel="stylesheet">
 		<% if (locals.user) { %>
 			<link href="/css/agenda_display.css" rel="stylesheet"></link>		
