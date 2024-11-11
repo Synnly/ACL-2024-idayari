@@ -125,11 +125,14 @@ class AgendaManager {
                 const event = info.event;
                 manager.modified_event = event;
                 getRendezVousModal({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
-                            id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
-                            agenda: event.extendedProps.agendas});  
+                            id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,  
+                            type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,
+                            frequence: event.extendedProps.frequence,
+                            agenda: event.extendedProps.agendas});   
             },
 
             eventChange: function(info) {
+                manager.go = false;
                 const oldEvent = info.oldEvent;
                 const first_event = info.event.toPlainObject();
                 let earliestStart = info.event.start;
@@ -186,6 +189,72 @@ class AgendaManager {
         }
 
     }
+
+    // addEventsFromRDV(rendezVous, agendas_to_add=null) {
+    //     for (const rdv of rendezVous) {
+    //         const identifier = rdv.groupId + "_" + rdv.start;
+    //         // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
+    //         if (!this.events.has(identifier)) {
+    //             // les dates sont récupérées sous forme de chaînes de caractères
+    //             rdv.start = new Date(rdv.start);
+    //             rdv.end = new Date(rdv.end);
+    //             rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
+    //             if (agendas_to_add) {
+    //                 rdv.agendas = agendas_to_add;
+    //             }
+    //             this.events.add(identifier);
+    //             this.calendrier.addEvent(rdv);
+    //         }
+    //     }
+    // }
+
+    //     // à partir de la liste des rendez-vous simples des agendas, ajoute les rendez-vous si nécessaire dans le calendrier
+    // // si déjà présent, met à jour la liste d'agendas d'où provient le rendez-vous
+    // addData(agendas, updateDate=true) {
+    //     const ag = encodeURIComponent(JSON.stringify(agendas));
+    //     fetch(
+    //         "/calendar-data?start=" + this.calendrier.view.activeStart.valueOf() +
+    //             "&end=" + this.calendrier.view.activeEnd.valueOf() +
+    //             "&agendas=" + ag
+    //     ).then((response) => response.json())
+    //     .then(rendezVous => {
+    //         if (rendezVous.err == "not auth") {
+    //             window.location.href = "/";
+    //             return ;
+    //         }
+    //         this.addEventsFromRDV(rendezVous);
+    //         if (updateDate) {
+    //             agendas.forEach(e => {
+    //                 this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
+    //             });
+    //         }
+    //     })
+    //     .catch(err => {
+    //         console.log(err.message);
+    //     });
+    // }
+
+    // addDataFromRDV(id, agendas, rdv_agendas) {
+    //     fetch(
+    //         "/calendar-data-rdv?start=" + this.calendrier.view.activeStart.valueOf() +
+    //             "&end=" + this.calendrier.view.activeEnd.valueOf() +
+    //             "&id=" + id
+    //     )
+    //     .then((response) => response.json())
+    //     .then(rendezVous => {
+    //         if (rendezVous.err == "not auth") {
+    //             window.location.href = "/";
+    //             return ;
+    //         }
+    //         this.addEventsFromRDV(rendezVous, rdv_agendas);
+    //         agendas.forEach(e => {
+    //             this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
+    //         });
+    //     })
+    //     .catch(err => {
+    //         console.log(err.message);
+    //     });
+    // }
 
     /**
      * On sélectionne un agenda
@@ -321,29 +390,50 @@ class AgendaManager {
     /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
     update_event(new_event){
         const old_event = this.modified_event;
-        if (new_event.title != old_event.title) {
-            old_event.setProp('title', new_event.title);
-        }
-        if (new_event.start.valueOf() != old_event.start.valueOf() || new_event.end.valueOf() != old_event.end.valueOf() || new_event.allDay != old_event.allDay) {
-            old_event.setDates(new_event.start, new_event.end, { allDay: new_event.allDay});
-        }
-        if (new_event.lieu != old_event.extendedProps.lieu) {
-            old_event.setExtendedProp('lieu', new_event.lieu);
-        }
-        if (new_event.description != old_event.extendedProps.description) {
-            old_event.setExtendedProp('description', new_event.description);
-        }
-        if (old_event.extendedProps.idAgenda !== new_event.idAgenda) {
-            old_event.setExtendedProp('idAgenda', new_event.idAgenda);
-            if (!this.agendas[new_event.idAgenda].displayed) {
-                this.remove_events(old_event.groupId);
+
+        if (new_event.freq_type != old_event.extendedProps.type ||
+            new_event.freq_number != old_event.extendedProps.frequence ||
+            new_event.date_fin_recurrence != old_event.extendedProps.endRec ||
+            new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
+            const id = old_event.groupId;
+            this.remove_events(id);
+            const data = {id: id, dateFinRecurrence: new_event.date_fin_recurrence ? new Date(new_event.date_fin_recurrence) : new_event.date_fin_recurrence,
+                          frequence: new_event.freq_number, type: new_event.freq_type, nbOccurrences: new_event.nb_occurrence}
+            fetch("/calendar-rdv", {
+                method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
+            })
+            .then(_ => {
+                
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        } else {
+            if (new_event.title != old_event.title) {
+                old_event.setProp('title', new_event.title);
+            }
+            if (new_event.start.valueOf() != old_event.start.valueOf() || new_event.end.valueOf() != old_event.end.valueOf() || new_event.allDay != old_event.allDay) {
+                old_event.setDates(new_event.start, new_event.end, { allDay: new_event.allDay});
+            }
+            if (new_event.lieu != old_event.extendedProps.lieu) {
+                old_event.setExtendedProp('lieu', new_event.lieu);
+            }
+            if (new_event.description != old_event.extendedProps.description) {
+                old_event.setExtendedProp('description', new_event.description);
+            }
+            if (old_event.extendedProps.idAgenda !== new_event.idAgenda) {
+                old_event.setExtendedProp('idAgenda', new_event.idAgenda);
+                if (!this.agendas[new_event.idAgenda].displayed) {
+                    this.remove_events(old_event.groupId);
+                }
             }
         }
     }
 
+    // pourraît être optimisé
     remove_events(id) {
         this.calendrier.getEvents().forEach(ev => {
-            if (ev.groupId == id) {
+            if (ev.groupId === id) {
                 ev.remove();
             }
         });

@@ -76,7 +76,7 @@ export default class RendezVous extends Model {
 
     create_rendezVousSimple(debut, fin) {
         return new RendezVousSimple(this.titre, debut, fin, this.id, this.allDay, this.lieu, this.description,
-                                    this.type, this.finRecurrence);
+                                    this.type, this.finRecurrence, this.nbOccurrences, this.frequence);
     }
 
     get_rendezVous(periodeDebut, periodeFin) {
@@ -99,7 +99,8 @@ export default class RendezVous extends Model {
         const frequence = this.type == 'Weekly' ? this.frequence * 7 : this.frequence;
         if (this.fin_par_nb_occurrences()) {
             finRec = add_function(this.dateDebut, (this.nbOccurrences-1) * frequence);
-            finRec.setHours(23, 59, 59);
+            // on décale d'un peu car exclusif
+            finRec.setHours(finRec.getHours() + 1);
         }
         if (this.fin_par_date()) {
             finRec = this.finRecurrence;

@@ -10,7 +10,7 @@ import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {dialogAgendaGET, creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
 import {creationRendezVousPOST, rendezVousModalGET, supprimerRDVGET} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
-import { calendarGetData, modifierRendezVousCalendarPOST } from "./routes/calendar.js";
+import { calendarGetData, modifierRendezVousCalendarPOST} from "./routes/calendar.js";
 
 export const app = express();
 app
@@ -48,8 +48,8 @@ app
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
 
-    .get("/calendar-data/", calendarGetData)
-    .post("/calendar-rdv",modifierRendezVousCalendarPOST)
+    .get("/calendar-data", calendarGetData)
+    .post("/calendar-rdv", modifierRendezVousCalendarPOST)
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))
     .use((err, req, res) => {
