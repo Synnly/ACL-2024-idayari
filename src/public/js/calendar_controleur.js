@@ -173,6 +173,10 @@ export class AgendaManager {
                 rdv.start = new Date(rdv.start);
                 rdv.end = new Date(rdv.end);
                 rdv.dateFinRecurrence = rdv.dateFinRecurrence ? new Date(rdv.dateFinRecurrence) : rdv.dateFinRecurrence;
+                if (rdv.readonly) {
+                    rdv.color = '#CED4DA';
+                    rdv.textColor = '#091720';
+                }
                 const identifier = rdv.groupId + "_" + rdv.start.toISOString();
                 // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
                 if (!this.events.has(identifier)) {
