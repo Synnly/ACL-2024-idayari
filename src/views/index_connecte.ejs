@@ -3,26 +3,27 @@
     <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
         <div class="w-100">
             <div class="w-100 h-fit-content">
-                <div class="nav-link text-secondary p-3">
-                    <span>Fonctionnalités</span>
-                </div>
-                <div class="p-3">
-                    <a class="btn btn-primary-hover w-100 d-flex justify-content-start align-items-center column-gap-3" href="/export">
-                        <span class="bi bi-arrow-bar-up fs-5" role="img"></span>
-                        Exporter
-                    </a>
-                </div>
-                <div class="p-3">
-                    <a class="btn btn-primary-hover w-100 d-flex justify-content-start align-items-center column-gap-3" href="">
-                        <span class="bi bi-arrow-bar-down fs-5" role="img"></span>
-                        Importer
-                    </a>
-                </div>
-                <div class="p-3">
-                    <a class="btn btn-primary-hover w-100 d-flex justify-content-start align-items-center column-gap-3" href="">
-                        <span class="bi bi-share fs-5" role="img"></span>
-                        Partager
-                    </a>
+                <div class="nav-link text-secondary p-3 d-flex flex-row align-content-between align-items-center">
+                    <div>Fonctionnalités</div>
+                    <div class="dropdown ms-auto">
+                        <span class="bi bi-three-dots cursor-pointer fs-4" role="img" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"></span>
+    
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item d-flex justify-content-start align-items-center column-gap-3" href="/export">
+                                <span class="bi bi-arrow-bar-up fs-5" role="img"></span>
+                                Exporter
+                            </a>
+                            <a class="dropdown-item d-flex justify-content-start align-items-center column-gap-3" href="">
+                                <span class="bi bi-arrow-bar-down fs-5" role="img"></span>
+                                Importer
+                            </a>
+                            <a class="dropdown-item d-flex justify-content-start align-items-center column-gap-3" href="">
+                                <span class="bi bi-share fs-5" role="img"></span>
+                                Partager
+                            </a>
+                        </ul>
+    
+                    </div>
                 </div>
             </div>
             <div class="w-100 h-fit-content">

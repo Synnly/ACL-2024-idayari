@@ -30,14 +30,15 @@ export async function exportAgendaPOST(req, res) {
             });
     
             if (!agenda) {
-                return res.status(404).json({ error: "Agenda non trouvé" });
+                return res.render('error', {
+                    status: 404,
+                    message: "Agenda non trouvé"
+                })
             }
     
             const agendaData = {
-                id: agenda.id,
                 nom: agenda.nom,
                 rendezVous:  rdv.map(rdv => ({
-                    id: rdv.id,
                     titre: rdv.titre,
                     description: rdv.description,
                     dateDebut: rdv.dateDebut,
@@ -49,13 +50,14 @@ export async function exportAgendaPOST(req, res) {
                     finRecurrence: rdv.finRecurrence,
                     nbOccurrences: rdv.nbOccurrences
                 })),
-                idOwner: res.locals.user.id
             };
-            console.log(agendaData)
             return res.json(agendaData);
         } catch (error) {
-            console.error('Erreur lors de l\'exportation de l\'agenda:', error);
-            return res.status(500).json({ error: "Erreur interne" });
+            return res.render('error', {
+                status: 500,
+                message: "Erreur interne"
+            })
+            
         }
     }
     return res.redirect('/');

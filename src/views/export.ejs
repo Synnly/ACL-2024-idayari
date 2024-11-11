@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/css/main.css" rel="stylesheet">
     <link href="/css/index.css" rel="stylesheet">
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.min.css' rel='stylesheet'>
 </head>
 
 <body>
@@ -30,13 +31,15 @@
             </nav>
             
             <div class="col col-10 p-3 d-flex flex-column align-content-center align-items-center gap-4">
-                <a href="/" class="d-flex justify-content-start w-100">Retour à l'accueil</a>
-               <div>
-                <h1 class="fs-3 text-center">Exporter votre agenda pour pouvoir l'utiliser sur n'importe quelle autre application en un simple clique.</h1>
-                <h2 class="fs-6 text-center">Choissisez parmi la liste de vos agendas celui que vous voulez exporter, un seul agenda exportable à la fois.</h2>
-               </div>
-                <img src="/img/export_1.svg" alt="export" class="img-fluid" width="60%">
-                <button class="btn btn-outline-secondary d-none" id="exportBtn" onclick="">
+                <div class="d-flex justify-content-start w-100">
+                    <a href="/" class="">Retour à l'accueil</a>
+                </div>
+                <div>
+                    <h1 class="fs-3 text-center">Exporter votre agenda en un simple clic.</h1>
+                    <h2 class="fs-6 text-center">Choissisez parmi la liste de vos agendas celui que vous voulez exporter, un seul agenda exportable à la fois.</h2>
+                </div>
+                <img src="/img/export_1.svg" alt="export" class="img-fluid w-50">
+                <button class="btn btn-primary px-5 py-2 mt-3 text-white d-none" id="exportBtn" onclick="">
                     Exporter en JSON
                 </button>
             </div>
