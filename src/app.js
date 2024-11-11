@@ -10,7 +10,7 @@ import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST} from "./routes/creationAgenda.js";
 import {creationRendezVousPOST, supprimerRDVGET} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
-import { calendarGetData, modifierRendezVousCalendarPOST } from "./routes/calendar.js";
+import { calendarGetData, calendarGetDataFromRendezVous, modifierRendezVousCalendarPOST, modifierRendezVousRecurrencePOST} from "./routes/calendar.js";
 
 import {modifierAgendaGET, modifierAgendaPOST, supprimerAgendaGET} from './routes/modifierAgenda.js';
 
@@ -30,6 +30,7 @@ app
     .get("/", index)
     
     .post("/calendar-rdv",modifierRendezVousCalendarPOST)
+    .post("/calendar-rdv-recurrence", modifierRendezVousRecurrencePOST)
 
     .post("/",modifierRendezVousPOST)
 
@@ -55,6 +56,7 @@ app
     .post('/infos_perso', modifierInfosPersoPOST)
 
     .get("/calendar-data/", calendarGetData)
+    .get("/calendar-data-rdv", calendarGetDataFromRendezVous)
 
     .use((req, res, next) => next(createError(404)))
     .use((err, req, res, next) => {

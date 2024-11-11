@@ -81,10 +81,13 @@ export class AgendaManager {
                 manager.modified_event = event;
                 creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
-                            agendas: event.extendedProps.agendas}, agendas);  
+                            type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,
+                            frequence: event.extendedProps.frequence,
+                            agendas: event.extendedProps.agendas}, agendas);   
             },
 
             eventChange: function(info) {
+                manager.go = false;
                 const oldEvent = info.oldEvent;
                 const first_event = info.event.toPlainObject();
                 let earliestStart = info.event.start;
@@ -100,7 +103,7 @@ export class AgendaManager {
                         }
                     });
                     // date de fin exclusive
-                    if (!info.event.extendedProps.dateFinRecurrence || info.event.start < info.event.extendedProps.dateFinRecurrence) {
+                    if (!info.event.extendedProps.endRec || info.event.start < info.event.extendedProps.endRec) {
                         manager.events.add(info.event.groupId + "_" + info.event.start.toISOString());
                     } else {
                         info.event.remove();
@@ -111,7 +114,7 @@ export class AgendaManager {
                         earliestStart = ev.start;
                         earliestEnd = ev.end;
                     }
-                    if (!ev.extendedProps.dateFinRecurrence || ev.start < ev.extendedProps.dateFinRecurrence) {
+                    if (!ev.extendedProps.endRec || ev.start < ev.extendedProps.endRec) {
                         manager.events.add(ev.groupId + "_" + ev.start.toISOString());
                     } else {
                         ev.remove();
@@ -120,10 +123,13 @@ export class AgendaManager {
                 const data = {title: first_event.title, lieu: first_event.extendedProps.lieu, description: first_event.extendedProps.description,
                                 id: first_event.groupId, start: earliestStart, end: earliestEnd, allDay: first_event.allDay,
                                 agendas_to_add: first_event.extendedProps.agendas.filter(e => !oldEvent.extendedProps.agendas.includes(e)),
-                                agendas_to_remove: oldEvent.extendedProps.agendas.filter(e => !first_event.extendedProps.agendas.includes(e))}
+                                agendas_to_remove: oldEvent.extendedProps.agendas.filter(e => !first_event.extendedProps.agendas.includes(e)),
+                                dateFinRecurrence: first_event.extendedProps.endRec ? new Date(first_event.extendedProps.endRec) : first_event.extendedProps.endRec,
+                                frequence: first_event.extendedProps.frequence, type: first_event.extendedProps.type, nbOccurrences: first_event.extendedProps.nbOccurrences}
                 fetch("/calendar-rdv", {
                     method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
                 })
+                .then(_ => manager.go = true)
                 .catch((error) => {
                     info.revert();
                 });
@@ -140,6 +146,24 @@ export class AgendaManager {
         document.getElementById('selectAll').addEventListener('click', () => this.selectAll());
     }
 
+    addEventsFromRDV(rendezVous, agendas_to_add=null) {
+        for (const rdv of rendezVous) {
+            const identifier = rdv.groupId + "_" + rdv.start;
+            // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
+            if (!this.events.has(identifier)) {
+                // les dates sont récupérées sous forme de chaînes de caractères
+                rdv.start = new Date(rdv.start);
+                rdv.end = new Date(rdv.end);
+                rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
+                if (agendas_to_add) {
+                    rdv.agendas = agendas_to_add;
+                }
+                this.events.add(identifier);
+                this.calendrier.addEvent(rdv);
+            }
+        }
+    }
+
         // à partir de la liste des rendez-vous simples des agendas, ajoute les rendez-vous si nécessaire dans le calendrier
     // si déjà présent, met à jour la liste d'agendas d'où provient le rendez-vous
     addData(agendas, updateDate=true) {
@@ -154,23 +178,34 @@ export class AgendaManager {
                 window.location.href = "/";
                 return ;
             }
-            for (const rdv of rendezVous) {
-                // les dates sont récupérées sous forme de chaînes de caractères
-                rdv.start = new Date(rdv.start);
-                rdv.end = new Date(rdv.end);
-                rdv.dateFinRecurrence = rdv.dateFinRecurrence ? new Date(rdv.dateFinRecurrence) : rdv.dateFinRecurrence;
-                const identifier = rdv.groupId + "_" + rdv.start.toISOString();
-                // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
-                if (!this.events.has(identifier)) {
-                    this.events.add(identifier);
-                    const x = this.calendrier.addEvent(rdv);
-                }
-            }
+            this.addEventsFromRDV(rendezVous);
             if (updateDate) {
                 agendas.forEach(e => {
                     this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
                 });
             }
+        })
+        .catch(err => {
+            console.log(err.message);
+        });
+    }
+
+    addDataFromRDV(id, agendas, rdv_agendas) {
+        fetch(
+            "/calendar-data-rdv?start=" + this.calendrier.view.activeStart.valueOf() +
+                "&end=" + this.calendrier.view.activeEnd.valueOf() +
+                "&id=" + id
+        )
+        .then((response) => response.json())
+        .then(rendezVous => {
+            if (rendezVous.err == "not auth") {
+                window.location.href = "/";
+                return ;
+            }
+            this.addEventsFromRDV(rendezVous, rdv_agendas);
+            agendas.forEach(e => {
+                this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
+            });
         })
         .catch(err => {
             console.log(err.message);
@@ -276,6 +311,7 @@ export class AgendaManager {
     /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
     update_event(new_event){
         const old_event = this.modified_event;
+
         if (new_event.title != old_event.title) {
             old_event.setProp('title', new_event.title);
         }
@@ -288,14 +324,39 @@ export class AgendaManager {
         if (new_event.description != old_event.extendedProps.description) {
             old_event.setExtendedProp('description', new_event.description);
         }
+
         const is_different = new Set(old_event.extendedProps.agendas).symmetricDifference(new Set(new_event.agendas)).size != 0;
         if (is_different) {
             old_event.setExtendedProp('agendas', new_event.agendas);
         }
-        if (!new_event.agendas.some(e => this.agendas_periodes[e.toString()] != undefined)) {
+        const agendas_to_refresh = new_event.agendas.filter(e => this.agendas_periodes[e.toString()] != undefined);
+
+        // modification d'infos de récurrence
+        if (new_event.freq_type != old_event.extendedProps.type ||
+            new_event.freq_number != old_event.extendedProps.frequence ||
+            new_event.date_fin_recurrence != old_event.extendedProps.endRec ||
+            new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
+            const id = old_event.groupId;
+            console.log(new_event.nb_occurrence);
+            this.remove_events(id);
+            const data = {id: id, dateFinRecurrence: new_event.date_fin_recurrence ? new Date(new_event.date_fin_recurrence) : new_event.date_fin_recurrence,
+                          frequence: new_event.freq_number, type: new_event.freq_type, nbOccurrences: new_event.nb_occurrence}
+            fetch("/calendar-rdv-recurrence", {
+                method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
+            })
+            .then(_ => {
+                if (agendas_to_refresh.length > 0) {
+                    this.addDataFromRDV(id, agendas_to_refresh, new_event.agendas);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        } else if (agendas_to_refresh.length == 0) {
             this.remove_events(old_event.groupId);
         }
     }
+
     remove_events(id) {
         this.calendrier.getEvents().forEach(ev => {
             if (ev.groupId == id) {

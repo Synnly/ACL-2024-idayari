@@ -12,7 +12,6 @@ let SUCCESMSG = '';
  */
 export async function modifierInfosPersoGET(req, res) {
 	if (res.locals.user) {
-		console.log(res.locals);
 		const succesMsg = SUCCESMSG || null;
     	res.render('infos_perso', { succesMsg: succesMsg })
 	} else {
