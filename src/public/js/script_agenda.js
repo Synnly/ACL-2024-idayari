@@ -20,8 +20,12 @@ function every_agenda_selected() {
  * @param {*} event l'event
  */
 function selectAgenda(agenda, id, event) {
+    // le label renvoie l'event sur l'input
+    if (event.target.tagName === "LABEL") {
+        return;
+    }
     const checkbox = agenda.firstElementChild.firstElementChild;
-    if (event.target.tagName != "LABEL" && event.target.tagName != "INPUT") {
+    if (event.target.tagName !== "INPUT") {
         checkbox.checked = !checkbox.checked;
     }
     // si déselection, on sait que tout n'est plus sélectionné

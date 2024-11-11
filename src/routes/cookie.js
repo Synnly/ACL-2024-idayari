@@ -10,7 +10,7 @@ export function updateAgendasCookie(req, res) {
         const agendas = res.locals.agendas;
         const new_agendas = req.body.agendas;
         for (const agenda of Object.keys(new_agendas)) {
-            agendas[agenda].displayed = new_agendas.displayed;
+            agendas[agenda].displayed = new_agendas[agenda].displayed;
         }
         createCookie("agendas", agendas, res);
     }

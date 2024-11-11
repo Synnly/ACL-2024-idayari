@@ -1,34 +1,17 @@
-import Agenda from "../model/Agenda.js";
 import RendezVous from "../model/RendezVous.js";
-import { Sequelize } from "sequelize";
-
 
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
-export async function calendarGetData(req, res) {
+export function calendarGetData(req, res) {
     if (!res.locals.user) {
         return res.json({err: "not auth"});
     }
-    const agendas_cookie = res.locals.agendas;
-    const agendas_id = [];
-    for (const agenda of JSON.parse(decodeURIComponent(req.query.agendas))) {
-        agendas_id.push(+agenda);
-        agendas_cookie[agenda].displayed = true;
-    }
-    res.cookie("agendas", agendas_cookie);
     const dateStart = new Date(+req.query.start);
     const dateEnd = new Date(+req.query.end);
-    RendezVous.findAll({
-        where: {
-            idAgenda: {
-                [Sequelize.Op.in]: agendas_id
-            }
-        }
-    }).then(rendez_vous => {
+    RendezVous.findAll({ where: { idAgenda: +req.query.agenda } })
+    .then(rendez_vous => {
         const simples = [];
         for (const rdv of rendez_vous) {
-            const agendas_id = rdv.dataValues.agendas_id.split(",");
             for (const simple of rdv.get_rendezVous(dateStart, dateEnd)) {
-                simple.agendas = agendas_id;
                 simples.push(simple);
             };
         }

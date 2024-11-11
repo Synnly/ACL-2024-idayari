@@ -55,19 +55,29 @@ function change_fin_recurrence_option(elem, end_date_rec, nb_occurrence, nb_occu
     }
 }
 
+/**
+ * 
+ * @param {String} message 
+ * @param {HTMLElement} elem 
+ */
 function add_error(message, elem) {
+    const msgErreur = document.createElement('div');
     msgErreur.className = 'text-danger';
     msgErreur.textContent = message;
-    elem.appendChild(msgErreur);
+    elem.parentNode.insertBefore(msgErreur, elem.nextSibling);
 }
 
 function setRendezVousModal(html, url, onsuccess) {
-    console.log(html);
+    // s'il y avait déjà une modale, on la supprime
+    closeModal(document.getElementById('staticBackdrop'));
+
     document.body.insertAdjacentHTML('beforeend', html);
     const fausseModale = document.getElementById('staticBackdrop');
     const vraieModale = new bootstrap.Modal(fausseModale);
 
     const form = document.getElementById('rendezvous_form');
+    const startTime = form["startTime"];
+    const endTime = form["endTime"];
     const all_day = form["all_day"];
     const recurrence_div = document.getElementById('recurrent_div');
     const recurrent_checkbox = form['recurrent'];
@@ -83,7 +93,7 @@ function setRendezVousModal(html, url, onsuccess) {
         for (const erreur of document.getElementsByClassName('text-danger')) {
             erreur.remove();
         }
-        
+
         const titre = form["titre"].value.trim();
         const lieu = form["lieu"].value.trim();
         const description = form["description"].value.trim();
@@ -92,54 +102,64 @@ function setRendezVousModal(html, url, onsuccess) {
         let startDate = "";
         let endDate = "";
         if (is_all_day) {
-            startDate = new Date(form["startDate"]);
+            startDate = new Date(form["startDate"].value);
             startDate.setHours(0, 0, 0);
-            endDate = addDays(new Date(form["endDate"]), 1);
+            endDate = addDays(new Date(form["endDate"].value), 1);
             endDate.setHours(0, 0, 0);
         } else {
-            startDate = new Date(`${form["startDate"]}T${form["startTime"]}`);
-            endDate = new Date(`${form["endDate"]}T${form["endTime"]}`);
+            startDate = new Date(`${form["startDate"]}T${startTime.value}`);
+            endDate = new Date(`${form["endDate"]}T${endTime.value}`);
         }
         if (endDate <= startDate) {
-            add_error('dateErreur1', "La date de fin doit être supérieure à la date de début.", document.getElementById('endDateDiv').parentElement);
+            add_error("La date de fin doit être supérieure à la date de début.", document.getElementById('endDateDiv'));
             return;
         }
         // valeur pour un rendez-vous non récurrent
         let type = 'Simple';
         let frequence = null;
-        let fin_recurrence = null;
+        let date_fin_recurrence = null;
         let nb_occurrence = null;
         // rendez-vous récurrent
         if (recurrent_checkbox.checked) {
             type = form["recurrence_type"].value;
             frequence = +frequence_input.value;
             if (type_end_recurrence.value === "date") {
-                fin_recurrence = new Date(end_date_rec.value);
-                if (fin_recurrence <= startDate) {
-                    add_error('dateErreur2', "La date de fin de récurrence doit être supérieure à la date de début.", document.getElementById('end_recurrence_div').parentElement);
+                date_fin_recurrence = new Date(end_date_rec.value);
+                if (date_fin_recurrence <= startDate) {
+                    add_error("La date de fin de récurrence doit être supérieure à la date de début.", document.getElementById('end_recurrence_div'));
                     return;
                 }
+                date_fin_recurrence = date_fin_recurrence.valueOf();
             }
             if (type_end_recurrence.value === "nb") {
                 nb_occurrence = +nb_occurrence_input.value;
             }
         }
-        const data = {titre: titre, lieu: lieu, description: description, agenda: agenda_id, all_day: is_all_day, startDate: startDate, 
-                        endDate: endDate, type: type, frequence: frequence, fin_recurrence: fin_recurrence, nb_occurrence: nb_occurrence}
+        // on envoie les infos du nouveau rendez-vous, ainsi que la période en vue au cas où on devra rajouter des rendez-vous sur le calendrier
+        const data = {titre: titre, lieu: lieu, description: description, agenda: agenda_id, all_day: is_all_day, 
+                      startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
+                      date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence};
         
         json_fetch(url, "POST", data)
         .then(response => response.json())
-        .then(result => onsuccess(data, result));
+        .then(result => {
+            onsuccess(data, result);
+            closeModal(fausseModale);
+        });
     });
 
     all_day.addEventListener('change', () => {
         // on a sélectionné "toute la journée"
         if (all_day.checked) {
-            form["startTime"].style.display = 'none';
-            form["endTime"].style.display = 'none';
+            startTime.style.display = 'none';
+            startTime.required = false;
+            endTime.style.display = 'none';
+            endTime.required = false;
         } else {
-            form["startTime"].style.display = 'block';
-            form["endTime"].style.display = 'block';
+            startTime.style.display = 'block';
+            startTime.required = true;
+            endTime.style.display = 'block';
+            endTime.required = true;
         }
     });
 
@@ -148,7 +168,7 @@ function setRendezVousModal(html, url, onsuccess) {
         btn.addEventListener('click', () => closeModal(fausseModale));
     }
 
-    recurrent_checkbox.addEventListener('change', () => change_recurrent_option(recurrent_checkbox.checked, recurrence_div, frequence_input, type_end_recurrence, end_date_rec, nb_occurrence, nb_occurrence_div));
+    recurrent_checkbox.addEventListener('change', () => change_recurrent_option(recurrent_checkbox.checked, recurrence_div, frequence_input, type_end_recurrence, end_date_rec, nb_occurrence_input, nb_occurrence_div));
     type_end_recurrence.addEventListener('change', () => change_fin_recurrence_option(type_end_recurrence, end_date_rec, nb_occurrence_input, nb_occurrence_div));
 
     vraieModale.show();
