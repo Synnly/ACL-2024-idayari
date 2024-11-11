@@ -2,7 +2,29 @@ import AgendaRendezVous from "../model/AgendaRendezVous.js";
 import { addDays } from "../public/js/utils.js";
 import RendezVous from "../model/RendezVous.js";
 import Agenda from "../model/Agenda.js";
+import ejs from 'ejs';
 
+
+export function rendezVousModalGET(req, res) {
+    if (!res.locals.user) {
+        return res.render("/");
+    }
+    const data = req.query;
+    data.agendas = [];
+    // on récupère la liste des agendas du cookie
+    for (const key of Object.keys(res.locals.agendas)) {
+        const agenda = res.locals.agendas[key];
+        if (agenda.isOwner) {
+            data.agendas.push({id: key, nom: agenda.nom});
+        }
+    }
+    ejs.renderFile('views/partials/rendez_vous_modal.ejs', data)
+    .then(html => res.status(200).send(html))
+    .catch(error => {
+        console.log(error);
+        res.status(400).end();
+    });
+}
 
 /**
  * Traite la requête POST sur /rendezVous.

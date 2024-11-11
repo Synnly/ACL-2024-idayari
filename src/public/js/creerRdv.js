@@ -2,7 +2,6 @@ import { convertDate, addDays, json_fetch } from "./utils.js";
 import {agendaManager} from "/js/calendar_controleur.js";
 
 export function creerModaleNouveauRdv(agendas) {
-    addDays(new Date(), 2);
     let list_agendas = "";
     for (const id of Object.keys(agendas)) {
         const nom = agendas[id].nom;

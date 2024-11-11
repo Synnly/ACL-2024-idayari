@@ -3,8 +3,7 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
-import {creerModale} from '/js/modif_rendezvous-calendar.js';
-import {creerModaleNouveauRdv, envoyerFormNouveauRdv, quitModalNouveauRdv} from "./creerRdv.js";
+import {getRendezVousModal} from '/js/script_rendez_vous.js';
 import { json_fetch } from './utils.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
@@ -49,9 +48,7 @@ class AgendaManager {
                     text: 'Nouvel évènement',
                     icon: 'bi bi-plus-lg',
                     click: function() {
-                        window.envoyerFormNouveauRdv = envoyerFormNouveauRdv;
-                        window.quitModalNouveauRdv = quitModalNouveauRdv;
-                        creerModaleNouveauRdv(manager.agendas);
+                        getRendezVousModal({});
                     }
                 }
             },
@@ -83,9 +80,9 @@ class AgendaManager {
             eventClick: function(info) {
                 const event = info.event;
                 manager.modified_event = event;
-                creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
+                getRendezVousModal({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
-                            agendas: event.extendedProps.agendas}, manager.agendas);  
+                            agenda: event.extendedProps.agendas});  
             },
 
             eventChange: function(info) {

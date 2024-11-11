@@ -4,7 +4,7 @@
         <div class="w-100 h-fit-content">
             <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center">
                 <span>Vos agendas</span>
-                <input type="checkbox" title='Tout (dé)sélectionner' id="selectAll" <%= locals.all_selected ? "checked" : "" %>></input>
+                <input type="checkbox" title='Tout (dé)sélectionner' id="selectAll" <%= locals.all_selected ? "checked" : "" %>>
                 <button class="btn" id="newAgenda">
                     <span class="bi bi-calendar-plus" title="Nouvel Agenda" role="img"></span>
                 </button>
@@ -45,4 +45,4 @@
     }
 </script>
 <script type="module" src="./js/calendar_controleur.js"></script>
-<script type="module" src="/js/script_agenda.js"></script>
+<script type="module" src="./js/agenda.js"></script>
