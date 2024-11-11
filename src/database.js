@@ -3,8 +3,6 @@ import User from "./model/User.js";
 import Agenda from "./model/Agenda.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
 import RendezVous from "./model/RendezVous.js";
-import AgendaRendezVous from "./model/AgendaRendezVous.js";
-
 
 /**
  * Initialise la base de données
@@ -22,7 +20,7 @@ export async function initDatabase() {
     return sequelize.authenticate().then(_ => {
         initTables(sequelize);
         // si modification de la base de données, décommenter puis commenter
-        // syncTables();
+        syncTables();
     });
 }
 
@@ -36,7 +34,6 @@ function initTables(sequelize) {
     Agenda.initTable(sequelize);
     UserAgendaAccess.initTable(sequelize);
     RendezVous.initTable(sequelize);
-    AgendaRendezVous.initTable(sequelize);
 
     // répertorie qui peut voir quel agenda *uniquement*
     User.belongsToMany(Agenda, {through: UserAgendaAccess, foreignKey: "idUser"});
@@ -47,9 +44,8 @@ function initTables(sequelize) {
     Agenda.belongsTo(User, { as: "owner", foreignKey: "idOwner"});
     User.hasMany(Agenda, { as: "myAgendas", foreignKey: "idOwner" });
 
-    // répertorie les agendas et rendez-vous
-    Agenda.belongsToMany(RendezVous, {through: AgendaRendezVous, foreignKey: "idAgenda"});
-    RendezVous.belongsToMany(Agenda, {through: AgendaRendezVous, foreignKey: "idRendezVous"});
+    Agenda.hasMany(RendezVous, { as:"agenda", foreignKey: "idAgenda"});
+    RendezVous.belongsTo(Agenda, { foreignKey: "idAgenda"});
 }
 
 async function syncTables() {
@@ -57,5 +53,4 @@ async function syncTables() {
         await Agenda.sync({alter: true});
         await UserAgendaAccess.sync({alter: true});
         await RendezVous.sync({alter: true});
-        await AgendaRendezVous.sync({alter: true});
 }

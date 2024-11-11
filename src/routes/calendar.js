@@ -1,5 +1,4 @@
 import Agenda from "../model/Agenda.js";
-import AgendaRendezVous from "../model/AgendaRendezVous.js";
 import RendezVous from "../model/RendezVous.js";
 import { Sequelize } from "sequelize";
 
@@ -19,28 +18,11 @@ export async function calendarGetData(req, res) {
     const dateStart = new Date(+req.query.start);
     const dateEnd = new Date(+req.query.end);
     RendezVous.findAll({
-        attributes: {
-            include: [ 
-                [
-                    Sequelize.literal(`(
-                    SELECT GROUP_CONCAT(arv.idAgenda SEPARATOR ',')
-                    FROM AgendaRendezVous AS arv
-                    WHERE arv.idRendezVous = RendezVous.id)`),
-                    'agendas_id',
-                ],
-            ],
-        },
-        include: [
-            {
-                model: Agenda,
-                through: AgendaRendezVous,
-                where: {
-                    id: {
-                        [Sequelize.Op.in]: agendas_id
-                    },
-                },
-            },
-        ],
+        where: {
+            idAgenda: {
+                [Sequelize.Op.in]: agendas_id
+            }
+        }
     }).then(rendez_vous => {
         const simples = [];
         for (const rdv of rendez_vous) {
@@ -63,7 +45,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (res.locals.user) {
         try {
             //Récupération des champs du form
-            const { id, title, lieu, description, start, end, allDay, agendas_to_add, agendas_to_remove } = req.body;
+            const { id, title, lieu, description, start, end, allDay } = req.body;
             //Récupération du rdv avec l'id donné
             const rdvToUpdate = await RendezVous.findByPk(id);
             if (!rdvToUpdate) {
@@ -77,19 +59,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
             rdvToUpdate.allDay = allDay;
             rdvToUpdate.description = description;
             await rdvToUpdate.save();
-            
-            for (const agenda of agendas_to_add) {
-                await AgendaRendezVous.create({
-                    idRendezVous: id,
-                    idAgenda: +agenda
-                });
-            }
-            for (const agenda of agendas_to_remove) {
-                await (AgendaRendezVous.build({
-                    idRendezVous: id,
-                    idAgenda: +agenda
-                }).destroy());
-            }
+
             return res.status(200).json();
 
         } catch (error) {

@@ -48,7 +48,9 @@ class AgendaManager {
                     text: 'Nouvel évènement',
                     icon: 'bi bi-plus-lg',
                     click: function() {
-                        getRendezVousModal({});
+                        getRendezVousModal({}, "/rendezVous/new", (sent, result) => {
+                            
+                        });
                     }
                 }
             },
