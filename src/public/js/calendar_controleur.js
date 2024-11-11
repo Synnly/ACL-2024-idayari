@@ -21,6 +21,7 @@ export class AgendaManager {
         // ex : '12': Set [ {start: 2 Nov 2024, end: 3 Nov 2024} ]
         this.agendas_periodes = {};
         this.events = new Set();
+        this.idUser = -1;
         const manager = this;
         // liste des agendas
         const agendas = Array.prototype.map.call(document.getElementById('agendaList').children, (li) => Object({nom: li.textContent, id: li.id.split("_")[1]}));
@@ -79,9 +80,18 @@ export class AgendaManager {
             eventClick: function(info) {
                 const event = info.event;
                 manager.modified_event = event;
-                creerModale({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
-                            id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,
-                            agendas: event.extendedProps.agendas}, agendas);  
+                if(!event.extendedProps.readonly) {
+                    creerModale({
+                        title: event.title,
+                        lieu: event.extendedProps.lieu,
+                        description: event.extendedProps.description,
+                        id: event.groupId,
+                        start: event.start,
+                        end: event.end,
+                        allDay: event.allDay,
+                        agendas: event.extendedProps.agendas
+                    }, agendas);
+                }
             },
 
             eventChange: function(info) {
@@ -135,6 +145,10 @@ export class AgendaManager {
         this.calendrier.render();
         // écouteur selections d'agenda
         for (const child of document.getElementById('agendaList').children) {
+            child.addEventListener('click', (event) => this.selectionAgenda(event.target.id.split("_")[1]));
+        }
+
+        for (const child of document.getElementById('partageList').children) {
             child.addEventListener('click', (event) => this.selectionAgenda(event.target.id.split("_")[1]));
         }
         document.getElementById('selectAll').addEventListener('click', () => this.selectAll());
@@ -304,6 +318,11 @@ export class AgendaManager {
                 this.events.delete(identifier);
             }
         });
+    }
+    setUser(id){
+        if(this.idUser === -1){ // L'utilisateur pourra pas rechanger par derriere
+            this.idUser = id;
+        }
     }
 }
 
