@@ -1,6 +1,8 @@
 import User from "../model/User.js";
 import ejs from "ejs";
 import RendezVous from "../model/RendezVous.js";
+import Agenda from "../model/Agenda.js";
+import UserAgendaAccess from "../model/UserAgendaAccess.js";
 
 /**
  * Traite la requête GET sur / .
@@ -11,7 +13,17 @@ import RendezVous from "../model/RendezVous.js";
 export async function index(req, res) {
     if (res.locals.user) {
         const user = await User.getById(res.locals.user.id);
-        res.locals.agendas = await user.getAgendas();
+        res.locals.agendas = await user.getMyAgendas();
+
+        // Agendas partagés
+        res.locals.partages = [];
+        const partages = await UserAgendaAccess.findAll({where: {idUser: res.locals.user.id}});
+        for(const partage of partages){
+            const agenda = await Agenda.findByPk(partage.dataValues.idAgenda);
+            if(agenda.idOwner !== res.locals.user.id) {
+                res.locals.partages.push(agenda);
+            }
+        }
     }
     // récuperer les rendez-vous sont acynchrones donc pour permettre cela dans le ejs
     const html = await ejs.renderFile("views/index.ejs", res.locals, {async:true});

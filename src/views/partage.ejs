@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Partages d'agenda</title>
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.min.css' rel='stylesheet'>
+    <script src="/js/partage.js"></script>
+</head>
+
+<body class="container flex-column d-flex min-vh-100 min-vw-100 m-0 p-0" data-bs-theme="light">
+    <%- await include('partials/header.ejs') %>
+
+    <% for (const agenda of locals.agendas) { %>
+        <li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.id %>">
+            <%= agenda.nom %>
+            <ul>
+                <% if(locals.partages[agenda.id]) {%>
+                    <button class="btn btn-outline-danger bi bi-trash-fill"></button>
+                <% } else { %>
+                    <button class="btn btn-outline-secondary bi bi-plus-lg" onclick="creerPartage(<%= agenda.id %>)"></button>
+                <% } %>
+            </ul>
+        </li>
+    <% } %>
+</body>
+</html>

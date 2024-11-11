@@ -18,6 +18,11 @@
                     <li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.id %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.id) %>")'><%= agenda.nom %></li>
                 <% } %>
             </ul>
+            <ul id="partageList" class="list-group px-3 listAgenda align-self-end">
+                <% for (const partage of locals.partages) { %>
+                    <li class="list-group-item list-group-item-light user-select-none" id="partage_<%= partage.id %>" onclick='toggleAgenda("partage_<%= encodeURI(partage.id) %>")'><%= partage.nom %></li>
+                <% } %>
+            </ul>
 
         </div>
 
