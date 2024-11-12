@@ -4,13 +4,20 @@ function toggleAgenda(agenda){
     document.getElementById('selectAll').classList.remove('active');
 }
 
-function toggleAll(group, allButton){
-    let node = document.getElementById(group);
-    let button = document.getElementById(allButton);
+function toggleAll(){
+    let nodesAgenda = document.getElementById("agendaList");
+    let nodesPartage = document.getElementById("partageList");
+
+    let button = document.getElementById("selectAll");
 
     if(button.classList.contains("active")){
         button.classList.remove("active");
-        for(let child of node.children){
+        for(const child of nodesAgenda.children){
+            if(child.classList.contains('active')){
+                child.classList.remove('active');
+            }
+        }
+        for(const child of nodesPartage.children){
             if(child.classList.contains('active')){
                 child.classList.remove('active');
             }
@@ -18,7 +25,12 @@ function toggleAll(group, allButton){
     }
     else{
         button.classList.add("active");
-        for(let child of node.children){
+        for(const child of nodesAgenda.children){
+            if(!child.classList.contains('active')){
+                child.classList.add('active');
+            }
+        }
+        for(const child of nodesPartage.children){
             if(!child.classList.contains('active')){
                 child.classList.add('active');
             }

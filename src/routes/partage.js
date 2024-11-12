@@ -4,7 +4,7 @@ import User from "../model/User.js";
 import UserAgendaAccess from "../model/UserAgendaAccess.js";
 
 export async function voirPartagesGET(req, res){
-		if(!res.locals){
+		if(!(res.locals && res.locals.user)){
 				return res.redirect("/");
 		}
 
@@ -67,5 +67,28 @@ export async function ajouterPartageGET(req, res){
 		}
 
 		return res.redirect("/");
+}
 
+export async function confirmerAjoutPartageGET(req, res){
+		if(!res.locals){
+				return res.redirect("/");
+		}
+
+		const agenda = await Agenda.findByPk(req.params.id);
+		const owner = await agenda.getOwner();
+
+		// le propriétaire essaie d'ajouter son propre agenda
+		if(owner.dataValues.id === res.locals.user.id){
+				return res.redirect("/");
+		}
+
+		// L'user a déjà accès à l'agenda
+		const userPartage = await UserAgendaAccess.findOne({where: {idUser: res.locals.user.id, idAgenda: agenda.id}});
+		if(userPartage){
+				return res.redirect("/");
+		}
+		res.locals.isAdding = true;
+
+		const html = await ejs.renderFile("views/partage.ejs", {locals: res.locals, agenda: {id: agenda.id, nom: agenda.nom, owner: owner.dataValues.username}}, {async:true});
+		res.send(html);
 }
