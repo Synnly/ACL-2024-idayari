@@ -5,24 +5,6 @@ import { createCookie } from "../token.js";
 import ejs from "ejs";
 
 /**
- * Récupère la modale de création/modification d'agendas
- * Si l'user est déconnecté, renvoie vers /
- * @param req La requête
- * @param res La réponse
- */
-export function dialogAgendaGET(req, res) {
-    if (!res.locals.user) {
-        return res.render("/");
-    }
-    ejs.renderFile('views/partials/dialogAgenda.ejs', req.query)
-    .then(html => res.status(200).send(html))
-    .catch(error => {
-        console.log(error);
-        res.status(400).end();
-    });
-}
-
-/**
  * Traite la requête POST sur /creerAgenda.
  * Si la creation d'agenda échoue, affiche un message d'erreur, sinon renvoie vers /
  * @param req La requête

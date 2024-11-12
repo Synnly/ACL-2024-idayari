@@ -7,7 +7,7 @@ import { index } from './routes/index.js';
 import { updateAgendasCookie } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
-import {dialogAgendaGET, creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
+import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
 import {creationRendezVousPOST, supprimerRDVGET} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 import { calendarGetData, modifierRendezVousCalendarPOST} from "./routes/calendar.js";
@@ -39,7 +39,6 @@ app
     .post("/inscription", inscriptionPOST)
 
     .put("/setAgendasCookie", updateAgendasCookie)
-    .get("/dialogAgenda", dialogAgendaGET)
     .post("/agenda/new", creationAgendaPOST)
     .post('/modifierAgenda', modifierAgendaPOST)
     .delete('/supprimerAgenda/:id', supprimerAgendaDELETE)

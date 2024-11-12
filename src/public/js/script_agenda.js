@@ -21,7 +21,7 @@ function every_agenda_selected() {
  */
 function selectAgenda(agenda, id, event) {
     // le label renvoie l'event sur l'input
-    if (event.target.tagName === "LABEL") {
+    if (event.target.tagName === "LABEL" || event.target.tagName === "SPAN") {
         return;
     }
     const checkbox = agenda.firstElementChild.firstElementChild;
@@ -72,15 +72,11 @@ function supprimerAgenda(id, nom, removed_agenda) {
  * @param {HTMLLIElement} agenda l'agenda à modifier
  */
 function editAgenda(id, nom, agenda) {
-    fetch(`/dialogAgenda?nom=${nom}`, {method: "GET"})
-    .then(response => response.text())
-    .then(html => {
-        setDialog(html, "/modifierAgenda", (sent, _) => {
-            const label = agenda.firstElementChild;
-            label.lastElementChild.textContent = sent.nom;
-            label.title = sent.nom;
-        }, {nom: nom, id: id});
-    });
+    setDialog({nom: nom}, "/modifierAgenda", (sent, _) => {
+        const label = agenda.firstElementChild;
+        label.lastElementChild.textContent = sent.nom;
+        label.title = sent.nom;
+    }, {nom: nom, id: id});
 }
 
 /**
@@ -172,65 +168,66 @@ function close_dialog(elem) {
  * (ajouter le html du nouvel agenda/modifier le html existant)
  * @param {object} old_data des données d'agendas à comparer pour ne pas faire de requêtes si pas de changement (et obtenir l'id)
  */
-function setDialog(html, url, onsuccess, old_data) {
-    document.body.insertAdjacentHTML('beforeend', html);
-    const dialog_agenda = document.getElementById('dialogAgenda');
-    const fermer_dialog = document.getElementById("fermerDialogAgenda");
-    fermer_dialog.addEventListener('click', () => {
-        close_dialog(dialog_agenda);
-    });
-
-    const form = document.getElementById("agenda_form");
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const nom = form["nom"].value.trim();
-        const sent = {nom: nom};
-        if (old_data) {
-            // aucune modification
-            if (old_data.nom === sent.nom) {
-                close_dialog(dialog_agenda);
-                return;
-            } else {
-                sent.id = old_data.id;
-            }
-        }
-        json_fetch(url, "POST", sent)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error(response.statusText);
-            }
-        })
-        .then(result => {
-            onsuccess(sent, result);
+function setDialog(data, url, onsuccess, old_data) {
+    fetch('/views/partials/dialogAgenda.ejs', {method: "GET"})
+    .then(response => response.text())
+    .then(html => ejs.render(html, data))
+    .then(html => {
+        document.body.insertAdjacentHTML('beforeend', html);
+        const dialog_agenda = document.getElementById('dialogAgenda');
+        const fermer_dialog = document.getElementById("fermerDialogAgenda");
+        fermer_dialog.addEventListener('click', () => {
             close_dialog(dialog_agenda);
-        })
-        .catch(error => console.log(error));
-    }); 
-    dialog_agenda.showModal();
+        });
+
+        const form = document.getElementById("agenda_form");
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const nom = form["nom"].value.trim();
+            const sent = {nom: nom};
+            if (old_data) {
+                // aucune modification
+                if (old_data.nom === sent.nom) {
+                    close_dialog(dialog_agenda);
+                    return;
+                } else {
+                    sent.id = old_data.id;
+                }
+            }
+            json_fetch(url, "POST", sent)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then(result => {
+                onsuccess(sent, result);
+                close_dialog(dialog_agenda);
+            })
+            .catch(error => console.log(error));
+        }); 
+        dialog_agenda.showModal();
+    });
 }
 
 /**
  * Click sur nouvel agenda
  */
 new_agenda_button.addEventListener('click', () => {
-    fetch('/dialogAgenda', {method: "GET"})
-    .then(response => response.text())
-    .then(html => {
-        setDialog(html, "/agenda/new", (_, result) => {
-            list_agendas.insertAdjacentHTML('beforeend', result.html);
-            const agenda = document.getElementById(`agenda_${result.data.id}`);
-            ajout_ecouteurs_agenda(agenda);
+    setDialog({}, "/agenda/new", (_, result) => {
+        list_agendas.insertAdjacentHTML('beforeend', result.html);
+        const agenda = document.getElementById(`agenda_${result.data.id}`);
+        ajout_ecouteurs_agenda(agenda);
 
-            agendaManager.addAgenda(result.data);
-            // si le bouton "tout selectionner" était activé (donc tout était sélectionné)
-            // et qu'on rajoute un agenda non sélectionné, on le désélectionne
-            if (select_all.checked && !result.data.agenda.displayed) {
-                select_all.checked = false;
-            }
-        });
-    })
+        agendaManager.addAgenda(result.data);
+        // si le bouton "tout selectionner" était activé (donc tout était sélectionné)
+        // et qu'on rajoute un agenda non sélectionné, on le désélectionne
+        if (select_all.checked && !result.data.agenda.displayed) {
+            select_all.checked = false;
+        }
+    });
 });
 
 // qu'est ce que ça fait là ??

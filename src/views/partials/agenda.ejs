@@ -1,7 +1,7 @@
 <li class="li_agenda" id="agenda_<%= id %>">
     <label class="nom_agenda" title="<%= agenda.nom %>">
         <input type="checkbox" <%= agenda.displayed ? "checked" : "" %>>
-        <%= agenda.nom %>
+        <span><%= agenda.nom %></span>
     </label>
     <div class="dropdown options">
         <i class="bi bi-three-dots btn dropbtn"></i>
