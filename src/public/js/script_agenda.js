@@ -230,20 +230,20 @@ new_agenda_button.addEventListener('click', () => {
     });
 });
 
-// qu'est ce que ça fait là ??
-(() => {
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    const forms = document.querySelectorAll('.needs-validation')
+// // qu'est ce que ça fait là ??
+// (() => {
+//     // Fetch all the forms we want to apply custom Bootstrap validation styles to
+//     const forms = document.querySelectorAll('.needs-validation')
 
-    // Loop over them and prevent submission
-    Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
+//     // Loop over them and prevent submission
+//     Array.from(forms).forEach(form => {
+//         form.addEventListener('submit', event => {
+//             if (!form.checkValidity()) {
+//                 event.preventDefault()
+//                 event.stopPropagation()
+//             }
 
-            form.classList.add('was-validated')
-        }, false)
-    })
-})()
+//             form.classList.add('was-validated')
+//         }, false)
+//     })
+// })()

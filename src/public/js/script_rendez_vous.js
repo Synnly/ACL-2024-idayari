@@ -199,6 +199,12 @@ export function getRendezVousModal(data, onsuccess) {
     if (data.end && data.all_day) {
         data.end.setDate(data.end.getDate() - 1);
     }
+    // date et heure par défaut
+    if (!data.start && !data.end) {
+        data.start = new Date(Date.now());
+        data.end = new Date(data.start);
+        data.end.setHours(data.end.getHours()+1);
+    }
     data.toDate = getConvertedDate;
     data.toTime = getConvertedTime;
     fetch('/views/partials/rendez_vous_modal.ejs', {method: "GET"})
