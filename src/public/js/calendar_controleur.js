@@ -130,40 +130,25 @@ class AgendaManager {
                 const data = {id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, 
                             fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,
-                            frequence: event.extendedProps.frequence, agenda: event.extendedProps.idAgenda, removeButton: true};
+                            frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true};
                 getRendezVousModal(data, (data) => {
                     manager.update_event(event, data);
                 });
             },
 
             eventChange: function(info) {
-                manager.go = false;
                 const oldEvent = info.oldEvent;
-                const first_event = info.event.toPlainObject();
-                let earliestStart = info.event.start;
-                let earliestEnd = info.event.end;
-
                 // si on modifie la date de début, on supprime les rendez-vous ayant dépassé la date de fin de récurrence
-                if (earliestStart.valueOf() != oldEvent.start.valueOf()) {
+                if (info.event.start.valueOf() != oldEvent.start.valueOf()) {
                     if (info.event.extendedProps.endRec && info.event.start >= info.event.extendedProps.endRec) {
                         info.event.remove();
                     }
-                }
-                for (const ev of info.relatedEvents) {
-                    if (ev.start < earliestStart) {
-                        earliestStart = ev.start;
-                        earliestEnd = ev.end;
-                    }
-                    if (ev.extendedProps.endRec && ev.start >= ev.extendedProps.endRec) {
-                        ev.remove();
+                    for (const ev of info.relatedEvents) {
+                        if (ev.extendedProps.endRec && ev.start >= ev.extendedProps.endRec) {
+                            ev.remove();
+                        }
                     }
                 }
-                const data = {title: first_event.title, lieu: first_event.extendedProps.lieu, description: first_event.extendedProps.description,
-                                id: first_event.groupId, start: earliestStart, end: earliestEnd, allDay: first_event.allDay}
-                json_fetch("/calendar-rdv", "POST", data)
-                .catch((error) => {
-                    info.revert();
-                });
             }
         });
     }
@@ -258,39 +243,71 @@ class AgendaManager {
 
     /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
     update_event(old_event, new_event){
-        if (new_event.freq_type != old_event.extendedProps.type || new_event.freq_number != old_event.extendedProps.frequence ||
-            new_event.date_fin_recurrence != old_event.extendedProps.endRec || new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
+        const end_rec_value = old_event.extendedProps.endRec ? old_event.extendedProps.endRec.valueOf() : old_event.extendedProps.endRec;
+        // si on a changé les infos de recurrence
+        // on supprime tous les evenements affichés et on regénère de nouveaux après modifications
+        if (new_event.type != old_event.extendedProps.type || new_event.frequence != old_event.extendedProps.frequence ||
+            new_event.date_fin_recurrence != end_rec_value || new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
+            console.log("ok");
             const id = old_event.groupId;
+            const startGap = new_event.startDate - old_event.start.valueOf();
+            const endGap = new_event.endDate - old_event.end.valueOf();
             this.remove_events(id);
-            const data = {id: id, dateFinRecurrence: new_event.date_fin_recurrence ? new Date(new_event.date_fin_recurrence) : new_event.date_fin_recurrence,
-                          frequence: new_event.freq_number, type: new_event.freq_type, nbOccurrences: new_event.nb_occurrence}
-            fetch("/calendar-rdv", {
-                method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
-            })
+            const data = {id: id, title: new_event.titre, lieu: new_event.lieu, description: new_event.description, agenda: new_event.agenda,
+                          startGap: startGap, endGap: endGap, allDay: new_event.allDay, dateFinRecurrence: new_event.date_fin_recurrence,
+                          frequence: new_event.frequence, type: new_event.type, nbOccurrences: new_event.nb_occurrence}
+            json_fetch("/calendar-rdv", "POST", data)
             .then(_ => {
-                
+                if (this.agendas[new_event.agenda].displayed) {
+                    this.calendrier.getEventSourceById(new_event.agenda).refetch();
+                }
             })
             .catch((error) => {
                 console.log(error);
             });
         } else {
-            if (new_event.title != old_event.title) {
-                old_event.setProp('title', new_event.title);
-            }
-            if (new_event.start.valueOf() != old_event.start.valueOf() || new_event.end.valueOf() != old_event.end.valueOf() || new_event.allDay != old_event.allDay) {
-                old_event.setDates(new_event.start, new_event.end, { allDay: new_event.allDay});
-            }
-            if (new_event.lieu != old_event.extendedProps.lieu) {
-                old_event.setExtendedProp('lieu', new_event.lieu);
-            }
-            if (new_event.description != old_event.extendedProps.description) {
-                old_event.setExtendedProp('description', new_event.description);
-            }
-            if (old_event.extendedProps.idAgenda !== new_event.idAgenda) {
-                old_event.setExtendedProp('idAgenda', new_event.idAgenda);
-                if (!this.agendas[new_event.idAgenda].displayed) {
+            let modified = false;
+            let purged = false;
+            const old_start_date = old_event.start.valueOf();
+            const old_end_date = old_event.end.valueOf();
+            if (old_event.extendedProps.agenda !== new_event.agenda) {
+                modified = true;
+                console.log(old_event.extendedProps.agenda, new_event.agenda);
+                old_event.setExtendedProp('agenda', new_event.agenda);
+                if (!this.agendas[new_event.agenda].displayed) {
                     this.remove_events(old_event.groupId);
+                    purged = true;
                 }
+            }
+            // si les events ont été effacés, pas besoin de vérifier les eventuelles autres modifications
+            if (!purged) {
+                if (new_event.titre != old_event.title) {
+                    old_event.setProp('title', new_event.titre);
+                    modified = true;
+                }
+                if (new_event.startDate != old_event.start.valueOf() || new_event.endDate != old_event.end.valueOf() || new_event.all_day != old_event.allDay) {
+                    old_event.setDates(new Date(new_event.startDate), new Date(new_event.endDate), { allDay: new_event.all_day});
+                    modified = true;
+                }
+                if (new_event.lieu != old_event.extendedProps.lieu) {
+                    old_event.setExtendedProp('lieu', new_event.lieu);
+                    modified = true;
+                }
+                if (new_event.description != old_event.extendedProps.description) {
+                    old_event.setExtendedProp('description', new_event.description);
+                    modified = true;
+                }
+            }
+            if (modified) {
+                const id = old_event.groupId;
+                const startGap = new_event.startDate - old_start_date;
+                const endGap = new_event.endDate - old_end_date;
+                const data = {id: id, title: new_event.titre, lieu: new_event.lieu, description: new_event.description, agenda: new_event.agenda,
+                    startGap: startGap, endGap: endGap, allDay: new_event.allDay}
+                json_fetch("/calendar-rdv", "POST", data)
+                .catch((error) => {
+                    console.log(error);
+                });
             }
         }
     }

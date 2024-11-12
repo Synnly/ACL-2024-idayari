@@ -6,7 +6,7 @@ export default class RendezVousSimple {
         this.end = dateFin;
         this.allDay = all_day;
         this.groupId = idRendezVous;
-        this.idAgenda = idAgenda;
+        this.agenda = idAgenda.toString();
         this.lieu = lieu;
         this.description = description;
         this.allDay = all_day;

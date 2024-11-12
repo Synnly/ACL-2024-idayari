@@ -8,9 +8,8 @@ import { updateAgendasCookie } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
-import {creationRendezVousPOST, supprimerRDVDELETE} from "./routes/rendezVous.js";
+import {calendarGetData, modifierRendezVousCalendarPOST, creationRendezVousPOST, supprimerRDVDELETE} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
-import { calendarGetData, modifierRendezVousCalendarPOST} from "./routes/calendar.js";
 
 export const app = express();
 app
