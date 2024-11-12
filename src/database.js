@@ -48,9 +48,12 @@ function initTables(sequelize) {
     RendezVous.belongsTo(Agenda, { foreignKey: "idAgenda"});
 }
 
+/**
+ * Synchronise les tables
+ */
 async function syncTables() {
-        await User.sync({alter: true});
-        await Agenda.sync({alter: true});
-        await UserAgendaAccess.sync({alter: true});
-        await RendezVous.sync({alter: true});
+    await User.sync({alter: true});
+    await Agenda.sync({alter: true});
+    await UserAgendaAccess.sync({alter: true});
+    await RendezVous.sync({alter: true});
 }

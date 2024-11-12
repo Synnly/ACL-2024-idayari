@@ -1,11 +1,3 @@
-export function escapeHTML(str) {
-    return str.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
 export function removeDays(date, days) {
     const result = new Date(date.getTime());
     result.setDate(result.getDate() - days);
@@ -73,6 +65,20 @@ export function convertDate(date, withTime=true){
     } else {
         return `${year}-${month}-${day}`;
     }
+}
+
+export function getConvertedDate(date) {
+    const year = date.getFullYear();
+    //PadStart(2,'0') : 2 = nb min de caratère, '0' = le caractère de remplissage qu'on ajoute 
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mois (0-11)
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+export function getConvertedTime(date) {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
 }
 
 export function json_fetch(url, method, data) {

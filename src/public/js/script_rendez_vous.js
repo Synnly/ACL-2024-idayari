@@ -1,4 +1,4 @@
-import { addDays, json_fetch } from "./utils.js";
+import { addDays, getConvertedDate, getConvertedTime } from "./utils.js";
 
 function closeModal(modal) {
     const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -67,7 +67,7 @@ function add_error(message, elem) {
     elem.parentNode.insertBefore(msgErreur, elem.nextSibling);
 }
 
-function setRendezVousModal(html, url, onsuccess) {
+function setRendezVousModal(html, onsuccess) {
     // s'il y avait déjà une modale, on la supprime
     closeModal(document.getElementById('staticBackdrop'));
 
@@ -140,12 +140,8 @@ function setRendezVousModal(html, url, onsuccess) {
                       startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
                       date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence};
         
-        json_fetch(url, "POST", data)
-        .then(response => response.json())
-        .then(result => {
-            onsuccess(data, result);
-            closeModal(fausseModale);
-        });
+        onsuccess(data);
+        closeModal(fausseModale);
     });
 
     all_day.addEventListener('change', () => {
@@ -175,12 +171,20 @@ function setRendezVousModal(html, url, onsuccess) {
 }
 
 
-export function getRendezVousModal(data, submit_url, onsuccess) {
-    const url = "/modalRendezVous?";
-    for (const key of Object.keys(data)) {
-        url += `${key}=${data.key}&`;
+export function getRendezVousModal(data, onsuccess) {
+    data.agendas = [];
+    // on récupère la liste des agendas
+    for (const elem of document.getElementById('agendaList').children) {
+        const id = elem.id.split("_")[1];
+        data.agendas.push({id: id, nom: elem.firstElementChild.title});
     }
-    fetch(url, {method: "GET"})
+    if (data.end && data.all_day) {
+        data.end.setDate(data.end.getDate() - 1);
+    }
+    data.toDate = getConvertedDate;
+    data.toTime = getConvertedTime;
+    fetch('/views/partials/rendez_vous_modal.ejs', {method: "GET"})
     .then(response => response.text())
-    .then(html => setRendezVousModal(html, submit_url, onsuccess));
+    .then(html => ejs.render(html, data))
+    .then(html => setRendezVousModal(html, onsuccess));
 }

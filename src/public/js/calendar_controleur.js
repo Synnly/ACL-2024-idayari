@@ -27,7 +27,7 @@ function get_event_source(agenda_id) {
                     // les dates sont récupérées sous forme de chaînes de caractères
                     rdv.start = new Date(rdv.start);
                     rdv.end = new Date(rdv.end);
-                    rdv.dateFinRecurrence = rdv.dateFinRecurrence ? new Date(rdv.dateFinRecurrence) : rdv.dateFinRecurrence;
+                    rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
                 }
                 successCallback(rendezVous);
             }).catch(err => {
@@ -84,16 +84,20 @@ class AgendaManager {
                     text: 'Nouvel évènement',
                     icon: 'bi bi-plus-lg',
                     click: function() {
-                        getRendezVousModal({}, "/rendezVous/new", (sent, result) => {
-                            result = result.toString();
-                            if (manager.agendas[result].displayed) {
-                                if (manager.new_agenda_no_events.has(result)) {
-                                    manager.calendrier.addEventSource(get_event_source(id));
-                                    manager.new_agenda_no_events.delete(result);
-                                } else {
-                                    manager.calendrier.getEventSourceById(result).refetch();
+                        getRendezVousModal({}, (data) => {
+                            json_fetch("/rendezVous/new", "POST", data)
+                            .then(response => response.json())
+                            .then(result => {
+                                result = result.toString();
+                                if (manager.agendas[result].displayed) {
+                                    if (manager.new_agenda_no_events.has(result)) {
+                                        manager.calendrier.addEventSource(get_event_source(id));
+                                        manager.new_agenda_no_events.delete(result);
+                                    } else {
+                                        manager.calendrier.getEventSourceById(result).refetch();
+                                    }
                                 }
-                            }
+                            });
                         });
                     }
                 }
@@ -123,12 +127,13 @@ class AgendaManager {
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
                 const event = info.event;
-                manager.modified_event = event;
-                getRendezVousModal({title: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
-                            id: event.groupId, start: event.start, end: event.end, allDay: event.allDay,  
-                            type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,
-                            frequence: event.extendedProps.frequence,
-                            agenda: event.extendedProps.agendas});   
+                const data = {titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
+                            start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, 
+                            fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,
+                            frequence: event.extendedProps.frequence, agenda: event.extendedProps.idAgenda};
+                getRendezVousModal(data, (data) => {
+                    manager.update_event(event, data);
+                });
             },
 
             eventChange: function(info) {
@@ -140,7 +145,7 @@ class AgendaManager {
 
                 // si on modifie la date de début, on supprime les rendez-vous ayant dépassé la date de fin de récurrence
                 if (earliestStart.valueOf() != oldEvent.start.valueOf()) {
-                    if (info.event.extendedProps.dateFinRecurrence && info.event.start >= info.event.extendedProps.dateFinRecurrence) {
+                    if (info.event.extendedProps.endRec && info.event.start >= info.event.extendedProps.endRec) {
                         info.event.remove();
                     }
                 }
@@ -149,7 +154,7 @@ class AgendaManager {
                         earliestStart = ev.start;
                         earliestEnd = ev.end;
                     }
-                    if (ev.extendedProps.dateFinRecurrence && ev.start >= ev.extendedProps.dateFinRecurrence) {
+                    if (ev.extendedProps.endRec && ev.start >= ev.extendedProps.endRec) {
                         ev.remove();
                     }
                 }
@@ -173,15 +178,6 @@ class AgendaManager {
      * @param {*} updateCookie booléen pour savoir si on doit mettre à jour le cookie
      */
     deselectionAgenda(agenda_id, updateCookie=true) {
-        // // on enlève l'agenda
-        // delete this.agendas_periodes[agenda_id];
-        // for (const event of this.calendrier.getEvents()) {
-        //     if (!event.extendedProps.agendas.some(e => this.agendas_periodes[e] != undefined)) {
-        //         const identifier = event.groupId + "_" + event.start.toISOString();
-        //         this.events.delete(identifier);
-        //         event.remove();
-        //     }
-        // }
         this.agendas[agenda_id].displayed = false;
         this.calendrier.getEventSourceById(agenda_id).remove();
         if (updateCookie) {
@@ -190,79 +186,11 @@ class AgendaManager {
 
     }
 
-    // addEventsFromRDV(rendezVous, agendas_to_add=null) {
-    //     for (const rdv of rendezVous) {
-    //         const identifier = rdv.groupId + "_" + rdv.start;
-    //         // si le rendez-vous est déjà présent, on met à jour la liste des agendas d'où le rendez-vous provient
-    //         if (!this.events.has(identifier)) {
-    //             // les dates sont récupérées sous forme de chaînes de caractères
-    //             rdv.start = new Date(rdv.start);
-    //             rdv.end = new Date(rdv.end);
-    //             rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
-    //             if (agendas_to_add) {
-    //                 rdv.agendas = agendas_to_add;
-    //             }
-    //             this.events.add(identifier);
-    //             this.calendrier.addEvent(rdv);
-    //         }
-    //     }
-    // }
-
-    //     // à partir de la liste des rendez-vous simples des agendas, ajoute les rendez-vous si nécessaire dans le calendrier
-    // // si déjà présent, met à jour la liste d'agendas d'où provient le rendez-vous
-    // addData(agendas, updateDate=true) {
-    //     const ag = encodeURIComponent(JSON.stringify(agendas));
-    //     fetch(
-    //         "/calendar-data?start=" + this.calendrier.view.activeStart.valueOf() +
-    //             "&end=" + this.calendrier.view.activeEnd.valueOf() +
-    //             "&agendas=" + ag
-    //     ).then((response) => response.json())
-    //     .then(rendezVous => {
-    //         if (rendezVous.err == "not auth") {
-    //             window.location.href = "/";
-    //             return ;
-    //         }
-    //         this.addEventsFromRDV(rendezVous);
-    //         if (updateDate) {
-    //             agendas.forEach(e => {
-    //                 this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
-    //             });
-    //         }
-    //     })
-    //     .catch(err => {
-    //         console.log(err.message);
-    //     });
-    // }
-
-    // addDataFromRDV(id, agendas, rdv_agendas) {
-    //     fetch(
-    //         "/calendar-data-rdv?start=" + this.calendrier.view.activeStart.valueOf() +
-    //             "&end=" + this.calendrier.view.activeEnd.valueOf() +
-    //             "&id=" + id
-    //     )
-    //     .then((response) => response.json())
-    //     .then(rendezVous => {
-    //         if (rendezVous.err == "not auth") {
-    //             window.location.href = "/";
-    //             return ;
-    //         }
-    //         this.addEventsFromRDV(rendezVous, rdv_agendas);
-    //         agendas.forEach(e => {
-    //             this.agendas_periodes[e] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
-    //         });
-    //     })
-    //     .catch(err => {
-    //         console.log(err.message);
-    //     });
-    // }
-
     /**
      * On sélectionne un agenda
      * @param {String} agenda_id id de l'agenda sélectionné
      */
     selectionAgenda(agenda_id) {
-        // l'agenda a été sélectionné
-        // this.addData([agenda_id]);
         this.agendas[agenda_id].displayed = true;
         this.calendrier.addEventSource(get_event_source(agenda_id));
         this.updateCookie();
@@ -279,10 +207,7 @@ class AgendaManager {
      * On déselectionne tous les agendas
      */
     deselectAll() {
-        // this.agendas_periodes = {};
         Object.keys(this.agendas).forEach(id => this.agendas[id].displayed = false);
-        // this.events.clear();
-        // this.calendrier.removeAllEvents();
         this.calendrier.getEventSources().forEach(es => es.remove());
         this.updateCookie();
     }
@@ -332,69 +257,10 @@ class AgendaManager {
         // On ne met pas à jour le cookie ici, c'est déjà fait
     }
 
-    // /* Met à jours le calendrier selon la période actuellement visinle */
-    // updateDate(start, end){
-    //     // liste des agendas dont on devra récupérer des infos
-    //     const to_query = [];
-    //     // pour chaque agenda...
-    //     for (const agenda_id of Object.keys(this.agendas_periodes)) {
-    //         const periodes = this.agendas_periodes[agenda_id];
-    //         // variable pour savoir si on connait déjà les rendez-vous de l'agenda dans la période
-    //         let known = false;
-    //         // variables si les rendez-vous simples d'une partie de la période actuellement visible sont connus
-    //         // permet de combiner ces périodes (pour garantir l'intersection vide des périodes)
-    //         let connect_start = null;
-    //         let connect_end = null;
-    //         for (const periode of periodes) {
-    //             // la période actuellement visible is totalement incluse dans une période dont on connait déjà les rendez-vous
-    //             // pas besoin de query
-    //             if (start >= periode.start && end <= periode.end) {
-    //                 known = true;
-    //             }
-    //             // la période actuellement visible est partiellement incluse dans une période connue
-    //             else if (start >= periode.start) {
-    //                 connect_start = periode;
-    //             }
-    //             else if (end <= periode.end) {
-    //                 connect_end = periode;
-    //             }
-    //             // la période actuellement visible englobe une periode connue (ex : passage de vue Jour -> Mois)
-    //             // on supprime les périodes incluses
-    //             else {
-    //                 periodes.delete(periode);
-    //             }
-    //         }
-    //         // garantit l'intersection vide des périodes
-    //         if (connect_start && connect_end) {
-    //             const new_start = connect_start.start;
-    //             const new_end = connect_end.end;
-    //             periodes.delete(connect_start);
-    //             periodes.delete(connect_end);
-    //             periodes.add({start: new_start, end: new_end});
-    //         } else if (connect_start) {
-    //             connect_start.end = end;
-    //         } else if (connect_end) {
-    //             connect_end.start = start;
-    //         }
-    //         // si on ne connait pas déjà les rendez-vous simples on query
-    //         if (!known) {
-    //             to_query.push(agenda_id);
-    //         }
-    //     }
-    //     if (to_query.length > 0) {
-    //         // pas besoin de mettre à jour les périodes dans la fonction addData, cela a été fait plus haut
-    //         this.addData(to_query, false);
-    //     }
-    // }
-
     /*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
-    update_event(new_event){
-        const old_event = this.modified_event;
-
-        if (new_event.freq_type != old_event.extendedProps.type ||
-            new_event.freq_number != old_event.extendedProps.frequence ||
-            new_event.date_fin_recurrence != old_event.extendedProps.endRec ||
-            new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
+    update_event(old_event, new_event){
+        if (new_event.freq_type != old_event.extendedProps.type || new_event.freq_number != old_event.extendedProps.frequence ||
+            new_event.date_fin_recurrence != old_event.extendedProps.endRec || new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
             const id = old_event.groupId;
             this.remove_events(id);
             const data = {id: id, dateFinRecurrence: new_event.date_fin_recurrence ? new Date(new_event.date_fin_recurrence) : new_event.date_fin_recurrence,
