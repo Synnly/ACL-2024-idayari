@@ -28,6 +28,7 @@ function get_event_source(agenda_id) {
                     // les dates sont récupérées sous forme de chaînes de caractères
                     rdv.start = new Date(rdv.start);
                     rdv.end = new Date(rdv.end);
+                    rdv.id = rdv.groupId; // permet une suppression + rapide (apparemment)
                     rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
                 }
                 successCallback(rendezVous);
@@ -39,7 +40,7 @@ function get_event_source(agenda_id) {
     };
 }
 
-function newRendezVous(_data) {
+function newRendezVous(manager, _data) {
     getRendezVousModal(_data, (data) => {
         json_fetch("/rendezVous/new", "POST", data)
         .then(response => response.json())
@@ -89,8 +90,8 @@ class AgendaManager {
             // nombre de semaines dans la vue Mois non fixe, au lieu de toujours 6 (inclut donc parfois des semaines n'étant pas du tout dans le mois)
             fixedWeekCount: false,
             // permet de pas afficher des milliers de rendez-vous par case
-            dayMaxEventRows: 2, // pour la vue mois
-            eventMaxStack: 3, // pour les vues semaine et jour
+            dayMaxEventRows: true, // pour la vue mois
+            eventMaxStack: true, // pour les vues semaine et jour
             navLinks: true,
             slotDuration: '01:00:00',
             height: "100%",
@@ -100,7 +101,7 @@ class AgendaManager {
                     text: 'Nouvel évènement',
                     icon: 'bi bi-plus-lg',
                     click: function() {
-                        newRendezVous({});
+                        newRendezVous(manager, {});
                     }
                 }
             },
@@ -153,7 +154,7 @@ class AgendaManager {
                 }
             },
             select: function(selectionInfo) {
-                newRendezVous({start: selectionInfo.start, end: selectionInfo.end, all_day: selectionInfo.allDay});
+                newRendezVous(manager, {start: selectionInfo.start, end: selectionInfo.end, all_day: selectionInfo.allDay});
             }
         });
     }
@@ -315,13 +316,12 @@ class AgendaManager {
         }
     }
 
-    // pourraît être optimisé
     remove_events(id) {
-        this.calendrier.getEvents().forEach(ev => {
-            if (ev.groupId === id) {
-                ev.remove();
-            }
-        });
+        let elem = this.calendrier.getEventById(id);
+        while (elem) {
+            elem.remove();
+            elem = this.calendrier.getEventById(id);
+        }
     }
 }
 
