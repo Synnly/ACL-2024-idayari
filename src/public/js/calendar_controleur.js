@@ -2,6 +2,7 @@ import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import {getRendezVousModal} from '/js/script_rendez_vous.js';
 import { json_fetch } from './utils.js';
@@ -38,13 +39,27 @@ function get_event_source(agenda_id) {
     };
 }
 
+function newRendezVous(_data) {
+    getRendezVousModal(_data, (data) => {
+        json_fetch("/rendezVous/new", "POST", data)
+        .then(response => response.json())
+        .then(result => {
+            result = result.toString();
+            if (manager.agendas[result]) {
+                if (manager.new_agenda_no_events.has(result)) {
+                    manager.calendrier.addEventSource(get_event_source(id));
+                    manager.new_agenda_no_events.delete(result);
+                } else {
+                    manager.calendrier.getEventSourceById(result).refetch();
+                }
+            }
+        });
+    });
+}
+
 class AgendaManager {
 
     constructor() {
-        // "tableau associatif" qui associe chaque agenda (id) à un ensemble de périodes ({debut, fin})
-        // dont les rendez-vous simples sont stockées dans le calendrier
-        // ex : '12': Set [ {start: 2 Nov 2024, end: 3 Nov 2024} ]
-        // this.agendas_periodes = {};
         const manager = this;
         // pour éviter de faire une requête pour un agenda dont on sait qu'il n'y a pas de rendez-vous
         // cet ensemble répertorie les agendas récemment ajoutés et sélectionnés. On n'ajoute pas l'event_source pour éviter le fetch
@@ -56,7 +71,7 @@ class AgendaManager {
         for (const child of document.getElementById('agendaList').children) {
             const id = child.id.split("_")[1];
             const  checkbox = child.firstElementChild.firstElementChild;
-            this.agendas[id] = {displayed: checkbox.checked, isOwner: true};
+            this.agendas[id] = checkbox.checked;
             if (checkbox.checked) {
                 event_sources.push(get_event_source(id));
             }
@@ -66,7 +81,7 @@ class AgendaManager {
         const elementCalendrier = document.getElementById('calendar');
         this.calendrier = new Calendar(elementCalendrier,{
             //Appel des différents composants 
-            plugins : [dayGridPlugin,timeGridPlugin,listPlugin, bootstrap5Plugin],
+            plugins : [dayGridPlugin,timeGridPlugin,listPlugin, bootstrap5Plugin, interactionPlugin],
             // le format des dates dépend du navigateur
             locale:navigator.languages[0],
             // permet de commencer Lundi
@@ -79,26 +94,13 @@ class AgendaManager {
             navLinks: true,
             slotDuration: '01:00:00',
             height: "100%",
+            selectable: true,
             customButtons: {
                 new_event: {
                     text: 'Nouvel évènement',
                     icon: 'bi bi-plus-lg',
                     click: function() {
-                        getRendezVousModal({}, (data) => {
-                            json_fetch("/rendezVous/new", "POST", data)
-                            .then(response => response.json())
-                            .then(result => {
-                                result = result.toString();
-                                if (manager.agendas[result].displayed) {
-                                    if (manager.new_agenda_no_events.has(result)) {
-                                        manager.calendrier.addEventSource(get_event_source(id));
-                                        manager.new_agenda_no_events.delete(result);
-                                    } else {
-                                        manager.calendrier.getEventSourceById(result).refetch();
-                                    }
-                                }
-                            });
-                        });
+                        newRendezVous({});
                     }
                 }
             },
@@ -149,6 +151,9 @@ class AgendaManager {
                         }
                     }
                 }
+            },
+            select: function(selectionInfo) {
+                newRendezVous({start: selectionInfo.start, end: selectionInfo.end, all_day: selectionInfo.allDay});
             }
         });
     }
@@ -163,7 +168,7 @@ class AgendaManager {
      * @param {*} updateCookie booléen pour savoir si on doit mettre à jour le cookie
      */
     deselectionAgenda(agenda_id, updateCookie=true) {
-        this.agendas[agenda_id].displayed = false;
+        this.agendas[agenda_id] = false;
         this.calendrier.getEventSourceById(agenda_id).remove();
         if (updateCookie) {
             this.updateCookie();
@@ -176,7 +181,7 @@ class AgendaManager {
      * @param {String} agenda_id id de l'agenda sélectionné
      */
     selectionAgenda(agenda_id) {
-        this.agendas[agenda_id].displayed = true;
+        this.agendas[agenda_id] = true;
         this.calendrier.addEventSource(get_event_source(agenda_id));
         this.updateCookie();
     }
@@ -192,7 +197,7 @@ class AgendaManager {
      * On déselectionne tous les agendas
      */
     deselectAll() {
-        Object.keys(this.agendas).forEach(id => this.agendas[id].displayed = false);
+        Object.keys(this.agendas).forEach(id => this.agendas[id] = false);
         this.calendrier.getEventSources().forEach(es => es.remove());
         this.updateCookie();
     }
@@ -206,9 +211,9 @@ class AgendaManager {
         // const new_agendas = [];
         for (const elem of list_agendas.children) {
             const id = elem.id.split("_")[1];
-            if (!this.agendas[id].displayed) {
+            if (!this.agendas[id]) {
                 // new_agendas.push(id);
-                this.agendas[id].displayed = true;
+                this.agendas[id]= true;
                 this.calendrier.addEventSource(get_event_source(id));
             }
         }
@@ -222,7 +227,7 @@ class AgendaManager {
      * {id: _, agenda: {nom: _, displayed: _, isOwner: _}}
      */
     addAgenda(data) {
-        this.agendas[data.id] = {displayed: data.agenda.displayed, isOwner: data.agenda.isOwner};
+        this.agendas[data.id] = data.agenda.displayed;
         if (data.agenda.displayed) {
             this.new_agenda_no_events.add(data.id);
         }
@@ -248,7 +253,6 @@ class AgendaManager {
         // on supprime tous les evenements affichés et on regénère de nouveaux après modifications
         if (new_event.type != old_event.extendedProps.type || new_event.frequence != old_event.extendedProps.frequence ||
             new_event.date_fin_recurrence != end_rec_value || new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
-            console.log("ok");
             const id = old_event.groupId;
             const startGap = new_event.startDate - old_event.start.valueOf();
             const endGap = new_event.endDate - old_event.end.valueOf();
@@ -258,7 +262,7 @@ class AgendaManager {
                           frequence: new_event.frequence, type: new_event.type, nbOccurrences: new_event.nb_occurrence}
             json_fetch("/calendar-rdv", "POST", data)
             .then(_ => {
-                if (this.agendas[new_event.agenda].displayed) {
+                if (this.agendas[new_event.agenda]) {
                     this.calendrier.getEventSourceById(new_event.agenda).refetch();
                 }
             })
@@ -272,9 +276,8 @@ class AgendaManager {
             const old_end_date = old_event.end.valueOf();
             if (old_event.extendedProps.agenda !== new_event.agenda) {
                 modified = true;
-                console.log(old_event.extendedProps.agenda, new_event.agenda);
                 old_event.setExtendedProp('agenda', new_event.agenda);
-                if (!this.agendas[new_event.agenda].displayed) {
+                if (!this.agendas[new_event.agenda]) {
                     this.remove_events(old_event.groupId);
                     purged = true;
                 }
