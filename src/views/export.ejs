@@ -22,14 +22,13 @@
                     </div>
                     <ul id="agendaList" class="list-group px-3 align-self-end">
                         <% for (const agenda of locals.agendas) { %>
-                            <li class="list-group-item list-group-item-light user-select-none cursor-pointer" id="<%= agenda.id %>" onclick='selectAgenda("<%= agenda.id %>", "<%= encodeURI(agenda.nom) %>")'>
+                            <li class="list-group-item list-group-item-light user-select-none cursor-pointer" id="<%= agenda.id %>" onclick='selectAgenda("<%= agenda.id %>", `<%= encodeURIComponent(agenda.nom) %>`)'>
                                 <%= agenda.nom %>
                             </li>
                         <% } %>
                     </ul>
                 </div>
             </nav>
-            
             <div class="col col-10 p-3 d-flex flex-column align-content-center align-items-center gap-4">
                 <div class="d-flex justify-content-start w-100">
                     <a href="/" class="">Retour à l'accueil</a>
@@ -44,13 +43,12 @@
             </div>
         </div>
 
-<div class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75" id="spinner">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-</div>
-        
-        <script src="/js/export.js"></script>
+    <div class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75" id="spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>  
+    <script src="/js/export.js"></script>
 </body>
 
 </html>
