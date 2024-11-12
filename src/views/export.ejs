@@ -22,7 +22,7 @@
                     </div>
                     <ul id="agendaList" class="list-group px-3 align-self-end">
                         <% for (const agenda of locals.agendas) { %>
-                            <li class="list-group-item list-group-item-light user-select-none cursor-pointer" id="<%= agenda.id %>" onclick='selectAgenda("<%= agenda.id %>", "<%= agenda.nom %>")'>
+                            <li class="list-group-item list-group-item-light user-select-none cursor-pointer" id="<%= agenda.id %>" onclick='selectAgenda("<%= agenda.id %>", "<%= encodeURI(agenda.nom) %>")'>
                                 <%= agenda.nom %>
                             </li>
                         <% } %>
@@ -38,13 +38,12 @@
                     <h1 class="fs-3 text-center">Exporter votre agenda en un simple clic.</h1>
                     <h2 class="fs-6 text-center">Choissisez parmi la liste de vos agendas celui que vous voulez exporter, un seul agenda exportable à la fois.</h2>
                 </div>
-                <img src="/img/export_1.svg" alt="export" class="img-fluid w-50">
                 <button class="btn btn-primary px-5 py-2 mt-3 text-white d-none" id="exportBtn" onclick="">
                     Exporter en JSON
                 </button>
             </div>
         </div>
-        <!-- Spinner HTML -->
+
 <div class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75" id="spinner">
     <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
