@@ -159,6 +159,7 @@ export function creerModale(rdv, agendas) {
 					</div>
 					<div class="modal-footer">
 					<button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal"  onClick="quitModal()">Annuler</button>
+					<button type="button" class="btn btn-outline-danger btn-modal">Supprimer</button>
 					<button type="submit" class="btn btn-primary btn-modal">Modifier</button>
 					</div>
 				</form>
@@ -180,7 +181,7 @@ window.suppressionRDV = function(id){
   if(confirm("Vous allez supprimer le rendez-vous.")){
     fetch(`/supprimerRDV/${id}`)
       .then((_) => {
-        deleteModal();
+        closeM
         agendaManager.remove_events(id);
       })
       .catch((error) => {

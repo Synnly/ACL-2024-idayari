@@ -127,10 +127,10 @@ class AgendaManager {
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
                 const event = info.event;
-                const data = {titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
+                const data = {id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, 
                             fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,
-                            frequence: event.extendedProps.frequence, agenda: event.extendedProps.idAgenda};
+                            frequence: event.extendedProps.frequence, agenda: event.extendedProps.idAgenda, removeButton: true};
                 getRendezVousModal(data, (data) => {
                     manager.update_event(event, data);
                 });
@@ -240,7 +240,6 @@ class AgendaManager {
         this.agendas[data.id] = {displayed: data.agenda.displayed, isOwner: data.agenda.isOwner};
         if (data.agenda.displayed) {
             this.new_agenda_no_events.add(data.id);
-            // this.agendas_periodes[data.id] = new Set([{start: this.calendrier.view.activeStart, end: this.calendrier.view.activeEnd}]);
         }
     }
 

@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler"></button>
+                <button type="button" class="btn-close ferme" data-bs-dismiss="modal" aria-label="Annuler"></button>
             </div>
             <div class="modal-body">
                 <form id="rendezvous_form" method="POST">
@@ -22,7 +22,7 @@
                         <div class="d-flex mb-3 align-items-center">
                             <i class="bi bi-text-left mr"></i>
                             <div class="d-flex flex-grow-1">
-                                <textarea class="form-control" rows="2" maxlenght="1000" placeholder="description" value="<%= locals.description ? locals.description : "" %>" name="description"></textarea>
+                                <textarea class="form-control" rows="3" maxlenght="1000" placeholder="description" name="description"><%= locals.description ? locals.description : "" %></textarea>
                             </div>
                         </div>
                         <div class="d-flex mb-3 align-items-center">
@@ -119,9 +119,16 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-modal"  data-bs-dismiss="modal">Annuler</button>
-                        <input type="submit" class="btn btn-primary btn-modal" value="Valider">
+                    <div class="modal-footer justify-content-between">
+                        <div>
+                            <button type="button" class="btn btn-modal ferme"  data-bs-dismiss="modal">Annuler</button>
+                        </div>
+                        <div>
+                            <% if (locals.removeButton) { %>
+                                <button type="button" id="remove_button" class="btn btn-outline-danger btn-modal">Supprimer</button>
+                            <% } %>
+                            <input type="submit" class="btn btn-primary btn-modal" value="Valider">
+                        </div>
                     </div>
                 </form>
             </div>

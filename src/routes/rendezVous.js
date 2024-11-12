@@ -35,24 +35,27 @@ export function creationRendezVousPOST(req, res){
 
 }
 
-export function supprimerRDVGET(req, res) {
+export function supprimerRDVDELETE(req, res) {
     if (!res.locals.user) {
         return res.redirect('/connexion');
     }
-
-    if (res.locals.agendas[req.params.idAgenda].isOwner) {
-        RendezVous.destroy({
-            where: { id: req.params.id }
-        }).then(nb_destroyed => {
-            if (nb_destroyed > 0) {
-                res.status(200).end();
+    RendezVous.findByPk(req.params.id)
+    .then(rdv => {
+        if (rdv) {
+            if (res.locals.agendas[rdv.idAgenda].isOwner) {
+                rdv.destroy()
+                .then(_ => {
+                    res.status(200).end();
+                }).catch(error => {
+                    res.status(400).end();
+                })
+            } else {
+                res.status(400).end();
             }
-        }).catch(error => {
-            res.status(400).end();
-        })
-    } else {
+        }
+    }).catch(_ => {
         res.status(400).end();
-    }
+    })
     
 }
 

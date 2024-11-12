@@ -1,4 +1,5 @@
 import { addDays, getConvertedDate, getConvertedTime } from "./utils.js";
+import { agendaManager } from "./calendar_controleur.js";
 
 function closeModal(modal) {
     const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -67,7 +68,7 @@ function add_error(message, elem) {
     elem.parentNode.insertBefore(msgErreur, elem.nextSibling);
 }
 
-function setRendezVousModal(html, onsuccess) {
+function setRendezVousModal(html, onsuccess, id) {
     // s'il y avait déjà une modale, on la supprime
     closeModal(document.getElementById('staticBackdrop'));
 
@@ -99,16 +100,16 @@ function setRendezVousModal(html, onsuccess) {
         const description = form["description"].value.trim();
         const agenda_id = +form["agenda"].value;
         const is_all_day = all_day.checked;
-        let startDate = "";
-        let endDate = "";
+        let startDate;
+        let endDate;
         if (is_all_day) {
             startDate = new Date(form["startDate"].value);
             startDate.setHours(0, 0, 0);
             endDate = addDays(new Date(form["endDate"].value), 1);
             endDate.setHours(0, 0, 0);
         } else {
-            startDate = new Date(`${form["startDate"]}T${startTime.value}`);
-            endDate = new Date(`${form["endDate"]}T${endTime.value}`);
+            startDate = new Date(`${form["startDate"].value}T${startTime.value}`);
+            endDate = new Date(`${form["endDate"].value}T${endTime.value}`);
         }
         if (endDate <= startDate) {
             add_error("La date de fin doit être supérieure à la date de début.", document.getElementById('endDateDiv'));
@@ -139,7 +140,6 @@ function setRendezVousModal(html, onsuccess) {
         const data = {titre: titre, lieu: lieu, description: description, agenda: agenda_id, all_day: is_all_day, 
                       startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
                       date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence};
-        
         onsuccess(data);
         closeModal(fausseModale);
     });
@@ -160,8 +160,26 @@ function setRendezVousModal(html, onsuccess) {
     });
 
     // On suppose que tous les boutons servent à fermer la fenetre
-    for (const btn of fausseModale.getElementsByTagName('BUTTON')) {
+    for (const btn of fausseModale.getElementsByClassName('ferme')) {
         btn.addEventListener('click', () => closeModal(fausseModale));
+    }
+
+    const remove_button = document.getElementById('remove_button');
+    if (remove_button) {
+        remove_button.addEventListener('click', () => {
+            if(confirm("Voulez-vous vraiment supprimer ce rendez-vous ?\nCela supprimera aussi toutes les autres occurrences.")){
+                fetch(`/supprimerRDV/${id}`, {method: "DELETE"})
+                .then(response => {
+                    if (response.status === 200) {
+                        agendaManager.remove_events(id);
+                        closeModal(fausseModale);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+              }
+        });
     }
 
     recurrent_checkbox.addEventListener('change', () => change_recurrent_option(recurrent_checkbox.checked, recurrence_div, frequence_input, type_end_recurrence, end_date_rec, nb_occurrence_input, nb_occurrence_div));
@@ -186,5 +204,5 @@ export function getRendezVousModal(data, onsuccess) {
     fetch('/views/partials/rendez_vous_modal.ejs', {method: "GET"})
     .then(response => response.text())
     .then(html => ejs.render(html, data))
-    .then(html => setRendezVousModal(html, onsuccess));
+    .then(html => setRendezVousModal(html, onsuccess, data.id));
 }
