@@ -47,9 +47,11 @@ export async function ajouterPartageGET(req, res){
 				return res.redirect("/");
 		}
 
+		let agenda;
+		let owner;
 		try {
-				const agenda = await Agenda.findByPk(req.params.id);
-				const owner = await agenda.getOwner();
+				agenda = await Agenda.findByPk(req.params.id);
+				owner = await agenda.getOwner();
 		}
 		catch (e) {
 				return res.render("error", {
@@ -62,7 +64,6 @@ export async function ajouterPartageGET(req, res){
 		if(owner.dataValues.id === res.locals.user.id){
 				return res.redirect("/");
 		}
-
 
 		// L'user a déjà accès à l'agenda
 		const userPartage = await UserAgendaAccess.findOne({where: {idUser: res.locals.user.id, idAgenda: agenda.id}});
@@ -92,9 +93,12 @@ export async function confirmerAjoutPartageGET(req, res){
 				return res.redirect("/");
 		}
 
+		let agenda;
+		let owner;
+
 		try {
-				const agenda = await Agenda.findByPk(req.params.id);
-				const owner = await agenda.getOwner();
+				agenda = await Agenda.findByPk(req.params.id);
+				owner = await agenda.getOwner();
 		}
 		catch (e) {
 				return res.render("error", {

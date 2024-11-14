@@ -57,8 +57,8 @@ app
     .get("/calendar-data/", calendarGetData)
 
     .get("/partage", voirPartagesGET)
-    .get("/partage/:id", ajouterPartageGET)
-    .get("/partage/:id/yes", confirmerAjoutPartageGET)
+    .get("/partage/:id", confirmerAjoutPartageGET)
+    .get("/partage/:id/yes", ajouterPartageGET)
     .get("/partage/new/:id", creerPartageGET)
 
     .use((req, res, next) => next(createError(404)))
