@@ -108,21 +108,25 @@ function openDropDownMenu(elem) {
  */
 function ajout_ecouteurs_agenda(agenda) {
     const id = agenda.id.split("_")[1];
-    const nom = agenda.firstElementChild.title;
+    const label = agenda.firstElementChild;
+    const nom = label.title;
     agenda.addEventListener('click', (event) => selectAgenda(agenda, id, event));
-    const dropdown = agenda.lastElementChild;
-    // factorise le fait d'empecher la sélection d'agendas quand on clique sur les boutons du menu ou les 3 points
-    dropdown.addEventListener('click', (event) => event.stopPropagation());
-    const option = dropdown.firstElementChild;
-    const list_options = option.nextElementSibling;
-    option.addEventListener('click', () => openDropDownMenu(list_options));
-    // les options (modifier, supprimer, etc...)
-    for (const elem of list_options.children) {
-        if (elem.getAttribute('data-type') === "sup") {
-            elem.addEventListener('click', () => supprimerAgenda(id, nom, agenda));
-        }
-        if (elem.getAttribute('data-type') === "edit") {
-            elem.addEventListener('click', () => editAgenda(id, nom, agenda));
+    const dropdown = label.nextElementSibling;
+    // si on a le dropdown menu (peut ne pas être le cas si agenda partagé)
+    if (dropdown) {
+        // factorise le fait d'empecher la sélection d'agendas quand on clique sur les boutons du menu ou les 3 points
+        dropdown.addEventListener('click', (event) => event.stopPropagation());
+        const option = dropdown.firstElementChild;
+        const list_options = option.nextElementSibling;
+        option.addEventListener('click', () => openDropDownMenu(list_options));
+        // les options (modifier, supprimer, etc...)
+        for (const elem of list_options.children) {
+            if (elem.getAttribute('data-type') === "sup") {
+                elem.addEventListener('click', () => supprimerAgenda(id, nom, agenda));
+            }
+            if (elem.getAttribute('data-type') === "edit") {
+                elem.addEventListener('click', () => editAgenda(id, nom, agenda));
+            }
         }
     }
 }
