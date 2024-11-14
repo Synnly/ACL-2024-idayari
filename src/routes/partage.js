@@ -9,7 +9,7 @@ export async function voirPartagesGET(req, res){
 		}
 
 		const user = await User.getById(res.locals.user.id);
-		res.locals.agendas = await user.getAgendas();
+		res.locals.agendas = await user.getMyAgendas();
 		res.locals.partages = {};
 
 		for(const agenda of res.locals.agendas){
