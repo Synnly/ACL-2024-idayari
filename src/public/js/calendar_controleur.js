@@ -168,6 +168,7 @@ export class AgendaManager {
                 window.location.href = "/";
                 return ;
             }
+            console.log(rendezVous);
             for (const rdv of rendezVous) {
                 // les dates sont récupérées sous forme de chaînes de caractères
                 rdv.start = new Date(rdv.start);
@@ -218,8 +219,10 @@ export class AgendaManager {
     async selectAll() {
         // on récupère la nouvelle liste des agendas sélectionnés du DOM
         const agendasSelectionnes = document.getElementById('agendaList').getElementsByClassName('active');
+        const partagesSelectionnes = document.getElementById('partageList').getElementsByClassName('active');
+
         // si tout a été désélectionné, pas besoin de query
-        if (agendasSelectionnes.length == 0) {
+        if (agendasSelectionnes.length + partagesSelectionnes.length === 0) {
             this.agendas_periodes = {};
             this.events.clear();
             this.calendrier.removeAllEvents();
@@ -227,6 +230,12 @@ export class AgendaManager {
             // sinon on récupère les rendez-vous simples des agendas dont on n'a pas encore les infos
             const new_agendas = [];
             for (const elem of agendasSelectionnes) {
+                const id = elem.id.split("_")[1];
+                if (!this.agendas_periodes[id]) {
+                    new_agendas.push(id);
+                }
+            }
+            for (const elem of partagesSelectionnes) {
                 const id = elem.id.split("_")[1];
                 if (!this.agendas_periodes[id]) {
                     new_agendas.push(id);

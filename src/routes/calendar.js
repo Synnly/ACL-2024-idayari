@@ -36,8 +36,14 @@ export async function calendarGetData(req, res) {
         ],
     }).then(rendez_vous => {
         const simples = [];
-        const readonly = rendez_vous[0].dataValues.Agendas[0].dataValues.idOwner !== res.locals.user.id;
         for (const rdv of rendez_vous) {
+            let readonly = false;
+            for(const agenda of rdv.Agendas){
+                if(agenda.idOwner !== res.locals.user.id){
+                    readonly = true;
+                    break;
+                }
+            }
             const agendas_id = rdv.dataValues.agendas_id.split(",");
             for (const simple of rdv.get_rendezVous(dateStart, dateEnd)) {
                 simple.agendas = agendas_id;
