@@ -43,13 +43,26 @@ export async function ajouterPartageGET(req, res){
 				return res.redirect("/");
 		}
 
-		const agenda = await Agenda.findByPk(req.params.id);
-		const owner = await agenda.getOwner();
+		if(isNaN(Number.parseInt(req.params.id)) || +req.params.id <= 0){
+				return res.redirect("/");
+		}
+
+		try {
+				const agenda = await Agenda.findByPk(req.params.id);
+				const owner = await agenda.getOwner();
+		}
+		catch (e) {
+				return res.render("error", {
+						message: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+						status: 500,
+				});
+		}
 
 		// le propriétaire essaie d'ajouter son propre agenda
 		if(owner.dataValues.id === res.locals.user.id){
 				return res.redirect("/");
 		}
+
 
 		// L'user a déjà accès à l'agenda
 		const userPartage = await UserAgendaAccess.findOne({where: {idUser: res.locals.user.id, idAgenda: agenda.id}});
@@ -63,6 +76,7 @@ export async function ajouterPartageGET(req, res){
 		catch (e) {
 				return res.render("error", {
 						message: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+						status: 500,
 				});
 		}
 
@@ -74,8 +88,20 @@ export async function confirmerAjoutPartageGET(req, res){
 				return res.redirect("/");
 		}
 
-		const agenda = await Agenda.findByPk(req.params.id);
-		const owner = await agenda.getOwner();
+		if(isNaN(Number.parseInt(req.params.id)) || +req.params.id <= 0){
+				return res.redirect("/");
+		}
+
+		try {
+				const agenda = await Agenda.findByPk(req.params.id);
+				const owner = await agenda.getOwner();
+		}
+		catch (e) {
+				return res.render("error", {
+						message: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+						status: 500,
+				});
+		}
 
 		// le propriétaire essaie d'ajouter son propre agenda
 		if(owner.dataValues.id === res.locals.user.id){
