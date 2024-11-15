@@ -10,6 +10,10 @@ import { DISPLAYED_BY_DEFAULT } from "../public/js/utils.js";
  */
 export async function index(req, res) {
     if (res.locals.user) {
+        if (req.cookies.currentView) {
+            res.locals.currentView = req.cookies.currentView;
+            res.locals.currentDateStart = req.cookies.currentDateStart;
+        }
         // récupère les informations (qui peuvent avoir changé)
         const user = await User.findByPk(res.locals.user.id);
         res.locals.username = user.username;

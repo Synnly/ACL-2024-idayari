@@ -63,7 +63,7 @@ function newRendezVous(manager, _data) {
     });
 }
 
-class AgendaManager {
+export class AgendaManager {
 
     constructor() {
         const manager = this;
@@ -101,6 +101,8 @@ class AgendaManager {
             slotDuration: '01:00:00',
             height: "100%",
             selectable: true,
+            initialView: savedViewType,
+            initialDate: savedDateStart,
             customButtons: {
                 new_event: {
                     text: 'Nouvel évènement',
@@ -144,6 +146,10 @@ class AgendaManager {
                 });
             },
 
+            datesSet: function(dateInfo) {
+                manager.setViewCookies(dateInfo.view.type);
+            },
+
             eventChange: function(info) {
                 const oldEvent = info.oldEvent;
                 // si on modifie la date de début, on supprime les rendez-vous ayant dépassé la date de fin de récurrence
@@ -158,6 +164,7 @@ class AgendaManager {
                     }
                 }
             },
+
             select: function(selectionInfo) {
                 newRendezVous(manager, {start: selectionInfo.start, end: selectionInfo.end, all_day: selectionInfo.allDay});
             }
@@ -197,6 +204,10 @@ class AgendaManager {
      */
     updateCookie() {
         json_fetch("/setAgendasCookie", "PUT", {agendas: this.agendas});
+    }
+
+    setViewCookies(view) {
+        json_fetch("/setViewCookies", "PUT", {viewType: view, start: this.calendrier.view.currentStart.toISOString()});
     }
 
     /**
@@ -329,6 +340,5 @@ class AgendaManager {
     }
 }
 
-//Initialisation du model
 export const agendaManager = new AgendaManager();
 agendaManager.init();

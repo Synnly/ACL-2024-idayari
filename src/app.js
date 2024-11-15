@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
 import { index } from './routes/index.js';
-import { updateAgendasCookie } from './routes/cookie.js';
+import { updateAgendasCookie, updateViewCookies } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
@@ -38,6 +38,7 @@ app
     .post("/inscription", inscriptionPOST)
 
     .put("/setAgendasCookie", updateAgendasCookie)
+    .put("/setViewCookies", updateViewCookies)
     .post("/agenda/new", creationAgendaPOST)
     .post('/modifierAgenda', modifierAgendaPOST)
     .delete('/supprimerAgenda/:id', supprimerAgendaDELETE)

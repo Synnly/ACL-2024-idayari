@@ -16,3 +16,11 @@ export function updateAgendasCookie(req, res) {
     }
     res.end();
 }
+
+export function updateViewCookies(req, res) {
+    if (res.locals.user) {
+        createCookie("currentView", req.body.viewType, res);
+        createCookie("currentDateStart", req.body.start, res);
+    }
+    res.end();
+}
