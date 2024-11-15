@@ -1,23 +1,20 @@
 <!DOCTYPE html>
-<html>
-<head>
-  	<meta charset="utf-8" />
-  	<title>Idayari</title>
-  	<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-  	<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-  	<meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="/css/main.css" rel="stylesheet">
-    <link href="/css/index.css" rel="stylesheet">
-	<script src="/js/index.js"></script>
-	<link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.min.css' rel='stylesheet'>
-</head>
+<html lang="fr">
+	<head>
+		<%- include('partials/head.ejs', {title: "Idayari"}) %>
+		<link href="/css/index.css" rel="stylesheet">
+		<% if (locals.user) { %>
+			<link href="/css/agenda_display.css" rel="stylesheet">
+			<link href="/css/calendar.css" rel="stylesheet">		
+		<% } %>
+	</head>
 
-<body class="container flex-column d-flex min-vh-100 min-vw-100 m-0 p-0" data-bs-theme="light">
-	<% if (locals.user) { %>
-    	<%- await include('index_connecte.ejs') %>
-	<%} else{ %>
-    	<%- await include('index_non_connecte.ejs') %>	
-	<% } %>
-    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
-</body>
+	<body class="container flex-column d-flex min-vh-100 min-vw-100 m-0 p-0" data-bs-theme="light">
+		<% if (locals.user) { %>
+			<%- include('index_connecte.ejs') %>
+		<%} else{ %>
+			<%- include('index_non_connecte.ejs') %>	
+		<% } %>
+		<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+	</body>
 </html>

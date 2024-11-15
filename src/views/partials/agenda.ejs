@@ -1,0 +1,17 @@
+<li class="li_agenda" id="agenda_<%= id %>">
+    <label class="nom_agenda" title="<%= agenda.nom %>">
+        <input type="checkbox" <%= agenda.displayed ? "checked" : "" %>>
+        <span><%= agenda.nom %></span>
+    </label>
+    <div class="dropdown options">
+        <i class="bi bi-three-dots btn dropbtn"></i>
+        <% if (agenda.isOwner) { %>
+            <div class="dropdown-content noshow">
+                <i class="bi bi-pencil-square option-icon" data-type="edit" title="Modifier l'agenda"></i>
+                <i class="bi bi-trash3 option-icon" data-type="sup" title="Supprimer l'agenda"></i>
+                <i class="bi bi-share option-icon" data-type="share" title="Partager l'agenda"></i>
+                <i class="bi bi-file-earmark-arrow-down option-icon" data-type="export" title="Exporter l'agenda"></i>
+            </div>
+        <% } %>
+    </div>
+</li>

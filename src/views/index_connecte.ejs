@@ -1,39 +1,23 @@
-<%- await include('partials/header.ejs') %>
+<%- include('partials/header.ejs') %>
 <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1" >
     <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
         <div class="w-100 h-fit-content">
-            <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center"><span>Vos agendas </span>
-                <button onclick="window.location.href='/modifierAgendas'" class="btn btn-sm btn-secondary text-white">Modifier</button>
-            </div>
-            <div class="w-100 d-flex h-fit-content p-3">
-                <button class="btn btn-outline-secondary w-100" id="ouvreDialogCreationAgenda" onclick="openDialog()">
-                    <span class="bi bi-plus-lg" role="img"></span>
+            <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center">
+                <span>Vos agendas</span>
+                <input type="checkbox" title='Tout (dé)sélectionner' id="selectAll" <%= locals.all_selected ? "checked" : "" %>>
+                <button class="btn" id="newAgenda">
+                    <span class="bi bi-calendar-plus" title="Nouvel Agenda" role="img"></span>
                 </button>
             </div>
-            <ul class="list-group px-3 py-2">
-                <li id="selectAll" class="list-group-item list-group-item-light user-select-none" onclick="toggleAll('agendaList', 'selectAll')">Tout sélectionner</li>
-            </ul>
             <ul id="agendaList" class="list-group px-3 listAgenda align-self-end">
-                <% for (const agenda of locals.agendas) { %>
-                    <li class="list-group-item list-group-item-light user-select-none" id="agenda_<%= agenda.id %>" onclick='toggleAgenda("agenda_<%= encodeURI(agenda.id) %>")'><%= agenda.nom %></li>
+                <% for (const agenda_id of Object.keys(locals.agendas)) { %>
+                    <%- include('partials/agenda.ejs', {agenda: locals.agendas[agenda_id], id: agenda_id }) %>
                 <% } %>
             </ul>
-
         </div>
-
     </nav>
     <div class="col col-10 p-3 d-flex flex-column">
         <div id="calendar"></div>
-        <!-- <div class="d-flex justify-content-end px-3">
-            <button onclick="window.location.href='/rendezVous/new'" class="btn btn-outline-secondary px-3 py-2 text-center w-fit-content">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cake" viewBox="0 0 16 16">
-                    <path d="m7.994.013-.595.79a.747.747 0 0 0 .101 1.01V4H5a2 2 0 0 0-2 2v3H2a2 2 0 0 0-2 2v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a2 2 0 0 0-2-2h-1V6a2 2 0 0 0-2-2H8.5V1.806A.747.747 0 0 0 8.592.802zM4 6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v.414a.9.9 0 0 1-.646-.268 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0A.9.9 0 0 1 4 6.414zm0 1.414c.49 0 .98-.187 1.354-.56a.914.914 0 0 1 1.292 0c.748.747 1.96.747 2.708 0a.914.914 0 0 1 1.292 0c.374.373.864.56 1.354.56V9H4zM1 11a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.793l-.354.354a.914.914 0 0 1-1.293 0 1.914 1.914 0 0 0-2.707 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0 1.914 1.914 0 0 0-2.708 0 .914.914 0 0 1-1.292 0L1 11.793zm11.646 1.854a1.915 1.915 0 0 0 2.354.279V15H1v-1.867c.737.452 1.715.36 2.354-.28a.914.914 0 0 1 1.292 0c.748.748 1.96.748 2.708 0a.914.914 0 0 1 1.292 0c.748.748 1.96.748 2.707 0a.914.914 0 0 1 1.293 0Z"/>
-                </svg>
-            </button>
-        </div> -->
     </div>
 </div>
 <script>
@@ -49,8 +33,6 @@
     window.addEventListener('load', adjustListHeight);
     window.addEventListener('resize', adjustListHeight);
 </script>
-<%- await include('viewDialogCreationAgenda.ejs') %>
-<script src="/js/dialogCreationAgenda.js"></script>
 <script type='importmap'>
     {
       "imports": {
@@ -58,9 +40,11 @@
         "@fullcalendar/daygrid": "https://cdn.skypack.dev/@fullcalendar/daygrid@6.1.15",
         "@fullcalendar/timegrid": "https://cdn.skypack.dev/@fullcalendar/timegrid@6.1.15",
         "@fullcalendar/list": "https://cdn.skypack.dev/@fullcalendar/list@6.1.15",
-        "@fullcalendar/bootstrap5": "https://cdn.skypack.dev/@fullcalendar/bootstrap5@6.1.15"
+        "@fullcalendar/bootstrap5": "https://cdn.skypack.dev/@fullcalendar/bootstrap5@6.1.15",
+        "@fullcalendar/interaction": "https://cdn.skypack.dev/@fullcalendar/interaction@6.1.15"
       }
     }
 </script>
+<script src="/ejs/ejs.js"></script>
 <script type="module" src="./js/calendar_controleur.js"></script>
-<script src="./js/script_rendezvous.js"></script>
+<script type="module" src="./js/script_agenda.js"></script>

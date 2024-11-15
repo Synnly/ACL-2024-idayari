@@ -1,6 +1,6 @@
 import User from "../model/User.js";
-import ejs from "ejs";
-import RendezVous from "../model/RendezVous.js";
+import { createCookie } from "../token.js";
+import { DISPLAYED_BY_DEFAULT } from "../public/js/utils.js";
 
 /**
  * Traite la requête GET sur / .
@@ -10,41 +10,24 @@ import RendezVous from "../model/RendezVous.js";
  */
 export async function index(req, res) {
     if (res.locals.user) {
-        const user = await User.getById(res.locals.user.id);
-        res.locals.agendas = await user.getAgendas();
-    }
-    // récuperer les rendez-vous sont acynchrones donc pour permettre cela dans le ejs
-    const html = await ejs.renderFile("views/index.ejs", res.locals, {async:true});
-    res.send(html);
-}
-
-export async function modifierRendezVousPOST(req, res) {
-    if (res.locals.user) {
-        try {
-            //Récupération des champs du form
-            const { idRDV, titre, lieu, description, dateDebut, dateFin } = req.body;
-
-            //Récupération du rdv avec l'id donné
-            const rdvToUpdate = await RendezVous.findOne({ where: { id: idRDV } });
-
-            if (!rdvToUpdate) {
-                return res.status(404).json({ message: 'Rendez-vous introuvable' });
+        // récupère les informations (qui peuvent avoir changé)
+        const user = await User.findByPk(res.locals.user.id);
+        res.locals.username = user.username;
+        const agendas = {};
+        let my_agendas_all_selected = true;
+        for (const agenda of await user.getAgendas()) {
+            const id = agenda.id.toString();
+            const cookie_agenda = res.locals.agendas[id];
+            agendas[id] = {nom: agenda.nom, isOwner: agenda.idOwner === user.id};
+            agendas[id].displayed = cookie_agenda ? cookie_agenda.displayed : DISPLAYED_BY_DEFAULT;
+            
+            if (agendas[id].isOwner && !agendas[id].displayed) {
+                my_agendas_all_selected = false;
             }
-
-            rdvToUpdate.titre = titre;
-            rdvToUpdate.lieu = lieu;
-            rdvToUpdate.description = description;
-            rdvToUpdate.dateDebut = new Date(dateDebut);
-            rdvToUpdate.dateFin = new Date(dateFin);
-
-            await rdvToUpdate.save();
-
-            return res.redirect('/');
-        } catch (error) {
-            console.error('Erreur lors de la modification du rdv:', error);
-            return res.status(500).json({ message: "Une erreur s'est produite" });
         }
-    } else {
-        return res.status(403).json({ message: 'Unauthorized access' });
+        createCookie("agendas", agendas, res);
+        res.locals.agendas = agendas;
+        res.locals.all_selected = my_agendas_all_selected;
     }
+    res.render('index');
 }

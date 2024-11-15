@@ -1,4 +1,4 @@
-import {saveAuthentificationCookie} from "../token.js";
+import {saveAuthentificationCookie, clearAllCookies} from "../token.js";
 import User from "../model/User.js";
 
 
@@ -11,9 +11,8 @@ import User from "../model/User.js";
 export function connexionGET(req, res) {
     if (!res.locals.user) {
         return res.render("connexion");
-    } else {
-        return res.redirect("/");
     }
+    res.redirect("/");
 }
 
 /**
@@ -22,29 +21,25 @@ export function connexionGET(req, res) {
  * @param req La requête
  * @param res La réponse
  */
-export async function connexionPOST(req, res) {
-    let username = req.body.username;
-    let password = User.hashPassowrd(req.body.password);
-
-    const user = await User.findOne({
-        where: { username: username, hashedPassword: password },
+export function connexionPOST(req, res) {
+    User.findOne({
+        where: { username: req.body.username, hashedPassword: User.hashPassword(req.body.password) },
+    }).then(user => {
+        if (user === null) {
+            return res.render('connexion', 
+                { errMsg: 'Identifiant et/ou mot de passe invalides !' });
+        } else {
+            saveAuthentificationCookie(user, res).then(_ => res.redirect('/'));
+        }
     });
-    if (user === null) {
-        return res.render('connexion', {
-            errMsg: 'Identifiant et/ou mot de passe invalides !',
-        });
-    } else {
-        saveAuthentificationCookie(user, res);
-        return res.redirect('/');
-    }
 }
 
 /**
- * Déconnecte l'utilisateur et supprime le cookie puis renvoie vers /
+ * Déconnecte l'utilisateur et supprime les cookies puis renvoie vers /
  * @param req La requête
  * @param res La réponse
  */
 export function deconnexion(req, res) {
-    res.clearCookie('accessToken');
-    return res.redirect('/');
+    clearAllCookies(res);
+    res.redirect('/');
 }
