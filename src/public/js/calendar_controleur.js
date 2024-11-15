@@ -21,17 +21,22 @@ function get_event_source(agenda_id) {
             .then(rendezVous => {
                 if (rendezVous.err == "not auth") {
                     window.location.href = "/";
-                    failureCallback();
                     return ;
                 }
+                const events = [];
                 for (const rdv of rendezVous) {
-                    // les dates sont récupérées sous forme de chaînes de caractères
-                    rdv.start = new Date(rdv.start);
-                    rdv.end = new Date(rdv.end);
-                    rdv.id = rdv.groupId; // permet une suppression + rapide (apparemment)
                     rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
+                    rdv.id = rdv.groupId; // permet une suppression + rapide (apparemment)
+                    const dates = rdv.dates;
+                    delete rdv.dates;
+                    for (const date of dates) {
+                        const ev = {...rdv};
+                        ev.start = new Date(date.start);
+                        ev.end = new Date(date.end);
+                        events.push(ev);
+                    }
                 }
-                successCallback(rendezVous);
+                successCallback(events);
             }).catch(err => {
                 console.log(err.message);
             });
@@ -90,8 +95,8 @@ class AgendaManager {
             // nombre de semaines dans la vue Mois non fixe, au lieu de toujours 6 (inclut donc parfois des semaines n'étant pas du tout dans le mois)
             fixedWeekCount: false,
             // permet de pas afficher des milliers de rendez-vous par case
-            dayMaxEventRows: true, // pour la vue mois
-            eventMaxStack: true, // pour les vues semaine et jour
+            dayMaxEventRows: 2, // pour la vue mois
+            eventMaxStack: 3, // pour les vues semaine et jour
             navLinks: true,
             slotDuration: '01:00:00',
             height: "100%",
@@ -208,8 +213,7 @@ class AgendaManager {
      * @param {HTMLCollection} list_agendas liste de tous les agendas
      */
     selectAll(list_agendas) {
-        // sinon on récupère les rendez-vous simples des agendas dont on n'a pas encore les infos
-        // const new_agendas = [];
+        // on récupère les rendez-vous simples des agendas dont on n'a pas encore les infos
         for (const elem of list_agendas.children) {
             const id = elem.id.split("_")[1];
             if (!this.agendas[id]) {

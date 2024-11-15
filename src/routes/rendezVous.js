@@ -3,19 +3,20 @@ import RendezVous from "../model/RendezVous.js";
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
 export function calendarGetData(req, res) {
     if (!res.locals.user) {
-        return res.json({err: "not auth"});
+        return res.status(403).json({err: "not auth"});
     }
     const dateStart = new Date(+req.query.start);
     const dateEnd = new Date(+req.query.end);
     RendezVous.findAll({ where: { idAgenda: +req.query.agenda } })
     .then(rendez_vous => {
-        const simples = [];
+        const infos = [];
         for (const rdv of rendez_vous) {
-            for (const simple of rdv.get_rendezVous(dateStart, dateEnd)) {
-                simples.push(simple);
-            };
+            const data = rdv.get_rendezVous(dateStart, dateEnd);
+            if (data) {
+                infos.push(data);
+            }
         }
-        return res.json(simples);
+        return res.json(infos);
     }).catch(err => {
         console.log(err);
         res.status(500).json({ err: "Internal Server Error" });

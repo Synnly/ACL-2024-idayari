@@ -1,5 +1,4 @@
 import {DataTypes, Model} from "sequelize";
-import RendezVousSimple from "./RendezVousSimple.js";
 import { addDays, addMonths, addYears, daysDiff, monthDiff, yearDiff} from "../public/js/utils.js";
 
 export default class RendezVous extends Model {
@@ -58,10 +57,6 @@ export default class RendezVous extends Model {
     },
     {sequelize, timestamps: false, tableName: "RendezVous"});
 
-    is_recurrent() {
-        return this.type != 'Simple';
-    }
-
     fin_par_date() {
         return this.finRecurrence != null;
     }
@@ -70,26 +65,31 @@ export default class RendezVous extends Model {
         return this.nbOccurrences != null;
     }
 
-    getDuree() {
-        return this.dateFin - this.dateDebut;
-    }
-
-    create_rendezVousSimple(debut, fin) {
-        return new RendezVousSimple(this.titre, debut, fin, this.id, this.idAgenda, this.allDay, this.lieu, this.description,
-                                    this.type, this.finRecurrence, this.nbOccurrences, this.frequence);
+    rendez_vous_donnees(dates) {
+        return {title :this.titre, 
+                groupId: this.id,
+                agenda: this.idAgenda.toString(),
+                allDay: this.allDay,
+                lieu: this.lieu,
+                description: this.description,
+                type: this.type,
+                endRec: this.finRecurrence,
+                nbOccurrences: this.nbOccurrences,
+                frequence: this.frequence,
+                dates: dates };
     }
 
     get_rendezVous(periodeDebut, periodeFin) {
         // si le rendezVous est après la période, pas besoin de regarder les récurrents
         if (this.dateDebut >= periodeFin) {
-            return [];
+            return null;
         }
         if (this.type == 'Simple') {
             // s'il y a intersection (la condition sur la date de début est déjà vérifiée plus haut)
             if (this.dateFin > periodeDebut) {
-                return [this.create_rendezVousSimple(this.dateDebut, this.dateFin)]
+                return this.rendez_vous_donnees([{start: this.dateDebut, end: this.dateFin}]);
             }
-            return [];
+            return null;
         }
         // oui je pourrais faire des if-else classiques
         const add_function = this.type == 'Daily' || this.type == 'Weekly' ? addDays : (this.type == 'Monthly' ? addMonths : addYears);
@@ -106,7 +106,7 @@ export default class RendezVous extends Model {
             finRec = this.finRecurrence;
         }
             
-        const res = [];
+        const dates = [];
         let debut = this.dateDebut;
         let fin = this.dateFin;
         // le premier rendez vous récurrent ne rentre pas dans la période, au lieu de parcourir
@@ -124,10 +124,10 @@ export default class RendezVous extends Model {
             debut = add_function(debut, skip);
         }
         while ((!finRec || debut < finRec) && debut < periodeFin) {
-            res.push(this.create_rendezVousSimple(debut, fin));
+            dates.push({start: debut, end: fin});
             debut = add_function(debut, frequence);
             fin = add_function(fin, frequence);
         }
-        return res;
+        return this.rendez_vous_donnees(dates);
     }
 }
