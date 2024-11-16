@@ -69,14 +69,8 @@ export async function ajouterPartageGET(req, res){
 				return res.redirect("/");
 		}
 
-		// L'user a déjà accès à l'agenda
-		const userPartage = await UserAgendaAccess.findOne({where: {idUser: res.locals.user.id, idAgenda: agenda.id}});
-		if(userPartage){
-				return res.redirect("/");
-		}
-
 		try{
-				await UserAgendaAccess.create({idUser: res.locals.user.id, idAgenda: agenda.id});
+				await UserAgendaAccess.findOrCreate({where :{idUser: res.locals.user.id, idAgenda: agenda.id}});
 		}
 		catch (e) {
 				return res.render("error", {
