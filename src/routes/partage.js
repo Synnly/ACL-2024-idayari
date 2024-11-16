@@ -60,6 +60,11 @@ export async function ajouterPartageGET(req, res){
 				});
 		}
 
+		// Agenda non partagé
+		if(!agenda.estPartage){
+				return res.redirect("/");
+		}
+
 		// le propriétaire essaie d'ajouter son propre agenda
 		if(owner.dataValues.id === res.locals.user.id){
 				return res.redirect("/");
@@ -95,7 +100,6 @@ export async function confirmerAjoutPartageGET(req, res){
 
 		let agenda;
 		let owner;
-
 		try {
 				agenda = await Agenda.findByPk(req.params.id);
 				owner = await agenda.getOwner();
@@ -105,6 +109,11 @@ export async function confirmerAjoutPartageGET(req, res){
 						message: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
 						status: 500,
 				});
+		}
+
+		// Agenda non partagé
+		if(!agenda.estPartage){
+				return res.redirect("/");
 		}
 
 		// le propriétaire essaie d'ajouter son propre agenda
