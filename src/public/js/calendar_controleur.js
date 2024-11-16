@@ -79,7 +79,6 @@ export class AgendaManager {
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
                 const event = info.event;
-                console.log(event);
                 manager.modified_event = event;
                 if(!event.extendedProps.readonly) {
                     creerModale({
