@@ -85,7 +85,7 @@ export class AgendaManager {
 
         //Récupération de la balise contenant le calendar
         const elementCalendrier = document.getElementById('calendar');
-        this.calendrier = new Calendar(elementCalendrier,{
+        const options = {
             //Appel des différents composants 
             plugins : [dayGridPlugin,timeGridPlugin,listPlugin, bootstrap5Plugin, interactionPlugin],
             // le format des dates dépend du navigateur
@@ -101,8 +101,6 @@ export class AgendaManager {
             slotDuration: '01:00:00',
             height: "100%",
             selectable: true,
-            initialView: savedViewType,
-            initialDate: savedDateStart,
             customButtons: {
                 new_event: {
                     text: 'Nouvel évènement',
@@ -168,7 +166,12 @@ export class AgendaManager {
             select: function(selectionInfo) {
                 newRendezVous(manager, {start: selectionInfo.start, end: selectionInfo.end, all_day: selectionInfo.allDay});
             }
-        });
+        };
+        if (savedViewType) {
+            options.initialView = savedViewType;
+            options.initialDate = savedDateStart;
+        }
+        this.calendrier = new Calendar(elementCalendrier,options);
     }
 
     init() {

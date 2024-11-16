@@ -46,11 +46,9 @@
     }
 </script>
 <script src="/ejs/ejs.js"></script>
-<% if (locals.currentView) { %>
-    <script>
-        const savedViewType = "<%= locals.currentView %>";
-        const savedDateStart = "<%= locals.currentDateStart %>";
-    </script>
-<% } %>
+<script>
+    const savedViewType = "<%= locals.currentView ? locals.currentView : '' %>";
+    const savedDateStart = "<%= locals.currentDateStart ? locals.currentDateStart : '' %>";
+</script>
 <script type="module" src="./js/calendar_controleur.js"></script>
 <script type="module" src="./js/script_agenda.js"></script>
