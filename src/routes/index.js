@@ -13,18 +13,11 @@ import UserAgendaAccess from "../model/UserAgendaAccess.js";
 export async function index(req, res) {
     if (res.locals.user) {
         const user = await User.getById(res.locals.user.id);
-        res.locals.agendas = await user.getMyAgendas();
-
-        // Agendas partagés
-        res.locals.partages = [];
-        const partages = await UserAgendaAccess.findAll({where: {idUser: res.locals.user.id}});
-        for(const partage of partages){
-            const agenda = await Agenda.findByPk(partage.dataValues.idAgenda);
-            if(agenda.idOwner !== res.locals.user.id) {
-                res.locals.partages.push(agenda);
-            }
-        }
+        let agendas = await user.getAgendas();
+        res.locals.agendas = agendas.filter(agenda => agenda.idOwner === res.locals.user.id);
+        res.locals.partages = agendas.filter(agenda => agenda.idOwner !== res.locals.user.id && agenda.estPartage);
     }
+
     // récuperer les rendez-vous sont acynchrones donc pour permettre cela dans le ejs
     const html = await ejs.renderFile("views/index.ejs", res.locals, {async:true});
     res.send(html);
