@@ -8,8 +8,7 @@ export async function voirPartagesGET(req, res){
 				return res.redirect("/");
 		}
 
-		const user = await User.getById(res.locals.user.id);
-		res.locals.agendas = await user.getMyAgendas();
+		res.locals.agendas = await Agenda.findAll({where: {idOwner: res.locals.user.id}});
 		res.locals.partages = {};
 
 		for(const agenda of res.locals.agendas){
