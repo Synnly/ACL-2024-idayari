@@ -7,13 +7,17 @@ export async function voirPartagesGET(req, res){
 		if(!res.locals.user){
 				return res.redirect("/");
 		}
-
-		res.locals.agendas = await Agenda.findAll({where: {idOwner: res.locals.user.id}});
 		res.locals.partages = {};
 
-		for(const agenda of res.locals.agendas){
-				res.locals.partages[agenda.id] = agenda.estPartage;
-		}
+		const query = await Agenda.findAll({
+				where: {idOwner: res.locals.user.id},
+				include: [{
+						model: User,
+						attributes: ["username"],
+				}]
+		});
+		res.locals.agendas = query.map(agenda => { return {id: agenda.dataValues.id, nom: agenda.dataValues.nom, estPartage: agenda.dataValues.estPartage}});
+		res.locals.partages = query.map(agenda => {return {id: agenda.id, users: agenda.dataValues.Users.map(user => user.dataValues.username)}});
 
 		const html = await ejs.renderFile("views/partage.ejs", res.locals, {async:true});
 		res.send(html);
