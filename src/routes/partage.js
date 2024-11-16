@@ -24,11 +24,11 @@ export async function creerPartageGET(req, res){
 				return res.status(403).json({message: 'Unauthorized access'});
 		}
 		try{
-				const agenda = await Agenda.findOne({where: {id: req.params.id}});
-				if(agenda.estPartage){
-						return res.status(409).json({message: "Cet agenda est déjà partagé"});
-				}
-				await Agenda.update({estPartage: true},{where: {id: req.params.id}});
+				Agenda.update({estPartage: true},{where: {id: req.params.id}}).then(result => {
+						if(result[0] === 0){
+								return res.status(409).json({message: "Cet agenda est déjà partagé"});
+						}
+				});
 				return res.status(200).json();
 		}
 		catch (e){
