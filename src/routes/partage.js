@@ -4,7 +4,7 @@ import User from "../model/User.js";
 import UserAgendaAccess from "../model/UserAgendaAccess.js";
 
 export async function voirPartagesGET(req, res){
-		if(!(res.locals && res.locals.user)){
+		if(!res.locals.user){
 				return res.redirect("/");
 		}
 
@@ -21,7 +21,7 @@ export async function voirPartagesGET(req, res){
 }
 
 export async function creerPartageGET(req, res){
-		if(!res.locals){
+		if(!res.locals.user){
 				return res.status(403).json({message: 'Unauthorized access'});
 		}
 		try{
@@ -39,7 +39,7 @@ export async function creerPartageGET(req, res){
 }
 
 export async function ajouterPartageGET(req, res){
-		if(!res.locals){
+		if(!res.locals.user){
 				return res.redirect("/");
 		}
 
@@ -85,7 +85,7 @@ export async function ajouterPartageGET(req, res){
 }
 
 export async function confirmerAjoutPartageGET(req, res){
-		if(!res.locals){
+		if(!res.locals.user){
 				return res.redirect("/");
 		}
 
