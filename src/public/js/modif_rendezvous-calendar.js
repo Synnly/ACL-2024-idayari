@@ -208,4 +208,71 @@ function deleteModal(){
   	}
 }
 
+export function creerModaleVoirRdv(rdv) {
+    deleteModal();
+    const titre = rdv.title;
+    const lieu = rdv.lieu;
+    const description = rdv.description;
+    let dateDebut;
+    let dateFin;
+    const id = rdv.id;
+    const all_day = rdv.allDay;
+    let all_day_text = "";
+    let date_input_type = "date";
+    if (all_day) {
+        dateDebut = convertDate(rdv.start, false);
+        dateFin = convertDate(removeDays(rdv.end, 1), false);
+        all_day_text = "checked";
+    } else {
+        date_input_type += "time-local";
+        dateDebut = convertDate(rdv.start);
+        dateFin = convertDate(rdv.end);
+    }
+
+    let modaleHTML = `
+ <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">${escapeHTML(titre)}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annuler" onClick="deleteModal()"></button>
+            </div>
+            <div class="modal-body">
+                <form class="needs-validation" id="formModifRDV" action="/calendar-rdv" method="POST" novalidate>
+                    <input type="hidden" id="idRDV" name="idRDV"> 
+                    <div class="mb-3">
+                        <label for="lieuRDV" class="form-label">Lieu</label>
+                        <input type="text" class="form-control" id="lieuRDV" name="lieu" value="${escapeHTML(lieu)}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descriptionRDV" class="form-label">Description</label>
+                        <textarea class="form-control" id="descriptionRDV" rows="3" name="description" disabled>${escapeHTML(description)}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="all_day" class="form-label">Toute la journée</label>
+                        <input type="checkbox" name="all_day" id="all_day" value="${all_day_text}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateDebut" class="form-label">Début</label>
+                        <input type="datetime-local" class="form-control" id="dateDebut" name="dateDebut" value="${dateDebut}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateFin" class="form-label">Fin</label>
+                        <input type="datetime-local" class="form-control" id="dateFin" name="dateFin" value="${dateFin}" disabled>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+    document.body.insertAdjacentHTML('beforeend', modaleHTML);
+
+    //Création et affichage d'une modale Bootstrap
+    const fausseModale = document.getElementById('staticBackdrop');
+    const vraieModale = new bootstrap.Modal(fausseModale);
+
+    vraieModale.show();
+}
+
 window.deleteModal = deleteModal;

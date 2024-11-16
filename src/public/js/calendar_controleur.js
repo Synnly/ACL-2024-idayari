@@ -3,7 +3,7 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
-import {creerModale} from '/js/modif_rendezvous-calendar.js';
+import {creerModale, creerModaleVoirRdv} from '/js/modif_rendezvous-calendar.js';
 import {creerModaleNouveauRdv, envoyerFormNouveauRdv, quitModalNouveauRdv} from "./creerRdv.js";
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
@@ -79,6 +79,7 @@ export class AgendaManager {
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
                 const event = info.event;
+                console.log(event);
                 manager.modified_event = event;
                 if(!event.extendedProps.readonly) {
                     creerModale({
@@ -91,6 +92,18 @@ export class AgendaManager {
                         allDay: event.allDay,
                         agendas: event.extendedProps.agendas
                     }, agendas);
+                }
+                else{
+                    creerModaleVoirRdv({
+                        title: event.title,
+                            lieu: event.extendedProps.lieu,
+                            description: event.extendedProps.description,
+                            id: event.groupId,
+                            start: event.start,
+                            end: event.end,
+                            allDay: event.allDay,
+                            agendas: event.extendedProps.agendas
+                    });
                 }
             },
 
@@ -168,7 +181,6 @@ export class AgendaManager {
                 window.location.href = "/";
                 return ;
             }
-            console.log(rendezVous);
             for (const rdv of rendezVous) {
                 // les dates sont récupérées sous forme de chaînes de caractères
                 rdv.start = new Date(rdv.start);
