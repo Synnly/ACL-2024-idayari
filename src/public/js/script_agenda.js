@@ -79,6 +79,53 @@ function editAgenda(id, nom, agenda) {
     }, {nom: nom, id: id});
 }
 
+function add_info_p(error_div, message, className) {
+    const err_p = document.createElement('p');
+    err_p.textContent = message;
+    err_p.classList.add(`text-${className}`);
+    error_div.appendChild(err_p);
+}
+
+function shareAgendaDialog(id, nom) {
+    fetch(`/agenda/share/${id}`, {method: "GET"})
+    .then(response => response.json())
+    .then(result => {
+        document.body.insertAdjacentHTML('beforeend', result.html);
+        document.getElementById('nomAgendaSD').textContent = nom;
+        const dialog = document.getElementById('shareDialog');
+        const cancel_button = document.getElementById('cancelSD');
+        const name_input = document.getElementById('nameInputSD');
+        const add_button = document.getElementById('addPersonSD');
+        const info_div = document.getElementById('info_div');
+        const partages_table = document.getElementById('partagesSD');
+        cancel_button.addEventListener('click', () => close_dialog(dialog));
+        add_button.addEventListener('click', () => {
+            const nom = name_input.value.trim();
+            if (nom) {
+                info_div.textContent = "";
+                json_fetch('/shareTo', "POST", {nom: nom, idAgenda: id})
+                .then(response => response.json())
+                .then(result => {
+                    if (result.err) {
+                        add_info_p(info_div, result.err, 'danger');
+                        return;
+                    }
+                    add_info_p(info_div, `L'agenda a bien été envoyé à ${nom}`, 'success');
+                    const tr = document.createElement('tr');
+                    const td1 = document.createElement('td');
+                    td1.textContent = nom;
+                    const td2 = document.createElement('td');
+                    td2.textContent = 'En attente';
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    partages_table.appendChild(tr);
+                })
+            }
+        });
+        dialog.showModal();
+    });
+}
+
 /**
  * Supprime les menus quand on clique en dehors
  */
@@ -126,6 +173,9 @@ function ajout_ecouteurs_agenda(agenda) {
             }
             if (elem.getAttribute('data-type') === "edit") {
                 elem.addEventListener('click', () => editAgenda(id, nom, agenda));
+            }
+            if (elem.getAttribute('data-type') === "share") {
+                elem.addEventListener('click', () => shareAgendaDialog(id, nom));
             }
         }
     }
@@ -233,21 +283,3 @@ new_agenda_button.addEventListener('click', () => {
         }
     });
 });
-
-// // qu'est ce que ça fait là ??
-// (() => {
-//     // Fetch all the forms we want to apply custom Bootstrap validation styles to
-//     const forms = document.querySelectorAll('.needs-validation')
-
-//     // Loop over them and prevent submission
-//     Array.from(forms).forEach(form => {
-//         form.addEventListener('submit', event => {
-//             if (!form.checkValidity()) {
-//                 event.preventDefault()
-//                 event.stopPropagation()
-//             }
-
-//             form.classList.add('was-validated')
-//         }, false)
-//     })
-// })()

@@ -4,6 +4,7 @@ import Agenda from "./model/Agenda.js";
 import UserAgendaAccess from "./model/UserAgendaAccess.js";
 import RendezVous from "./model/RendezVous.js";
 
+export let sequelize; 
 /**
  * Initialise la base de données
  * @returns une promesse
@@ -15,7 +16,7 @@ export async function initDatabase() {
     const dbname = "testIdayari";
     const dialect = "mysql";
     const uri = `${dialect}://${user}:${pass}@${host}/${dbname}`;
-    const sequelize = new Sequelize(uri, { logging: false });
+    sequelize = new Sequelize(uri, { logging: false });
 
     return sequelize.authenticate().then(_ => {
         initTables(sequelize);

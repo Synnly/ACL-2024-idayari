@@ -1,8 +1,11 @@
 import UserAgendaAccess from "../model/UserAgendaAccess.js";
 import Agenda from "../model/Agenda.js";
+import User from "../model/User.js";
 import { DISPLAYED_BY_DEFAULT } from "../public/js/utils.js";
 import { createCookie } from "../token.js";
 import ejs from "ejs";
+import { sequelize } from "../database.js";
+import { Op, Sequelize } from "sequelize";
 
 /**
  * Traite la requête POST sur /creerAgenda.
@@ -89,5 +92,54 @@ export function supprimerAgendaDELETE(req, res){
         } else {
             res.status(204).end();
         }
+    })
+}
+
+export function agendaShareInfoGET(req, res) {
+    if (!res.locals.user) {
+        return res.redirect('/');
+    }
+    sequelize.query('SELECT Users.username, UserAgendaAccess.statut FROM Users JOIN UserAgendaAccess ON Users.id = UserAgendaAccess.idUser WHERE UserAgendaAccess.idAgenda = ? and Users.id != ?;', {
+        replacements: [+req.params.id, +res.locals.user.id]
+    })
+    .then(result => {
+        const data = {users: result[0]};
+        ejs.renderFile('views/partials/shareDialog.ejs', data)
+        .then(html => {
+            res.status(200).json({html: html});
+        }).catch(error => {
+            console.log(error);
+            res.status(400).end();
+        });
+    });
+}
+
+export function agendaShareToPOST(req, res) {
+    if (!res.locals.user) {
+        return res.redirect('/');
+    }
+    const nom = req.body.nom;
+    User.findOne({ where : { username: nom }})
+    .then(user => {
+        if (!user) {
+            return res.json({err: `L'utilisateur ${nom} n'a pas été trouvé.`});
+        }
+        if (user.id === +res.locals.user.id) {
+            return res.json({ err: "Vous ne pouvez pas vous partager l'agenda."});
+        }
+        UserAgendaAccess.findOrCreate({
+            where : {
+                idAgenda: +req.body.idAgenda,
+                idUser: user.id
+            }
+        }).then(([instance, created]) => {
+            if (created) {
+                instance.set('statut', 'En attente');
+                instance.save()
+                .then(_ => res.json({}));
+            } else {
+                return res.json({ err: "Vous avez déjà partagé l'agenda à cet utilisateur."});
+            }
+        })
     })
 }

@@ -7,7 +7,8 @@ import { index } from './routes/index.js';
 import { updateAgendasCookie } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
-import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
+import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE, 
+        agendaShareInfoGET, agendaShareToPOST} from "./routes/agenda.js";
 import {calendarGetData, modifierRendezVousCalendarPOST, creationRendezVousPOST, supprimerRDVDELETE} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
@@ -48,6 +49,9 @@ app
 
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
+
+    .get('/agenda/share/:id', agendaShareInfoGET)
+    .post('/shareTo', agendaShareToPOST)
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))
     .use((err, req, res) => {

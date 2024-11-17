@@ -7,7 +7,12 @@ export default class UserAgendaAccess extends Model {
      * @param sequelize L'instance **ouverte** de sequelize
      */
     static initTable = (sequelize) => UserAgendaAccess.init(
-        {},
+        {
+            statut: {
+                type: DataTypes.ENUM("En attente", "Accepté", "Rejeté"),
+                allowNull: true
+            }
+        },
         {sequelize, timestamps: false, tableName: "UserAgendaAccess"}
     );
 }
