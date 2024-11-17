@@ -1,11 +1,10 @@
 import User from "../model/User.js";
 import Agenda from "../model/Agenda.js";
 import RendezVous from "../model/RendezVous.js";
-import AgendaRendezVous from "../model/AgendaRendezVous.js";
 
 export async function exportAgendaGET(req, res){
     if (res.locals.user) {
-        const user = await User.getById(res.locals.user.id);
+        const user = await User.findByPk(res.locals.user.id);
         res.locals.agendas = await user.getAgendas();
 
         return res.render("export");
@@ -21,12 +20,8 @@ export async function exportAgendaPOST(req, res) {
             const agenda = await Agenda.findOne({
                 where: { id: id },
             });
-            const agendaRdv = await AgendaRendezVous.findAll({
-                where: {idAgenda: id}
-            });
-            const rdvIds = agendaRdv.map(rdv => rdv.idRendezVous);
             const rdv = await RendezVous.findAll({
-                where: {id: rdvIds}
+                where: {idAgenda: id}
             });
     
             if (!agenda) {
