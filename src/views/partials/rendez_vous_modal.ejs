@@ -1,0 +1,137 @@
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" style="overflow: hidden;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close ferme" data-bs-dismiss="modal" aria-label="Annuler"></button>
+            </div>
+            <div class="modal-body">
+                <form id="rendezvous_form" method="POST">
+                    <div style="overflow: scroll; padding-left: 32px; padding-right: 32px; max-height: 60vh;">
+                        <div class="d-flex mb-3 align-items-center">
+                            <i class="bi bi-card-heading mr"></i>
+                            <div class="d-flex flex-grow-1">
+                                <input type="text" class="form-control" maxlenght="100" placeholder="Titre du rendez-vous" name="titre" value="<%= locals.titre ? locals.titre : "" %>" required>    
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3 align-items-center">
+                            <i class="bi bi-geo-alt mr"></i>
+                            <div class="d-flex flex-grow-1">
+                                <input type="text" class="form-control" maxlenght="100" placeholder="Lieu du rendez-vous" value="<%= locals.lieu ? locals.lieu : "" %>" name="lieu">
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3 align-items-center">
+                            <i class="bi bi-text-left mr"></i>
+                            <div class="d-flex flex-grow-1">
+                                <textarea class="form-control" rows="3" maxlenght="1000" placeholder="description" name="description"><%= locals.description ? locals.description : "" %></textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3 align-items-center">
+                            <i class="bi bi-calendar mr"></i>
+                            <div class="d-flex flex-grow-1">
+                                <select name="agenda" required>
+                                    <% for (const elem of locals.agendas) { %>
+                                        <option value="<%= elem.id %>" <%= elem.id == locals.agenda ? "selected" : ""%>><%= elem.nom %></option>
+                                    <% } %>
+                                </select>
+                            </div> 
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label">
+                                <input type="checkbox" name="all_day" <%= locals.all_day ? "checked" : ""%>>
+                                Toute la journée
+                            </label>
+                        </div>
+                        <div class="mb-1 d-flex align-items-center">
+                            <i class="bi bi-clock mr"></i>
+                            <div class="d-flex flex-grow-1 mr">
+                                <input type="date" class="form-control mr" name="startDate" value="<%= locals.start ? toDate(locals.start) : "" %>" required>
+                                <input type="time" class="form-control" name="startTime"
+                                <% if (locals.all_day) { %>
+                                    style='display: none'
+                                <% } else { %>
+                                    value="<%= locals.start ? toTime(locals.start) : "" %>" required
+                                <% } %>
+                                >
+                            </div>
+                        </div>
+                        <div class="mb-3 d-flex align-items-center" id="endDateDiv">
+                            <!-- Pour que le décalage soit le même -->
+                            <i class="bi bi-clock mr opacity-0"></i>
+                            <div class="d-flex flex-grow-1 mr">
+                                <input type="date" class="form-control mr" name="endDate" value="<%= locals.end ? toDate(locals.end) : "" %>" required>
+                                <input type="time" class="form-control" name="endTime"
+                                <% if (locals.all_day) { %>
+                                    style='display: none'
+                                <% } else { %>
+                                    value="<%= locals.end ? toTime(locals.end) : "" %>" required
+                                <% } %>
+                                >
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <% const is_recurrent = locals.type && locals.type != "Simple"; %>
+                            <div class="mb-1">
+                                <label>
+                                    <input type="checkbox" name="recurrent" <%= is_recurrent ? "checked" : ""%>> Récurrent ?
+                                </label>
+                            </div>
+                            <div id="recurrent_div" 
+                                <% if (!is_recurrent) { %>
+                                    style="display: none";
+                                <% } %>>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <span class="mr">Tous les</span>
+                                    <div class="d-flex flex-grow-1 align-items-center">
+                                        <input class="form-control me-2" style="width: fit-content;" type="number" min="1" value="<%= locals.frequence ? locals.frequence : "" %>" name="frequence">
+                                        <select class="w-fit-content" name="recurrence_type">
+                                            <option value="Daily" <%= locals.type === "Daily" ? "selected" : ""%>>Jour(s)</option>
+                                            <option value="Weekly" <%= locals.type === "Weekly" ? "selected" : ""%>>Semaine(s)</option>
+                                            <option value="Monthly" <%= locals.type === "Monthly" ? "selected" : ""%>>Mois</option>
+                                            <option value="Yearly" <%= locals.type === "Yearly" ? "selected" : ""%>>Année(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3 d-flex align-items-center" id="end_recurrence_div">
+                                    <span class="mr">S'arrête</span>
+                                    <div class="d-flex align-items-center flex-grow-1">
+                                        <select class="w-fit-content h-fit-content me-2" name="end_recurrence">
+                                            <option value="date" <%= locals.fin_recurrence ? "selected" : ""%>>Avant le</option>
+                                            <option value="nb" <%= locals.nbOccurrences ? "selected" : ""%>>Après</option>
+                                            <option value="never" <%= !locals.fin_recurrence && !locals.nbOccurrences ? "selected" : ""%>>Jamais</option>
+                                        </select>
+                                        <input class="form-control h-fit-content" type="date" 
+                                        <% if (!locals.fin_recurrence) { %>
+                                            style="display: none";
+                                        <% } %>
+                                        value="<%= locals.fin_recurrence ? toDate(locals.fin_recurrence) : ""%>" name="end_date_recurrence">
+                                        <div id="occurrence_div"
+                                            <% if (!locals.nbOccurrences) { %>
+                                                class="align-items-center"  style="display: none"
+                                            <% } else { %>
+                                                class="d-flex align-items-center" 
+                                            <% } %>
+                                        >
+                                            <input class="form-control mr" type="number" min="2" value="<%= locals.nbOccurrences ? locals.nbOccurrences : ""%>" name="nb_occurrence">
+                                            occurrences 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <div>
+                            <button type="button" class="btn btn-modal ferme"  data-bs-dismiss="modal">Annuler</button>
+                        </div>
+                        <div>
+                            <% if (locals.removeButton) { %>
+                                <button type="button" id="remove_button" class="btn btn-outline-danger btn-modal">Supprimer</button>
+                            <% } %>
+                            <input type="submit" class="btn btn-primary btn-modal" value="Valider">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
