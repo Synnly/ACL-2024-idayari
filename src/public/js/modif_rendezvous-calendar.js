@@ -250,15 +250,15 @@ export function creerModaleVoirRdv(rdv) {
                     </div>
                     <div class="mb-3">
                         <label for="all_day" class="form-label">Toute la journée</label>
-                        <input type="checkbox" name="all_day" id="all_day" value="${all_day_text}" disabled>
+                        <input type="checkbox" name="all_day" id="all_day" ${all_day_text} disabled>
                     </div>
                     <div class="mb-3">
                         <label for="dateDebut" class="form-label">Début</label>
-                        <input type="datetime-local" class="form-control" id="dateDebut" name="dateDebut" value="${dateDebut}" disabled>
+                        <input type="${date_input_type}" class="form-control" id="dateDebut" name="dateDebut" value =${dateDebut} disabled>
                     </div>
                     <div class="mb-3">
                         <label for="dateFin" class="form-label">Fin</label>
-                        <input type="datetime-local" class="form-control" id="dateFin" name="dateFin" value="${dateFin}" disabled>
+                        <input type="${date_input_type}" class="form-control" id="dateFin" name="dateFin" value=${dateFin} disabled>
                     </div>
                 </form>
             </div>
