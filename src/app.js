@@ -11,7 +11,7 @@ import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./r
 import {calendarGetData, modifierRendezVousCalendarPOST, creationRendezVousPOST, supprimerRDVDELETE} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
-import { exportAgendaGET, exportAgendaPOST } from './routes/export.js';
+import { exportAgendaPOST } from './routes/export.js';
 
 
 export const app = express();
@@ -52,7 +52,6 @@ app
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
 
-    .get("/export", exportAgendaGET)
     .post("/export", exportAgendaPOST)
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))

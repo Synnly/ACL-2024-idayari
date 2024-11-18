@@ -1,16 +1,5 @@
-import User from "../model/User.js";
 import Agenda from "../model/Agenda.js";
 import RendezVous from "../model/RendezVous.js";
-
-export async function exportAgendaGET(req, res){
-    if (res.locals.user) {
-        const user = await User.findByPk(res.locals.user.id);
-        res.locals.agendas = await user.getAgendas();
-
-        return res.render("export");
-    }
-    return res.redirect("/connexion");
-}
 
 export async function exportAgendaPOST(req, res) {
     if(res.locals.user){
