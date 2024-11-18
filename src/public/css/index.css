@@ -78,3 +78,13 @@
         width: 50% !important;
     }
 }
+
+.btn-primary-hover:hover {
+    color: #ffffff;
+    background-color: rgb(119, 181, 218);
+    border-color: rgb(111, 177, 215);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
