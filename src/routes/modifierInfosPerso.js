@@ -33,6 +33,7 @@ export async function modifierInfosPersoGET(req, res) {
  */
 export async function modifierInfosPersoPOST(req, res) {
 	if (res.locals.user) {
+		const current_user = await User.findByPk(res.locals.user.id);
 		try {
 			let user = null;
 			if(req.body.user_username_change_info) {
@@ -41,15 +42,13 @@ export async function modifierInfosPersoPOST(req, res) {
 			}
 
 			if (user) {
-				return res.render('infos_perso', {errMsg: 'Vous ne pouvez pas chosir ce nom d\'utilisateur !'});
+				return res.render('infos_perso', {errMsg: 'Vous ne pouvez pas chosir ce nom d\'utilisateur !', username: current_user.username});
 			} else {
 				//Sinon on récupère les informations du formulaire ainsi que le mdp et username courant
 				const username = req.body.user_username_change_info;
 				const password = req.body.user_password_change_info;
 
-				const user = await User.findByPk(res.locals.user.id);
-
-				const lastPassword = user.hashedPassword;
+				const lastPassword = current_user.hashedPassword;
 				const passwordConfirm = req.body.user_password_change_info_confirmation_hidden;
 
 				/* Si le formulaire est pas vide oet que le mdp de confirmation est correct on effectue les
@@ -57,27 +56,27 @@ export async function modifierInfosPersoPOST(req, res) {
 				const mdp_correct = lastPassword === User.hashPassword(passwordConfirm);
 				if ((username || password) && mdp_correct) {
 					if (username) {
-						user.username = username;
+						current_user.username = username;
 					}
 					if (password) {
-						user.hashedPassword = User.hashPassword(password);
+						current_user.hashedPassword = User.hashPassword(password);
 					}
 
-					await user.save();
+					await current_user.save();
 					SUCCESMSG = "Vos modifications ont été effectuées avec succès.";
 					return res.redirect('/infos_perso');
 				}
 
 				//Si le mdp de confirmation est incorrect alors on le prévient
 				if (!mdp_correct) {
-					return res.render('infos_perso', {errMsg: 'Le mot de passe est incorrect.'});
+					return res.render('infos_perso', {errMsg: 'Le mot de passe est incorrect.', username: current_user.username});
 				}
 				//Si le formulaire est vide on le prévient
-				return res.render('infos_perso', {errMsg: "Aucunes modifications n'est effectué car le formulaire était vide."});
+				return res.render('infos_perso', {errMsg: "Aucunes modifications n'est effectué car le formulaire était vide.", username: current_user.username});
 			}
 		} catch (error) {
 			console.log(error);
-			return res.render('infos_perso', {errMsg: "Une erreur s'est produite"});
+			return res.render('infos_perso', {errMsg: "Une erreur s'est produite", username: current_user.username});
 		}
 	}else {
 		return res.redirect('connexion');
