@@ -16,7 +16,7 @@ export async function initDatabase() {
     const dbname = "testIdayari";
     const dialect = "mysql";
     const uri = `${dialect}://${user}:${pass}@${host}/${dbname}`;
-    sequelize = new Sequelize(uri, { logging: false });
+    sequelize = new Sequelize(uri);
 
     return sequelize.authenticate().then(_ => {
         initTables(sequelize);

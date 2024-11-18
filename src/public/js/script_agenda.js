@@ -266,20 +266,46 @@ function setDialog(data, url, onsuccess, old_data) {
     });
 }
 
+function addHTMLAgenda(result) {
+    list_agendas.insertAdjacentHTML('beforeend', result.html);
+    const agenda = document.getElementById(`agenda_${result.data.id}`);
+    ajout_ecouteurs_agenda(agenda);
+
+    agendaManager.addAgenda(result.data);
+    // si le bouton "tout selectionner" était activé (donc tout était sélectionné)
+    // et qu'on rajoute un agenda non sélectionné, on le désélectionne
+    if (select_all.checked && !result.data.agenda.displayed) {
+        select_all.checked = false;
+    }
+}
+
 /**
  * Click sur nouvel agenda
  */
 new_agenda_button.addEventListener('click', () => {
     setDialog({}, "/agenda/new", (_, result) => {
-        list_agendas.insertAdjacentHTML('beforeend', result.html);
-        const agenda = document.getElementById(`agenda_${result.data.id}`);
-        ajout_ecouteurs_agenda(agenda);
-
-        agendaManager.addAgenda(result.data);
-        // si le bouton "tout selectionner" était activé (donc tout était sélectionné)
-        // et qu'on rajoute un agenda non sélectionné, on le désélectionne
-        if (select_all.checked && !result.data.agenda.displayed) {
-            select_all.checked = false;
-        }
+        addHTMLAgenda(result);
     });
 });
+
+// AGENDAS RECUS
+const agendas_recus = document.getElementById("received_agendas").children;
+
+for (const agenda of agendas_recus) {
+    console.log("ok");
+    const idAgenda = agenda.id.split("_")[1];
+    const icons = agenda.lastElementChild;
+    const reject = icons.lastElementChild;
+    const accept = reject.previousElementSibling;
+    reject.addEventListener('click', () => {
+        json_fetch("/rejectSharedAgenda", "POST", {idAgenda: idAgenda})
+        .then(_ => {
+            agenda.remove();
+        })
+    });
+    accept.addEventListener('click', () => {
+        json_fetch("/acceptSharedAgenda", "POST", {idAgenda: idAgenda})
+        .then(response => response.json())
+        .then((_, result) => {console.log(result); addHTMLAgenda(result);});
+    });
+}
