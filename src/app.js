@@ -10,7 +10,7 @@ import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
 import {calendarGetData, modifierRendezVousCalendarPOST, creationRendezVousPOST, supprimerRDVDELETE} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
-import { acceptSharedAgenda, rejectSharedAgenda, agendaShareInfoGET, agendaShareToPOST } from './routes/partage.js';
+import { acceptSharedAgendaPOST, rejectSharedAgendaPOST, agendaShareInfoGET, agendaShareToPOST, cancelShareDELETE } from './routes/partage.js';
 
 export const app = express();
 app
@@ -52,8 +52,9 @@ app
 
     .get('/agenda/share/:id',agendaShareInfoGET)
     .post('/shareTo', agendaShareToPOST)
-    .post("/rejectSharedAgenda", rejectSharedAgenda)
-    .post("/acceptSharedAgenda", acceptSharedAgenda)
+    .post("/rejectSharedAgenda", rejectSharedAgendaPOST)
+    .post("/acceptSharedAgenda", acceptSharedAgendaPOST)
+    .delete("/cancelShare", cancelShareDELETE)
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))
     .use((err, req, res) => {

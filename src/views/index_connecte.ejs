@@ -14,15 +14,17 @@
                     <%- include('partials/agenda.ejs', {agenda: agendas[agenda_id], id: agenda_id }) %>
                 <% } %>
             </ul>
-            <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center">
-                <span>Agendas reçus</span>
-            </div>
-            <ul id="received_agendas" class="list-group px-3 align-self-end">
-                <% for (const agenda_id of Object.keys(received_agendas)) { %>
-                    <% const agenda = received_agendas[agenda_id]; %>
-                    <%- include('partials/shared_agenda.ejs', {nom: agenda.nom, idAgenda: agenda_id, o_username: agenda.o_username }) %>
-                <% } %>
-            </ul>
+            <% if (received_agendas) { %>
+                <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center">
+                    <span>Agendas reçus</span>
+                </div>
+                <ul id="received_agendas" class="list-group px-3 align-self-end">
+                    <% for (const agenda_id of Object.keys(received_agendas)) { %>
+                        <% const agenda = received_agendas[agenda_id]; %>
+                        <%- include('partials/shared_agenda.ejs', {nom: agenda.nom, idAgenda: agenda_id, o_username: agenda.o_username }) %>
+                    <% } %>
+                </ul>
+            <% } %>
         </div>
     </nav>
     <div class="col col-10 p-3 d-flex flex-column">

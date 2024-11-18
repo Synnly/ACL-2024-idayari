@@ -8,11 +8,13 @@
         <tr>
             <th>Utilisateur</th>
             <th>Statut</th>
+            <th></th>
         </tr>
         <% for (const user of locals.users) { %>
             <tr>
                 <td><%= user.username %></td>
                 <td><%= user.statut %></td>
+                <td><i class="bi bi-x-circle btn removeSD" data-id="<%= user.id %>" style="color: red;"></i></td>
             </tr>
         <% } %>
     </table>

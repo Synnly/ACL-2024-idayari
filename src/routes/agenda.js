@@ -4,9 +4,9 @@ import { DISPLAYED_BY_DEFAULT } from "../public/js/utils.js";
 import { createCookie } from "../token.js";
 import ejs from "ejs";
 
-export function addAgenda(res, id, nom) {
+export function addAgenda(res, id, nom, isOwner) {
     const agendas = res.locals.agendas;
-    agendas[id] = {nom: nom, displayed: DISPLAYED_BY_DEFAULT, isOwner: true};
+    agendas[id] = {nom: nom, displayed: DISPLAYED_BY_DEFAULT, isOwner: isOwner};
     createCookie("agendas", agendas, res);
     res.locals.agendas = agendas;
     const data = {id: id, agenda: agendas[id]};
@@ -36,7 +36,7 @@ export function creationAgendaPOST(req, res) {
         UserAgendaAccess.create({
             idUser: res.locals.user.id,
             idAgenda: agenda.id
-        }).then(_ => addAgenda(res, agenda.id.toString(), agenda.nom))
+        }).then(_ => addAgenda(res, agenda.id.toString(), agenda.nom, true))
         .catch(error => {
             agenda.destroy().finally(_ => res.status(400).send(error_message))
         })

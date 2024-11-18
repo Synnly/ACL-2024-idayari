@@ -14,7 +14,7 @@ export async function index(req, res) {
         const user = await User.findByPk(res.locals.user.id);
         res.locals.username = user.username;
         const my_agendas = {};
-        const waiting_agendas = {}; 
+        const waiting_agendas = null; 
         let my_agendas_all_selected = true;
         const agendas = await user.getAgendas();
         for (const agenda of agendas) {
@@ -30,6 +30,9 @@ export async function index(req, res) {
                 }
             } else if (statut == "En attente") {
                 const owner = await User.findByPk(agenda.idOwner);
+                if (!waiting_agendas) {
+                    waiting_agendas = {};
+                }
                 waiting_agendas[id] = {nom: agenda.nom, o_username: owner.username};
             }
         }

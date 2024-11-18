@@ -9,7 +9,7 @@ export function agendaShareInfoGET(req, res) {
     if (!res.locals.user) {
         return res.redirect('/');
     }
-    sequelize.query('SELECT Users.username, UserAgendaAccess.statut FROM Users JOIN UserAgendaAccess ON Users.id = UserAgendaAccess.idUser WHERE UserAgendaAccess.idAgenda = ? and Users.id != ?;', {
+    sequelize.query('SELECT Users.id, Users.username, UserAgendaAccess.statut FROM Users JOIN UserAgendaAccess ON Users.id = UserAgendaAccess.idUser WHERE UserAgendaAccess.idAgenda = ? and Users.id != ?;', {
         replacements: [+req.params.id, +res.locals.user.id]
     })
     .then(result => {
@@ -54,7 +54,7 @@ export function agendaShareToPOST(req, res) {
     })
 }
 
-export function rejectSharedAgenda(req, res) {
+export function rejectSharedAgendaPOST(req, res) {
     if (!res.locals.user) {
         return res.redirect('/');
     }
@@ -68,11 +68,13 @@ export function rejectSharedAgenda(req, res) {
             instance.set('statut', 'Rejeté');
             instance.save()
             .then(_ => res.json({}));
+        } else {
+            res.json({err: "no instance"});
         }
     })
 }
 
-export function acceptSharedAgenda(req, res) {
+export function acceptSharedAgendaPOST(req, res) {
     if (!res.locals.user) {
         return res.redirect('/');
     }
@@ -87,8 +89,24 @@ export function acceptSharedAgenda(req, res) {
             instance.save()
             .then(_ => {
                 Agenda.findByPk(+req.body.idAgenda)
-                .then(agenda => addAgenda(res, agenda.id.toString(), agenda.nom))
+                .then(agenda => addAgenda(res, agenda.id.toString(), agenda.nom, false))
             });
+        } else {
+            res.json({err: "no instance"});
         }
+    })
+}
+
+export function cancelShareDELETE(req, res) {
+    if (!res.locals.user) {
+        return res.redirect('/');
+    }
+    UserAgendaAccess.destroy({
+        where : {
+            idAgenda: +req.body.idAgenda,
+            idUser: +req.body.idUser,
+        }
+    }).then(_ => {
+        res.end();
     })
 }

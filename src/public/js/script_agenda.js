@@ -122,6 +122,16 @@ function shareAgendaDialog(id, nom) {
                 })
             }
         });
+        const remove_buttons = document.getElementsByClassName('removeSD');
+        for (const remove of remove_buttons) {
+            remove.addEventListener('click', () => {
+                const idUser = remove.getAttribute('data-id');
+                json_fetch("/cancelShare", "DELETE", {idAgenda: id, idUser: idUser})
+                .then(_ => {
+                    remove.parentElement.parentElement.remove();
+                });
+            })
+        }
         dialog.showModal();
     });
 }
@@ -159,12 +169,12 @@ function ajout_ecouteurs_agenda(agenda) {
     const nom = label.title;
     agenda.addEventListener('click', (event) => selectAgenda(agenda, id, event));
     const dropdown = label.nextElementSibling;
-    // si on a le dropdown menu (peut ne pas être le cas si agenda partagé)
-    if (dropdown) {
-        // factorise le fait d'empecher la sélection d'agendas quand on clique sur les boutons du menu ou les 3 points
-        dropdown.addEventListener('click', (event) => event.stopPropagation());
-        const option = dropdown.firstElementChild;
-        const list_options = option.nextElementSibling;
+    
+    // factorise le fait d'empecher la sélection d'agendas quand on clique sur les boutons du menu ou les 3 points
+    dropdown.addEventListener('click', (event) => event.stopPropagation());
+    const option = dropdown.firstElementChild;
+    const list_options = option.nextElementSibling;
+    if (list_options) {
         option.addEventListener('click', () => openDropDownMenu(list_options));
         // les options (modifier, supprimer, etc...)
         for (const elem of list_options.children) {
@@ -292,7 +302,6 @@ new_agenda_button.addEventListener('click', () => {
 const agendas_recus = document.getElementById("received_agendas").children;
 
 for (const agenda of agendas_recus) {
-    console.log("ok");
     const idAgenda = agenda.id.split("_")[1];
     const icons = agenda.lastElementChild;
     const reject = icons.lastElementChild;
@@ -306,6 +315,12 @@ for (const agenda of agendas_recus) {
     accept.addEventListener('click', () => {
         json_fetch("/acceptSharedAgenda", "POST", {idAgenda: idAgenda})
         .then(response => response.json())
-        .then((_, result) => {console.log(result); addHTMLAgenda(result);});
+        .then(result => {
+            // il se peut que l'agenda n'existe plus ou d'autres soucis
+            if (!result.err) {
+                addHTMLAgenda(result);
+            }
+            agenda.remove();
+        });
     });
 }
