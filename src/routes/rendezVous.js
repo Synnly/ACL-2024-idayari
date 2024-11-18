@@ -7,11 +7,14 @@ export function calendarGetData(req, res) {
     }
     const dateStart = new Date(+req.query.start);
     const dateEnd = new Date(+req.query.end);
-    RendezVous.findAll({ where: { idAgenda: +req.query.agenda } })
+    const id_agenda = +req.query.agenda;
+    const agenda_info = res.locals.agendas[id_agenda];
+    RendezVous.findAll({ where: { idAgenda: id_agenda } })
     .then(rendez_vous => {
         const simples = [];
         for (const rdv of rendez_vous) {
             for (const simple of rdv.get_rendezVous(dateStart, dateEnd)) {
+                simple.readonly = !agenda_info.isOwner;
                 simples.push(simple);
             };
         }

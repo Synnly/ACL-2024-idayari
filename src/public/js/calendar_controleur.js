@@ -133,7 +133,7 @@ class AgendaManager {
                 const data = {id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description,
                             start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, 
                             fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences,
-                            frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true};
+                            frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true, readonly: event.extendedProps.readonly};
                 getRendezVousModal(data, (data) => {
                     manager.update_event(event, data);
                 });

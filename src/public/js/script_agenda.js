@@ -299,28 +299,29 @@ new_agenda_button.addEventListener('click', () => {
 });
 
 // AGENDAS RECUS
-const agendas_recus = document.getElementById("received_agendas").children;
-
-for (const agenda of agendas_recus) {
-    const idAgenda = agenda.id.split("_")[1];
-    const icons = agenda.lastElementChild;
-    const reject = icons.lastElementChild;
-    const accept = reject.previousElementSibling;
-    reject.addEventListener('click', () => {
-        json_fetch("/rejectSharedAgenda", "POST", {idAgenda: idAgenda})
-        .then(_ => {
-            agenda.remove();
-        })
-    });
-    accept.addEventListener('click', () => {
-        json_fetch("/acceptSharedAgenda", "POST", {idAgenda: idAgenda})
-        .then(response => response.json())
-        .then(result => {
-            // il se peut que l'agenda n'existe plus ou d'autres soucis
-            if (!result.err) {
-                addHTMLAgenda(result);
-            }
-            agenda.remove();
+const received_agendas_list = document.getElementById("received_agendas");
+if (received_agendas_list) {
+    for (const agenda of received_agendas_list.children) {
+        const idAgenda = agenda.id.split("_")[1];
+        const icons = agenda.lastElementChild;
+        const reject = icons.lastElementChild;
+        const accept = reject.previousElementSibling;
+        reject.addEventListener('click', () => {
+            json_fetch("/rejectSharedAgenda", "POST", {idAgenda: idAgenda})
+            .then(_ => {
+                agenda.remove();
+            })
         });
-    });
+        accept.addEventListener('click', () => {
+            json_fetch("/acceptSharedAgenda", "POST", {idAgenda: idAgenda})
+            .then(response => response.json())
+            .then(result => {
+                // il se peut que l'agenda n'existe plus ou d'autres soucis
+                if (!result.err) {
+                    addHTMLAgenda(result);
+                }
+                agenda.remove();
+            });
+        });
+    }
 }
