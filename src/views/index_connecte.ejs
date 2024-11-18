@@ -47,6 +47,11 @@
         <div id="calendar"></div>
     </div>
 </div>
+<div class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75" id="spinner">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>  
 <script>
     /**
      * Fonction qui change la taille de la liste des agendas en fonction de la taille de la fenetre
@@ -73,5 +78,6 @@
     }
 </script>
 <script src="/ejs/ejs.js"></script>
+<script src="/js/export.js"></script>
 <script type="module" src="./js/calendar_controleur.js"></script>
 <script type="module" src="./js/script_agenda.js"></script>
