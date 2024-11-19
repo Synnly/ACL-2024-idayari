@@ -226,14 +226,14 @@ new_agenda_button.addEventListener('click', () => {
 });
 
 /**
- * 
+ * Ajoute l'agenda dans la liste affiché
  * @param {*} result données exploitable par l'agendaManger de fullcallendar concernant l'agenda crée
  */
 export function manageNewAgenda(result){
     list_agendas.insertAdjacentHTML('beforeend', result.html);
     const agenda = document.getElementById(`agenda_${result.data.id}`);
+    
     ajout_ecouteurs_agenda(agenda);
-
     agendaManager.addAgenda(result.data);
     // si le bouton "tout selectionner" était activé (donc tout était sélectionné)
     // et qu'on rajoute un agenda non sélectionné, on le désélectionne

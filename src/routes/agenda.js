@@ -83,7 +83,7 @@ export function supprimerAgendaDELETE(req, res){
 }
 
 /**
- * 
+ * créer les cookies de l'agenda et renvoie l'agenda en donnée exploitable par calendarManager
  * @param agenda Une instace d'Agenda
  * @param res La réponse : utilisé pour partager les données entre middleware
  * @returns les données exploitable par l'agendaManger de fullcallendar concernant l'agenda
@@ -98,7 +98,7 @@ export function manageAddedAgenda(agenda,res){
 }
 
 /**
- * 
+ * Réponse du serveur à la création d'un nouveau rendez vous
  * @param {*} data données exploitable par l'agendaManger de fullcallendar concernant l'agenda
  * @param {*} res La réponse : utilisé pour partager les données entre middleware
  */
