@@ -1,7 +1,7 @@
 <dialog id="dialogAgenda">
     <form method="POST" id="agenda_form">
         <label>Nom de l'agenda</label>
-        <input type="text" name="nom" value="<%= locals.nom ? locals.nom : "" %>" required>
+        <input type="text" name="nom" value="<%= locals.nom ? nom : "" %>" required>
         <br><br>
         <input class="btn border" type="submit" value="Envoyer">
         <button class="btn border" id="fermerDialogAgenda">Annuler</button>
