@@ -113,11 +113,12 @@ function ajout_ecouteurs_agenda(agenda) {
     agenda.addEventListener('click', (event) => selectAgenda(agenda, id, event));
     const dropdown = label.nextElementSibling;
     // si on a le dropdown menu (peut ne pas être le cas si agenda partagé)
-    if (dropdown) {
-        // factorise le fait d'empecher la sélection d'agendas quand on clique sur les boutons du menu ou les 3 points
-        dropdown.addEventListener('click', (event) => event.stopPropagation());
-        const option = dropdown.firstElementChild;
-        const list_options = option.nextElementSibling;
+    
+    // factorise le fait d'empecher la sélection d'agendas quand on clique sur les boutons du menu ou les 3 points
+    dropdown.addEventListener('click', (event) => event.stopPropagation());
+    const option = dropdown.firstElementChild;
+    const list_options = option.nextElementSibling;
+    if (list_options) {
         option.addEventListener('click', () => openDropDownMenu(list_options));
         // les options (modifier, supprimer, etc...)
         for (const elem of list_options.children) {
