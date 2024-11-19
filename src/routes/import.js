@@ -27,7 +27,7 @@ export async function importAgendaPOST(req,res){
 
             const tabRdvs = req.body.rendezVous.map(rdv => ({...rdv,idAgenda: agenda.id})); 
 
-            RendezVous.bulkCreate(tabRdvs).then(rdvs => { //bulkCreate : Création de l'ensemble de rdv
+            RendezVous.bulkCreate(tabRdvs, { validate: true }).then(rdvs => { //bulkCreate : Création de l'ensemble de rdv
 
                 const data = manageAddedAgenda(agenda,res); //Gestion cookie et récupération agenta exploitable par AgendaManager
                 renderAgendaEjs(data,res);  // Gestion réponse du serveur

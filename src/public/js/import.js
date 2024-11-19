@@ -12,31 +12,28 @@ importerAgenda.addEventListener('click', function(event) {
       event.preventDefault();
       const input = document.createElement('input');
       input.type = 'file';
+      input.setAttribute('accept', '.json,application/json');
       input.onchange = _ => {
                 const file = input.files[0];    //Fichier sélectionné
-                if(file.type === "application/json"){
-                    let reader = new FileReader();  //Lecture du fichier sélectionné
-                    reader.onload = (event) => {
-                        try {
-                            let data = JSON.parse(event.target.result);
-                            fetch("/agenda-import", {
-                                    method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
-                                })
-                                .then((response) => response.json())
-                                .then(result => {   //Traitement du nouvel Agenda
-                                    manageNewAgenda(result);
-                                })
-                                .catch((error) => {
-                                    alert('Erreur lors du chargement du fichier ');
-                                });
-                        } catch(error){
-                            alert('Erreur dans le fichier json ');
-                        }
+                let reader = new FileReader();  //Lecture du fichier sélectionné
+                reader.onload = (event) => {
+                    try {
+                        let data = JSON.parse(event.target.result);
+                        fetch("/agenda-import", {
+                                method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify(data)
+                            })
+                            .then((response) => response.json())
+                            .then(result => {   //Traitement du nouvel Agenda
+                                manageNewAgenda(result);
+                            })
+                            .catch((error) => {
+                                alert('Erreur lors du chargement du fichier ');
+                            });
+                    } catch(error){
+                        alert('Erreur dans le fichier json ');
                     }
-                    reader.readAsText(file);
-                }else{
-                    alert("Le fichier n'est pas au format json");
                 }
+                reader.readAsText(file);
             };
       input.click();
     });

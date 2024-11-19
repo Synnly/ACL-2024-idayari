@@ -26,7 +26,14 @@ export default class RendezVous extends Model {
         },
         dateFin: {
             type: DataTypes.DATE,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                dateFinIsAfterDateDebut() {
+                  if (this.dateFin <= this.dateDebut) {
+                    throw new Error('La date de fin doit être supérieure à la date de début');
+                  }
+                }
+            }
         },
         allDay: {
             type: DataTypes.BOOLEAN,
@@ -41,7 +48,14 @@ export default class RendezVous extends Model {
             allowNull: false
         },
         frequence: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            validate: {
+                frequenceValidator(value){
+                    if ((value !== null) && value < 1) {
+                        throw new Error('La fréquence doit être supérieur à 1');
+                    }
+                }
+            },
         },
         finRecurrence: {
             type: DataTypes.DATE,
@@ -49,7 +63,14 @@ export default class RendezVous extends Model {
         },
         nbOccurrences: {
             type: DataTypes.INTEGER,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                nbOccurencesValidator(value){
+                    if ((value !==null) && value < 2)  {
+                        throw new Error('nbOccurence doit être supérieur à 2');
+                    }
+                }
+            },
         },
         idAgenda: {
             type: DataTypes.INTEGER,
