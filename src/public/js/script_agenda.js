@@ -106,7 +106,7 @@ function openDropDownMenu(elem) {
  * Ajoute les écouteurs à un agenda et ses boutons associés
  * @param {HTMLLIElement} agenda 
  */
-function ajout_ecouteurs_agenda(agenda) {
+export function ajout_ecouteurs_agenda(agenda) {
     const id = agenda.id.split("_")[1];
     const label = agenda.firstElementChild;
     const nom = label.title;
