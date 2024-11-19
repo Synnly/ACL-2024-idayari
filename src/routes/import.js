@@ -13,7 +13,7 @@ import {renderAgendaEjs} from "./agenda.js";
  * @param res La réponse
  */
 export async function importAgendaPOST(req,res){
-    const error_message = "Error : L'agenda n'a pas pus être chargé ";
+    const error_message = "Erreur : Impossible de charger l'agenda ";
     Agenda.create({
         nom: req.body.nom,
         idOwner: res.locals.user.id
@@ -37,15 +37,13 @@ export async function importAgendaPOST(req,res){
                 userAgendaAccess.destroy().finally(_ => {
                         agenda.destroy().finally(_ => {
                         console.log(error); res.status(400).send(error_message)})
-                        .catch(err => console.error('Error destroying Agenda:', err));
-                        
+                        .catch(err => console.error('Error destroying Agenda:', err));    
                 }).catch(err => console.error('Error destroying userAgendaAccess:', err));
             });
         }).catch(error => { //Erreur création userAgendaAccess
-
+            
             agenda.destroy().finally(_ => {
             console.log(error); res.status(400).send(error_message)});
-
         }).catch(err => console.error('Error destroying Agenda:', err));
         
     }).catch(error => { console.log(error); res.status(400).send(error_message)});  //Erreur création Agenda
