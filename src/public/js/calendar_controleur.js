@@ -90,8 +90,8 @@ class AgendaManager {
             // nombre de semaines dans la vue Mois non fixe, au lieu de toujours 6 (inclut donc parfois des semaines n'étant pas du tout dans le mois)
             fixedWeekCount: false,
             // permet de pas afficher des milliers de rendez-vous par case
-            dayMaxEventRows: true, // pour la vue mois
-            eventMaxStack: true, // pour les vues semaine et jour
+            dayMaxEventRows: 2, // pour la vue mois
+            eventMaxStack: 3, // pour les vues semaine et jour
             navLinks: true,
             slotDuration: '01:00:00',
             height: "100%",
