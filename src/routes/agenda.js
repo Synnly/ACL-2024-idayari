@@ -23,18 +23,8 @@ export function creationAgendaPOST(req, res) {
             idUser: res.locals.user.id,
             idAgenda: agenda.id
         }).then(_ => {
-            const agendas = res.locals.agendas;
-            agendas[agenda.id.toString()] = {nom: agenda.nom, displayed: DISPLAYED_BY_DEFAULT, isOwner: true};
-            createCookie("agendas", agendas, res);
-            res.locals.agendas = agendas;
-            const data = {id: agenda.id.toString(), agenda: agendas[agenda.id.toString()]};
-            ejs.renderFile('views/partials/agenda.ejs', data)
-            .then(html => {
-                res.status(200).json({html: html, data: data});
-            }).catch(error => {
-                console.log(error);
-                res.status(400).end();
-            });
+            const data = manageAddedAgenda(agenda,res);
+            renderAgendaEjs(data,res);
         })
         .catch(error => {
             agenda.destroy().finally(_ => {
@@ -90,4 +80,33 @@ export function supprimerAgendaDELETE(req, res){
             res.status(204).end();
         }
     })
+}
+
+/**
+ * 
+ * @param agenda Une instace d'Agenda
+ * @param res La réponse : utilisé pour partager les données entre middleware
+ * @returns les données exploitable par l'agendaManger de fullcallendar concernant l'agenda
+ */
+export function manageAddedAgenda(agenda,res){
+    const agendas = res.locals.agendas;
+    agendas[agenda.id.toString()] = {nom: agenda.nom, displayed: DISPLAYED_BY_DEFAULT, isOwner: true};
+    createCookie("agendas", agendas, res);
+    res.locals.agendas = agendas;
+    let data = {id: agenda.id.toString(), agenda: agendas[agenda.id.toString()]};
+    return data;
+}
+
+/**
+ * 
+ * @param {*} data données exploitable par l'agendaManger de fullcallendar concernant l'agenda
+ * @param {*} res La réponse : utilisé pour partager les données entre middleware
+ */
+export function renderAgendaEjs(data,res){
+    ejs.renderFile('views/partials/agenda.ejs', data).then(html => {
+        res.status(200).json({html: html, data: data});
+    }).catch(error => {
+        console.log(error);
+        res.status(400).end();
+    });
 }

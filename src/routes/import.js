@@ -4,6 +4,10 @@ import UserAgendaAccess from "../model/UserAgendaAccess.js";
 import { DISPLAYED_BY_DEFAULT } from "../public/js/utils.js";
 import { createCookie } from "../token.js";
 import ejs from "ejs";
+import {manageAddedAgenda} from "./agenda.js";
+import {renderAgendaEjs} from "./agenda.js";
+
+
 
 /**
  * Enregistre l'agenda et ses rdvs à partir du json de la requête (import json)
@@ -13,7 +17,6 @@ import ejs from "ejs";
  * @param res La réponse
  */
 export async function importAgendaPOST(req,res){
-    const agendas = res.locals.agendas;
     const error_message = "Error : L'agenda n'a pas pus être chargé ";
     Agenda.create({
         nom: req.body.nom,
@@ -37,30 +40,19 @@ export async function importAgendaPOST(req,res){
                     nbOccurrences: rdv.nbOccurrences,
                     idAgenda:agenda.id,
                 }));
-            RendezVous.bulkCreate(tabRdv).then(rdvs => {
-                // return res.json({agenda: { nom: agenda.nom, id: agenda.id }});
-                const agendas = res.locals.agendas;
-                agendas[agenda.id.toString()] = {nom: agenda.nom, displayed: DISPLAYED_BY_DEFAULT, isOwner: true};
-                createCookie("agendas", agendas, res);
-                res.locals.agendas = agendas;
-                const data = {id: agenda.id.toString(), agenda: agendas[agenda.id.toString()]};
-                ejs.renderFile('views/partials/agenda.ejs', data)
-                .then(html => {
-                    res.status(200).json({html: html, data: data});
-                }).catch(error => {
-                    console.log(error);
-                    res.status(400).end();
-                });
-            }).catch(error => {
+            RendezVous.bulkCreate(tabRdv).then(rdvs => { //bulkCreate : Création de l'ensemble de rdv
+                const data = manageAddedAgenda(agenda,res);
+                renderAgendaEjs(data,res);
+            }).catch(error => { //erreur création rdvs
                 userAgendaAccess.destroy().finally(_ => {
                         agenda.destroy().finally(_ => {
                         console.log(error); res.status(400).send(error_message)})
                 })
             });
-        }).catch(error => {
+        }).catch(error => { //Erreur création userAgendaAccess
             agenda.destroy().finally(_ => {
             console.log(error); res.status(400).send(error_message)});
         });
-    }).catch(error => { console.log(error); res.status(400).send(error_message)});
+    }).catch(error => { console.log(error); res.status(400).send(error_message)});  //Erreur création Agenda
 }
 
