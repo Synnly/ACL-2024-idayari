@@ -1,19 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <title>Connexion</title>
-  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/css/main.css">
-</head>
+<html lang="fr">
+	<head>
+		<%- include('partials/head.ejs', {title: "Connexion"}) %>
+	</head>
 
 <body>
   <div class="container-fluid">
-    
-  
     <div class="row">
       <div class="col-12 col-md-5 d-flex justify-content-center align-items-center flex-column my-5">
         <h3 class="text-center">Connexion</h3>
@@ -22,8 +14,7 @@
         <form method="post" class="w-75 px-5">
           <div class="my-5">
             <label for="username">Nom d'utilisateur</label>
-            <input id="username" type="text" name="username"
-              class="form-control border-0 border-bottom rounded-0 border-black" placeholder="Joe Dohn" required />
+            <input id="username" type="text" name="username" class="form-control border-0 border-bottom rounded-0 border-black" placeholder="Joe Dohn" required />
           </div>
 
           <div class="my-5">
@@ -48,7 +39,7 @@
           </div>
         </form>
         <div class="text-center">
-          Vous n’avez pas un compte ? <a href="/inscription" class="text-primary">Inscrivez-vous !</a>
+          	Vous n'avez pas un compte ? <a href="/inscription" class="text-primary">Inscrivez-vous !</a>
         </div>
       </div>
 

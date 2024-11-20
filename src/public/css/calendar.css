@@ -4,6 +4,10 @@
 }
 
 .fc-toolbar {
-    font-size: 0.85em; /* adjust the font size as needed */
+    font-size: 0.85em;
+}
+
+.mr {
+    margin-right: 10px;
 }
   

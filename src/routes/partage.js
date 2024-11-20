@@ -8,6 +8,8 @@ export async function voirPartagesGET(req, res){
 				return res.redirect("/");
 		}
 		res.locals.partages = {};
+		const user = await User.findByPk(res.locals.user.id);
+		res.locals.username = user.username;
 
 		const query = await Agenda.findAll({
 				where: {idOwner: res.locals.user.id},
@@ -90,7 +92,8 @@ export async function confirmerAjoutPartageGET(req, res){
 		if(!res.locals.user){
 				return res.redirect("/");
 		}
-
+		const user = await User.findByPk(res.locals.user.id);
+		res.locals.username = user.username;
 		if(isNaN(Number.parseInt(req.params.id)) || +req.params.id <= 0){
 				return res.redirect("/");
 		}
@@ -124,7 +127,7 @@ export async function confirmerAjoutPartageGET(req, res){
 				return res.redirect("/");
 		}
 		res.locals.isAdding = true;
-
+		
 		const html = await ejs.renderFile("views/partage.ejs", {locals: res.locals, agenda: {id: agenda.id, nom: agenda.nom, owner: owner.dataValues.username}}, {async:true});
 		res.send(html);
 }
