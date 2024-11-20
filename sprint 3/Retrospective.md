@@ -1,3 +1,5 @@
 ## Fonctionnalités
-Dans sa globalité le sprint c'est bien passé, malgré des divergences d'opinion sur comment l'implementer certaines 
-fonctionnalités qui ont créé du retard. 
+Dans sa globalité le sprint c'est bien passé. 
+Cependant une querelle entre deux membres a créé des légers retards sur le planning.
+
+Pour le prochain sprint, une amélioration de la cohésion général sera en mise place.
