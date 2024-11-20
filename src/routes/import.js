@@ -2,8 +2,7 @@ import Agenda from "../model/Agenda.js";
 import RendezVous from "../model/RendezVous.js";
 import UserAgendaAccess from "../model/UserAgendaAccess.js";
 
-import {manageAddedAgenda} from "./agenda.js";
-import {renderAgendaEjs} from "./agenda.js";
+import {addAgenda} from "./agenda.js";
 
 /**
  * Enregistre l'agenda et ses rdvs à partir du json de la requête (import json)
@@ -27,11 +26,8 @@ export async function importAgendaPOST(req,res){
 
             const tabRdvs = req.body.rendezVous.map(rdv => ({...rdv,idAgenda: agenda.id})); 
 
-            RendezVous.bulkCreate(tabRdvs, { validate: true }).then(rdvs => { //bulkCreate : Création de l'ensemble de rdv
-
-                const data = manageAddedAgenda(agenda,res); //Gestion cookie et récupération agenta exploitable par AgendaManager
-                renderAgendaEjs(data,res);  // Gestion réponse du serveur
-
+            RendezVous.bulkCreate(tabRdvs, { validate: true }).then(_ => { //bulkCreate : Création de l'ensemble de rdv
+                addAgenda(res, agenda.id, req.body.nom, true);
             }).catch(error => { //erreur création rdvs
 
                 userAgendaAccess.destroy().finally(_ => {
