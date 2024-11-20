@@ -106,7 +106,7 @@ function openDropDownMenu(elem) {
  * Ajoute les écouteurs à un agenda et ses boutons associés
  * @param {HTMLLIElement} agenda 
  */
-function ajout_ecouteurs_agenda(agenda) {
+export function ajout_ecouteurs_agenda(agenda) {
     const id = agenda.id.split("_")[1];
     const label = agenda.firstElementChild;
     const nom = label.title;
@@ -221,18 +221,28 @@ function setDialog(data, url, onsuccess, old_data) {
  */
 new_agenda_button.addEventListener('click', () => {
     setDialog({}, "/agenda/new", (_, result) => {
-        list_agendas.insertAdjacentHTML('beforeend', result.html);
-        const agenda = document.getElementById(`agenda_${result.data.id}`);
-        ajout_ecouteurs_agenda(agenda);
-
-        agendaManager.addAgenda(result.data);
-        // si le bouton "tout selectionner" était activé (donc tout était sélectionné)
-        // et qu'on rajoute un agenda non sélectionné, on le désélectionne
-        if (select_all.checked && !result.data.agenda.displayed) {
-            select_all.checked = false;
-        }
+        manageNewAgenda(result)
     });
 });
+
+/**
+ * Ajoute l'agenda dans la liste affiché
+ * @param {*} result données exploitable par l'agendaManger de fullcallendar concernant l'agenda crée
+ */
+export function manageNewAgenda(result){
+    list_agendas.insertAdjacentHTML('beforeend', result.html);
+    const agenda = document.getElementById(`agenda_${result.data.id}`);
+    
+    ajout_ecouteurs_agenda(agenda);
+    agendaManager.addAgenda(result.data);
+    // si le bouton "tout selectionner" était activé (donc tout était sélectionné)
+    // et qu'on rajoute un agenda non sélectionné, on le désélectionne
+    if (select_all.checked && !result.data.agenda.displayed) {
+        select_all.checked = false;
+    }
+}
+
+
 
 // // qu'est ce que ça fait là ??
 // (() => {

@@ -12,6 +12,8 @@ import {calendarGetData, modifierRendezVousCalendarPOST, creationRendezVousPOST,
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
 import { exportAgendaPOST } from './routes/export.js';
+import { importAgendaPOST } from './routes/import.js';
+
 
 
 export const app = express();
@@ -53,6 +55,10 @@ app
     .post('/infos_perso', modifierInfosPersoPOST)
 
     .post("/export", exportAgendaPOST)
+
+    .post("/agenda-import",importAgendaPOST)
+
+    
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))
     .use((err, req, res) => {

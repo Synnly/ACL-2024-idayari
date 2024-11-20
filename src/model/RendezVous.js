@@ -26,7 +26,14 @@ export default class RendezVous extends Model {
         },
         dateFin: {
             type: DataTypes.DATE,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                dateFinIsAfterDateDebut() {
+                  if (this.dateFin <= this.dateDebut) {
+                    throw new Error(`La date de fin doit être supérieure à la date de début (début : ${this.dateDebut}, fin : ${this.dateFin})`);
+                  }
+                }
+            }
         },
         allDay: {
             type: DataTypes.BOOLEAN,
@@ -38,10 +45,25 @@ export default class RendezVous extends Model {
         type: {
             type: DataTypes.ENUM('Simple', 'Daily', 'Weekly', 'Monthly', 'Yearly'),
             defaultValue: 'Simple',
-            allowNull: false
+            allowNull: false,
+            validate : {
+                notSimpleTypeImpliesNotNullFrequence(value){
+                    if ((this.frequence === null) && (value !== 'Simple')) {
+                        console.log(value,this.frequence);
+                        throw new Error(`les rdvs non Simple ont une fréquence non null (frequence : ${this.frequence},type : ${value}) `);
+                    }
+                }
+            }
         },
         frequence: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            validate: {
+                frequenceValidator(value){
+                    if ((value !== null) && value < 1) {
+                        throw new Error(`La fréquence doit être supérieur à 1 (frequence : ${value})`);
+                    }
+                }
+            },
         },
         finRecurrence: {
             type: DataTypes.DATE,
@@ -49,7 +71,14 @@ export default class RendezVous extends Model {
         },
         nbOccurrences: {
             type: DataTypes.INTEGER,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                nbOccurencesValidator(value){
+                    if ((value !==null) && value < 2)  {
+                        throw new Error(`nbOccurence doit être supérieur à 2 (nbOccurences : ${value})`);
+                    }
+                }
+            },
         },
         idAgenda: {
             type: DataTypes.INTEGER,
