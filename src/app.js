@@ -12,6 +12,11 @@ import {calendarGetData, modifierRendezVousCalendarPOST, creationRendezVousPOST,
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 import { acceptSharedAgendaPOST, rejectSharedAgendaPOST, agendaShareInfoGET, agendaShareToPOST, cancelShareDELETE } from './routes/partage.js';
 
+import { exportAgendaPOST } from './routes/export.js';
+import { importAgendaPOST } from './routes/import.js';
+
+
+
 export const app = express();
 app
     .set('views', fileURLToPath(new URL('./views', import.meta.url)))
@@ -55,6 +60,10 @@ app
     .post("/rejectSharedAgenda", rejectSharedAgendaPOST)
     .post("/acceptSharedAgenda", acceptSharedAgendaPOST)
     .delete("/cancelShare", cancelShareDELETE)
+
+    .post("/export", exportAgendaPOST)
+
+    .post("/agenda-import",importAgendaPOST)
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))
     .use((err, req, res) => {
