@@ -82,7 +82,7 @@ export default class RendezVous extends Model {
         },
         idAgenda: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: true
         }
     },
     {sequelize, timestamps: false, tableName: "RendezVous"});

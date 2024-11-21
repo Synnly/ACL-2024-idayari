@@ -13,7 +13,7 @@ import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierIn
 
 import { exportAgendaPOST } from './routes/export.js';
 import { importAgendaPOST } from './routes/import.js';
-
+import {voirPartagesGET, creerPartageGET, ajouterPartageGET, confirmerAjoutPartageGET} from "./routes/partage.js";
 
 
 export const app = express();
@@ -58,6 +58,11 @@ app
 
     .post("/agenda-import",importAgendaPOST)
 
+
+    .get("/partage", voirPartagesGET)
+    .get("/partage/:id", confirmerAjoutPartageGET)
+    .get("/partage/:id/yes", ajouterPartageGET)
+    .get("/partage/new/:id", creerPartageGET)
     
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))

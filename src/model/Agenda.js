@@ -15,6 +15,10 @@ export default class Agenda extends Model {
             nom: {
                 type: DataTypes.STRING,
             },
+            estPartage: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
         },
         {sequelize, timestamps: false, tableName: "Agendas"}
     );

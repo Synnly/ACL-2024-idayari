@@ -1,6 +1,8 @@
 import User from "../model/User.js";
 import { createCookie } from "../token.js";
 import { DISPLAYED_BY_DEFAULT } from "../public/js/utils.js";
+import Agenda from "../model/Agenda.js";
+import UserAgendaAccess from "../model/UserAgendaAccess.js";
 
 /**
  * Traite la requête GET sur / .

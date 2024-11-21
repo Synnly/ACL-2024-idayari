@@ -11,8 +11,12 @@ export function calendarGetData(req, res) {
     .then(rendez_vous => {
         const simples = [];
         for (const rdv of rendez_vous) {
+            let readonly = !res.locals.agendas[+req.query.agenda].isOwner;
+            
             for (const simple of rdv.get_rendezVous(dateStart, dateEnd)) {
+                simple.readonly = readonly;
                 simples.push(simple);
+                
             };
         }
         return res.json(simples);
