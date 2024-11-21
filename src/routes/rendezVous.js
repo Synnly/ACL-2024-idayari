@@ -13,6 +13,7 @@ export function calendarGetData(req, res) {
         for (const rdv of rendez_vous) {
             const data = rdv.get_rendezVous(dateStart, dateEnd);
             if (data) {
+                data.readonly = !res.locals.agendas[+req.query.agenda].isOwner;
                 infos.push(data);
             }
         }

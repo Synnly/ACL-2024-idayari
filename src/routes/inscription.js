@@ -1,5 +1,7 @@
 import {saveAuthentificationCookie} from "../token.js";
 import User from "../model/User.js";
+import Agenda from "../model/Agenda.js";
+import UserAgendaAccess from "../model/UserAgendaAccess.js";
 
 /**
  * Traite la requête GET sur /inscription.
@@ -28,8 +30,26 @@ export function inscriptionPOST(req, res) {
         username: req.body.user_username,
         hashedPassword: User.hashPassword(req.body.user_password),
     }).then(user => {
-        // Pour que le server authenthifie l'utilisateur à partir du cookie
-        saveAuthentificationCookie(user, res).then(_ => res.redirect("/"));
+        Agenda.create({
+            nom: "Mon agenda",
+            idOwner: user.id
+        }).then(agenda => {
+            UserAgendaAccess.create({
+                idUser: user.id,
+                idAgenda: agenda.id
+            }).then(_ => {
+                // Pour que le server authenthifie l'utilisateur à partir du cookie
+                saveAuthentificationCookie(user, res).then(_ => res.redirect("/"));
+            }).catch(e => {
+                res.render("inscription", {
+                    errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard."
+                });
+            });
+        }).catch(e => {
+            res.render("inscription", {
+                errMsg: "Une erreur inattendue est survenue. Veuillez réessayer plus tard."
+            });
+        });
     }).catch(e => {
         res.render("inscription", {
             errMsg: e.name === "SequelizeUniqueConstraintError" ? "Un compte existe déjà avec ce nom d'utilisateur !" : "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",

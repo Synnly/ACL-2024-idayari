@@ -194,7 +194,9 @@ export function getRendezVousModal(data, onsuccess) {
     // on récupère la liste des agendas
     for (const elem of document.getElementById('agendaList').children) {
         const id = elem.id.split("_")[1];
-        data.agendas.push({id: id, nom: elem.firstElementChild.title});
+        if(elem.children.length === 2){
+            data.agendas.push({id: id, nom: elem.firstElementChild.title});
+        }
     }
     if (data.end && data.all_day) {
         data.end.setDate(data.end.getDate() - 1);

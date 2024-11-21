@@ -11,6 +11,11 @@ import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./r
 import {calendarGetData, modifierRendezVousCalendarPOST, creationRendezVousPOST, supprimerRDVDELETE} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
+import { exportAgendaPOST } from './routes/export.js';
+import { importAgendaPOST } from './routes/import.js';
+import {voirPartagesGET, creerPartageGET, ajouterPartageGET, confirmerAjoutPartageGET} from "./routes/partage.js";
+
+
 export const app = express();
 app
     .set('views', fileURLToPath(new URL('./views', import.meta.url)))
@@ -49,6 +54,17 @@ app
 
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
+
+    .post("/export", exportAgendaPOST)
+
+    .post("/agenda-import",importAgendaPOST)
+
+
+    .get("/partage", voirPartagesGET)
+    .get("/partage/:id", confirmerAjoutPartageGET)
+    .get("/partage/:id/yes", ajouterPartageGET)
+    .get("/partage/new/:id", creerPartageGET)
+    
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))
     .use((err, req, res) => {

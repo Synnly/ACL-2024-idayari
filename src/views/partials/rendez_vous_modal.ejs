@@ -4,31 +4,32 @@
             <div class="modal-header">
                 <button type="button" class="btn-close ferme" data-bs-dismiss="modal" aria-label="Annuler"></button>
             </div>
+            <% const readonly_text = locals.readonly ? "readonly" : "" %>
             <div class="modal-body">
                 <form id="rendezvous_form" method="POST">
-                    <div style="overflow: scroll; padding-left: 32px; padding-right: 32px; max-height: 60vh;">
+                    <div style="overflow: auto; padding-left: 32px; padding-right: 32px; max-height: 60vh;">
                         <div class="d-flex mb-3 align-items-center">
                             <i class="bi bi-card-heading mr"></i>
                             <div class="d-flex flex-grow-1">
-                                <input type="text" class="form-control" maxlenght="100" placeholder="Titre du rendez-vous" name="titre" value="<%= locals.titre ? locals.titre : "" %>" required>    
+                                <input type="text" class="form-control" maxlenght="100" placeholder="Titre du rendez-vous" name="titre" value="<%= locals.titre ? locals.titre : "" %>" required <%= readonly_text %>>    
                             </div>
                         </div>
                         <div class="d-flex mb-3 align-items-center">
                             <i class="bi bi-geo-alt mr"></i>
                             <div class="d-flex flex-grow-1">
-                                <input type="text" class="form-control" maxlenght="100" placeholder="Lieu du rendez-vous" value="<%= locals.lieu ? locals.lieu : "" %>" name="lieu">
+                                <input type="text" class="form-control" maxlenght="100" placeholder="Lieu du rendez-vous" value="<%= locals.lieu ? locals.lieu : "" %>" name="lieu" <%= readonly_text %>>
                             </div>
                         </div>
                         <div class="d-flex mb-3 align-items-center">
                             <i class="bi bi-text-left mr"></i>
                             <div class="d-flex flex-grow-1">
-                                <textarea class="form-control" rows="3" maxlenght="1000" placeholder="description" name="description"><%= locals.description ? locals.description : "" %></textarea>
+                                <textarea class="form-control" rows="3" maxlenght="1000" placeholder="description" name="description" <%= readonly_text %>><%= locals.description ? locals.description : "" %></textarea>
                             </div>
                         </div>
                         <div class="d-flex mb-3 align-items-center">
                             <i class="bi bi-calendar mr"></i>
                             <div class="d-flex flex-grow-1">
-                                <select name="agenda" required>
+                                <select name="agenda" required <%= locals.readonly ? "disabled" : "" %>>
                                     <% for (const elem of locals.agendas) { %>
                                         <option value="<%= elem.id %>" <%= elem.id == locals.agenda ? "selected" : ""%>><%= elem.nom %></option>
                                     <% } %>
@@ -37,15 +38,15 @@
                         </div>
                         <div class="mb-1">
                             <label class="form-label">
-                                <input type="checkbox" name="all_day" <%= locals.all_day ? "checked" : ""%>>
+                                <input type="checkbox" name="all_day" <%= locals.all_day ? "checked" : ""%> <%= locals.readonly ? "disabled" : "" %>>
                                 Toute la journée
                             </label>
                         </div>
                         <div class="mb-1 d-flex align-items-center">
                             <i class="bi bi-clock mr"></i>
                             <div class="d-flex flex-grow-1 mr">
-                                <input type="date" class="form-control mr" name="startDate" value="<%= locals.start ? toDate(locals.start) : "" %>" required>
-                                <input type="time" class="form-control" name="startTime"
+                                <input type="date" class="form-control mr" name="startDate" value="<%= locals.start ? toDate(locals.start) : "" %>" required <%= readonly_text %>>
+                                <input type="time" class="form-control" name="startTime" <%= readonly_text %> 
                                 <% if (locals.all_day) { %>
                                     style='display: none'
                                 <% } else { %>
@@ -58,8 +59,8 @@
                             <!-- Pour que le décalage soit le même -->
                             <i class="bi bi-clock mr opacity-0"></i>
                             <div class="d-flex flex-grow-1 mr">
-                                <input type="date" class="form-control mr" name="endDate" value="<%= locals.end ? toDate(locals.end) : "" %>" required>
-                                <input type="time" class="form-control" name="endTime"
+                                <input type="date" class="form-control mr" name="endDate" value="<%= locals.end ? toDate(locals.end) : "" %>" required <%= readonly_text %>>
+                                <input type="time" class="form-control" name="endTime" <%= readonly_text %> 
                                 <% if (locals.all_day) { %>
                                     style='display: none'
                                 <% } else { %>
@@ -72,7 +73,7 @@
                             <% const is_recurrent = locals.type && locals.type != "Simple"; %>
                             <div class="mb-1">
                                 <label>
-                                    <input type="checkbox" name="recurrent" <%= is_recurrent ? "checked" : ""%>> Récurrent ?
+                                    <input type="checkbox" name="recurrent" <%= is_recurrent ? "checked" : ""%> <%= locals.readonly ? "disabled" : "" %>> Récurrent ?
                                 </label>
                             </div>
                             <div id="recurrent_div" 
@@ -82,8 +83,8 @@
                                 <div class="mb-3 d-flex align-items-center">
                                     <span class="mr">Tous les</span>
                                     <div class="d-flex flex-grow-1 align-items-center">
-                                        <input class="form-control me-2" style="width: fit-content;" type="number" min="1" value="<%= locals.frequence ? locals.frequence : "" %>" name="frequence">
-                                        <select class="w-fit-content" name="recurrence_type">
+                                        <input class="form-control me-2" style="width: fit-content;" type="number" min="1" value="<%= locals.frequence ? locals.frequence : "" %>" name="frequence" <%= readonly_text %>>
+                                        <select class="w-fit-content" name="recurrence_type" <%= locals.readonly ? "disabled" : "" %>>
                                             <option value="Daily" <%= locals.type === "Daily" ? "selected" : ""%>>Jour(s)</option>
                                             <option value="Weekly" <%= locals.type === "Weekly" ? "selected" : ""%>>Semaine(s)</option>
                                             <option value="Monthly" <%= locals.type === "Monthly" ? "selected" : ""%>>Mois</option>
@@ -94,12 +95,12 @@
                                 <div class="mb-3 d-flex align-items-center" id="end_recurrence_div">
                                     <span class="mr">S'arrête</span>
                                     <div class="d-flex align-items-center flex-grow-1">
-                                        <select class="w-fit-content h-fit-content me-2" name="end_recurrence">
+                                        <select class="w-fit-content h-fit-content me-2" name="end_recurrence" <%= locals.readonly ? "disabled" : "" %>>
                                             <option value="date" <%= locals.fin_recurrence ? "selected" : ""%>>Avant le</option>
                                             <option value="nb" <%= locals.nbOccurrences ? "selected" : ""%>>Après</option>
                                             <option value="never" <%= !locals.fin_recurrence && !locals.nbOccurrences ? "selected" : ""%>>Jamais</option>
                                         </select>
-                                        <input class="form-control h-fit-content" type="date" 
+                                        <input class="form-control h-fit-content" type="date"  <%= readonly_text %>
                                         <% if (!locals.fin_recurrence) { %>
                                             style="display: none";
                                         <% } %>
@@ -111,7 +112,7 @@
                                                 class="d-flex align-items-center" 
                                             <% } %>
                                         >
-                                            <input class="form-control mr" type="number" min="2" value="<%= locals.nbOccurrences ? locals.nbOccurrences : ""%>" name="nb_occurrence">
+                                            <input class="form-control mr" type="number" min="2" value="<%= locals.nbOccurrences ? locals.nbOccurrences : ""%>" name="nb_occurrence" <%= readonly_text %>>
                                             occurrences 
                                         </div>
                                     </div>
@@ -124,10 +125,12 @@
                             <button type="button" class="btn btn-modal ferme"  data-bs-dismiss="modal">Annuler</button>
                         </div>
                         <div>
-                            <% if (locals.removeButton) { %>
-                                <button type="button" id="remove_button" class="btn btn-outline-danger btn-modal">Supprimer</button>
+                            <% if (!locals.readonly) { %>
+                                <% if (locals.removeButton) { %>
+                                    <button type="button" id="remove_button" class="btn btn-outline-danger btn-modal">Supprimer</button>
+                                <% } %>
+                                <input type="submit" class="btn btn-primary btn-modal" value="Valider">
                             <% } %>
-                            <input type="submit" class="btn btn-primary btn-modal" value="Valider">
                         </div>
                     </div>
                 </form>

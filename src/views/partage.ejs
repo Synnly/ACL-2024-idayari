@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Partages d'agenda</title>
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+    <script src="/js/partage.js"></script>
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.min.css' rel='stylesheet'>
+</head>
+
+<body class="container flex-column d-flex min-vh-100 min-vw-100 m-0 p-0" data-bs-theme="light">
+    <%- await include('partials/header.ejs') %>
+
+    <% if(locals.isAdding) {%>
+        <div class="d-flex flex-column m-3">
+            <div class="d-flex w-fit-content align-self-center fs-3 mb-3">Vous êtes sur le point d'ajouter un nouvel agenda (en lecture seule)</div>
+            <div class="d-flex flex-column w-fit-content align-self-center fs-4 mb-3">
+                <div><i class="bi bi-calendar me-2"></i> <%= agenda.nom %></div>
+                <div><i class="bi bi-person me-2"></i> <%= agenda.owner %></div>
+            </div>
+            <div class="d-flex w-fit-content align-self-center m-3">
+                <a class="btn btn-outline-success me-2" href="/partage/<%= agenda.id %>/yes">Confirmer</a>
+                <a class="btn btn-outline-danger" href="/">Annuler</a>
+            </div>
+        </div>
+    <% } else {%>
+        <div class="d-flex flex-column p-3 w-100">
+            <% for (const agenda of locals.agendas) { %>
+                <div class="flex-column mb-3 px-0 w-50 align-self-center">
+                    <div class="flex-row row p-0 mb-3 w-100">
+                        <div class="align-content-center col mx-2 border border-secondary-subtle rounded">
+                            <%= agenda.nom %>
+                        </div>
+                        <div class="w-fit-content px-0">
+                            <button class="btn btn-secondary me-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUsers_<%= agenda.id %>" aria-expanded="false" aria-controls="collapseUsers_<%= agenda.id %>">
+                                Voir utilisateurs
+                            </button>
+                            <% if(agenda.estPartage) {%>
+                                <button class="btn btn-outline-danger bi bi-trash-fill me-2"></button>
+                                <button id="bouton_copier_<%= agenda.id %>" class="btn btn-outline-info bi bi-clipboard" onclick="copierLien(<%= agenda.id %>)" onmouseout="hideCheckMark(<%= agenda.id %>)"></button>
+                            <% } else { %>
+                                <button class="btn btn-outline-secondary bi bi-share-fill" onclick="creerPartage(<%= agenda.id %>)"></button>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="flex-row w-100 collapse" id="collapseUsers_<%= agenda.id %>">
+                        <div class="card card-body text-wrap">
+                            <%= locals.partages.find(obj => obj.id === agenda.id).users %>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    <% }%>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

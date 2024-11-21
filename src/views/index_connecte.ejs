@@ -1,8 +1,29 @@
 <%- include('partials/header.ejs') %>
 <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1" >
     <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
-        <div class="w-100 h-fit-content">
-            <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center">
+        <div class="w-100">
+            <div class="w-100 h-fit-content">
+                <div class="nav-link text-secondary p-3 d-flex flex-row align-content-between align-items-center">
+                    <div>Fonctionnalités</div>
+                    <div class="dropdown ms-auto">
+                        <span class="bi bi-three-dots cursor-pointer fs-4" role="img" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"></span>
+    
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item d-flex justify-content-start align-items-center column-gap-3" id="importerAgenda" href="">
+                                <span class="bi bi-arrow-bar-down fs-5" role="img"></span>
+                                Importer
+                            </a>
+                            <a class="dropdown-item d-flex justify-content-start align-items-center column-gap-3" href="/partage/">
+                                <span class="bi bi-share fs-5" role="img"></span>
+                                Partager
+                            </a>
+                        </ul>
+    
+                    </div>
+                </div>
+            </div>
+            <div class="w-100 h-fit-content">
+                <div class="nav-link text-secondary px-3 py-2 d-flex justify-content-between align-items-center">
                 <span>Vos agendas</span>
                 <input type="checkbox" title='Tout (dé)sélectionner' id="selectAll" <%= locals.all_selected ? "checked" : "" %>>
                 <button class="btn" id="newAgenda">
@@ -14,12 +35,20 @@
                     <%- include('partials/agenda.ejs', {agenda: locals.agendas[agenda_id], id: agenda_id }) %>
                 <% } %>
             </ul>
+            
+            </div> 
+
         </div>
     </nav>
     <div class="col col-10 p-3 d-flex flex-column">
         <div id="calendar"></div>
     </div>
 </div>
+<div class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75" id="spinner">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>  
 <script>
     /**
      * Fonction qui change la taille de la liste des agendas en fonction de la taille de la fenetre
@@ -52,3 +81,5 @@
 </script>
 <script type="module" src="./js/calendar_controleur.js"></script>
 <script type="module" src="./js/script_agenda.js"></script>
+<script type="module" src="./js/import.js"></script>
+<script src="/js/export.js"></script>
