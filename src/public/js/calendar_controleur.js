@@ -314,22 +314,6 @@ class AgendaManager {
 			elem = this.calendrier.getEventById(id);
 		}
 	}
-
-	remove_events(id) {
-		this.calendrier.getEvents().forEach((ev) => {
-			if (ev.groupId == id) {
-				ev.remove();
-				const identifier = ev.groupId + '_' + ev.start.toISOString();
-				this.events.delete(identifier);
-			}
-		});
-	}
-	setUser(id) {
-		if (this.idUser === -1) {
-			// L'utilisateur pourra pas rechanger par derriere
-			this.idUser = id;
-		}
-	}
 }
 
 //Initialisation du model
