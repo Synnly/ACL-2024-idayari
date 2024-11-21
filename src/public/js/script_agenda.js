@@ -109,7 +109,6 @@ function openDropDownMenu(elem) {
 export function ajout_ecouteurs_agenda(agenda) {
     const id = agenda.id.split("_")[1];
     const label = agenda.firstElementChild;
-    const nom = label.title;
     agenda.addEventListener('click', (event) => selectAgenda(agenda, id, event));
     const dropdown = label.nextElementSibling;
     // si on a le dropdown menu (peut ne pas être le cas si agenda partagé)
@@ -122,10 +121,10 @@ export function ajout_ecouteurs_agenda(agenda) {
         // les options (modifier, supprimer, etc...)
         for (const elem of list_options.children) {
             if (elem.getAttribute('data-type') === "sup") {
-                elem.addEventListener('click', () => supprimerAgenda(id, nom, agenda));
+                elem.addEventListener('click', () => supprimerAgenda(id, label.title, agenda));
             }
             if (elem.getAttribute('data-type') === "edit") {
-                elem.addEventListener('click', () => editAgenda(id, nom, agenda));
+                elem.addEventListener('click', () => editAgenda(id, label.title, agenda));
             }
         }
     }
