@@ -10,4 +10,12 @@
 .mr {
     margin-right: 10px;
 }
-  
+.invisible-rdv {
+    display:none;
+}
+.searchRdv {
+    border-radius: 6px;
+    border: solid grey 0.3px;
+    padding-left:8px;
+    height:37px;
+}
