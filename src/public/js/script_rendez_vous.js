@@ -220,9 +220,16 @@ export function getRendezVousModal(data, onsuccess) {
 //Partie recherche de rendez vous
 const inputSearch = document.getElementById("searchRdv");
 
+let idTimeOut=0; //Pour gérer l'interval des requêtes vers le seveur
 inputSearch.addEventListener("keydown",(event) => {
 
-        console.log(event.target.value);
+    //On efface réinitialise le timeout à chaque nouvelle frappe pour ne pas traiter toute les frappes
+    clearTimeout(idTimeOut);
+
+    //Pour ne pas générer la recherche immédiatement
+    idTimeOut = setTimeout(() =>{
+    console.log(event.target.value);
+    },500);
        
 
 });
