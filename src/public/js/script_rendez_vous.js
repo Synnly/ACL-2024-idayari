@@ -228,7 +228,18 @@ inputSearch.addEventListener("keydown",(event) => {
 
     //Pour ne pas générer la recherche immédiatement
     idTimeOut = setTimeout(() =>{
-    console.log(event.target.value);
+        const {startDate ,endDate} = agendaManager.getDisplayedDatInterval();
+        console.log({startDate ,endDate},event.target.value);
+        fetch(
+            "/calendar-data?start=" + startDate.valueOf() +
+                "&end=" + endDate.valueOf() +
+                "&agenda=" + 3
+        ).then((response) => response.json())
+        .then(rendezVous => {
+            console.log(rendezVous)
+        }).catch(err => {
+            console.log(err.message);
+        });
     },500);
        
 

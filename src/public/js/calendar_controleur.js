@@ -331,6 +331,12 @@ class AgendaManager {
 			elem = this.calendrier.getEventById(id);
 		}
 	}
+
+	//Permet de récupérer l'interval affiché du calendrier
+	getDisplayedDatInterval(){
+		let view = this.calendrier.view;
+		return {startDate : view.currentStart,endDate:view.currentEnd}
+	}
 }
 
 export const agendaManager = new AgendaManager();
