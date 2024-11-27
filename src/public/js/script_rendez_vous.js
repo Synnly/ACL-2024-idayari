@@ -231,9 +231,10 @@ inputSearch.addEventListener("keydown",(event) => {
         const {startDate ,endDate} = agendaManager.getDisplayedDatInterval();
         console.log({startDate ,endDate},event.target.value);
         fetch(
-            "/calendar-data?start=" + startDate.valueOf() +
+            "/calendar-search?start=" + startDate.valueOf() +
                 "&end=" + endDate.valueOf() +
-                "&agenda=" + 3
+                "&agenda=" + 3 +
+                "&search=" + event.target.value
         ).then((response) => response.json())
         .then(rendezVous => {
             console.log(rendezVous)
