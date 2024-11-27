@@ -219,16 +219,22 @@ export function getRendezVousModal(data, onsuccess) {
 
 //Recherche de rendez vous
 const inputSearch = document.getElementById("searchRdv");
+const searchButton = document.getElementById("searchButton");
 
-let idTimeOut=0; //Pour gérer l'interval des requêtes vers le seveur
-inputSearch.addEventListener("keydown",(event) => {
 
-    //On efface réinitialise le timeout à chaque nouvelle frappe pour ne pas traiter toute les frappes
+
+inputSearch.addEventListener("keyup",searchRdv);
+searchButton.addEventListener("click",searchRdv);
+
+let idTimeOut=0; // Id Pour gérer l'interval entre chaque touche pressée
+
+
+function searchRdv(){
+    //On efface réinitialise le timeout à chaque nouvelle frappe pour ne pas filtrer les rdvs immédiatement (utile pour requête serveur)
     clearTimeout(idTimeOut);
-
     //Pour ne pas générer la recherche immédiatement
     idTimeOut = setTimeout(() =>{
-        console.log(event.target.value);
-        agendaManager.filterByTerm(event.target.value);
+        let term = document.getElementById("searchRdv").value;
+        agendaManager.filterByTerm(term);
     },500);
-});
+}

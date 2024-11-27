@@ -89,5 +89,15 @@ export function json_fetch(url, method, data) {
     })
 }
 
+/**
+ * Indique si str1 est inclus dans str2 sans compter les accents / maj / min / espaces(début/fin)
+ * @param {*} str1 
+ * @param {*} str2 
+ */
+export  function normalizedStringComparaison(str1,str2){
+    return str1.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").includes(str2.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,""));
+
+}
+
 // listes des constantes
 export const DISPLAYED_BY_DEFAULT = false;

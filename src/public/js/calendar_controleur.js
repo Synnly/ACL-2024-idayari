@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { getRendezVousModal } from '/js/script_rendez_vous.js';
-import { json_fetch } from './utils.js';
+import { json_fetch,normalizedStringComparaison } from './utils.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/
@@ -233,6 +233,7 @@ class AgendaManager {
         }
         // this.addData(new_agendas);
         this.updateCookie();
+		this.filterEventOnChange();
     }
 
 	/**
@@ -337,15 +338,25 @@ class AgendaManager {
 	 */
 	filterByTerm(term){
 		this.calendrier.getEvents().forEach((event) => {
-			if(event.title.includes(term) || event.extendedProps.lieu.includes(term) ||event.extendedProps.description.includes(term)){
-				event.setProp('display', 'block');
+			if(normalizedStringComparaison(event.title,term) || normalizedStringComparaison(event.extendedProps.lieu,term)|| normalizedStringComparaison(event.extendedProps.description,term)){
+				//classNames est la listes des classes css associé à l'event
+				event.setProp('classNames', event.classNames.filter(classe => classe !== 'invisible-rdv'));
 			}else{
-				event.setProp('display', 'none');
+				event.setProp('classNames', [...event.classNames, 'invisible-rdv']);
 			}
 		});
 	}
+	/**
+	 * Filtre les rendez-vous lors d'une action sur le calendrier si l'utilisateur a entré du texte dans la barre de recherche auparavant
+	 */
+	filterEventOnChange(){
+		this.calendrier.render();
+		let term = document.getElementById("searchRdv").value;
+		if(term != ""){
+			this.filterByTerm(term);
+		}
+	}
 }
-
 
 export const agendaManager = new AgendaManager();
 agendaManager.init();
