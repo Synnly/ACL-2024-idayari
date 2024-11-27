@@ -110,32 +110,4 @@ export function supprimerRDVDELETE(req, res) {
     }).catch(_ => {
         res.status(400).end();
     })
-    
-}
-
-//Partie du code recherche de rendez vous
-import { Op } from 'sequelize';
-export function calendarGetDataBySearch(req, res) {
-    if (!res.locals.user) {
-        return res.status(403).json({err: "not auth"});
-    }
-    
-    const dateStart = new Date(+req.query.start);
-    const dateEnd = new Date(+req.query.end);
-    console.log("bhjecdbcjkdcbkkejcdnbkejcnjed",req.query.search);
-    RendezVous.findAll({ where: {[Op.and]:{ idAgenda: +req.query.agenda }, [Op.or] :[{titre: {[Op.like]:`%${req.query.search}%`}},{description: {[Op.like]:`%${req.query.search}%`}},{lieu: {[Op.like]:`%${req.query.search}%`}}]} })
-    .then(rendez_vous => {
-        const infos = [];
-        for (const rdv of rendez_vous) {
-            const data = rdv.get_rendezVous(dateStart, dateEnd);
-            if (data) {
-                data.readonly = !res.locals.agendas[+req.query.agenda].isOwner;
-                infos.push(data);
-            }
-        }
-        return res.json(infos);
-    }).catch(err => {
-        console.log(err);
-        res.status(500).json({ err: "Internal Server Error" });
-    });
 }

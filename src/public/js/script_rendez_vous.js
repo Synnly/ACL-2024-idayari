@@ -217,7 +217,7 @@ export function getRendezVousModal(data, onsuccess) {
 
 
 
-//Partie recherche de rendez vous
+//Recherche de rendez vous
 const inputSearch = document.getElementById("searchRdv");
 
 let idTimeOut=0; //Pour gérer l'interval des requêtes vers le seveur
@@ -228,20 +228,7 @@ inputSearch.addEventListener("keydown",(event) => {
 
     //Pour ne pas générer la recherche immédiatement
     idTimeOut = setTimeout(() =>{
-        const {startDate ,endDate} = agendaManager.getDisplayedDatInterval();
-        console.log({startDate ,endDate},event.target.value);
-        fetch(
-            "/calendar-search?start=" + startDate.valueOf() +
-                "&end=" + endDate.valueOf() +
-                "&agenda=" + 3 +
-                "&search=" + event.target.value
-        ).then((response) => response.json())
-        .then(rendezVous => {
-            console.log(rendezVous)
-        }).catch(err => {
-            console.log(err.message);
-        });
+        console.log(event.target.value);
+        agendaManager.filterByTerm(event.target.value);
     },500);
-       
-
 });

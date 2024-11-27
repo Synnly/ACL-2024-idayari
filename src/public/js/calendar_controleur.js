@@ -331,13 +331,21 @@ class AgendaManager {
 			elem = this.calendrier.getEventById(id);
 		}
 	}
-
-	//Permet de récupérer l'interval affiché du calendrier
-	getDisplayedDatInterval(){
-		let view = this.calendrier.view;
-		return {startDate : view.currentStart,endDate:view.currentEnd}
+	/**
+	 * Filtrage des rendez vous par terme recherché
+	 * @param {*} term (terme recherché dans les titres/lieux/descriptions)
+	 */
+	filterByTerm(term){
+		this.calendrier.getEvents().forEach((event) => {
+			if(event.title.includes(term) || event.extendedProps.lieu.includes(term) ||event.extendedProps.description.includes(term)){
+				event.setProp('display', 'block');
+			}else{
+				event.setProp('display', 'none');
+			}
+		});
 	}
 }
+
 
 export const agendaManager = new AgendaManager();
 agendaManager.init();
