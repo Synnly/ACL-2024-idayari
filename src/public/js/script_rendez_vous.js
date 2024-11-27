@@ -214,3 +214,15 @@ export function getRendezVousModal(data, onsuccess) {
     .then(html => ejs.render(html, data))
     .then(html => setRendezVousModal(html, onsuccess, data.id));
 }
+
+
+
+//Partie recherche de rendez vous
+const inputSearch = document.getElementById("searchRdv");
+
+inputSearch.addEventListener("keydown",(event) => {
+
+        console.log(event.target.value);
+       
+
+});
