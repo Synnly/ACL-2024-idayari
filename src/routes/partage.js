@@ -32,7 +32,7 @@ export async function creerPartageGET(req, res){
 		}
 		try {
 			const id = req.params.id;
-			const link = crypto.randomBytes(128).toString('hex');
+			const link = crypto.randomBytes(64).toString('hex');
 			if (!id) {
 				return res.status(400).json({ message: "Paramètre invalide : ID et lien requis." });
 			}
