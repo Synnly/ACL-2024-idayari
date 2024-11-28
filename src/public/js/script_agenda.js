@@ -39,6 +39,14 @@ function selectAgenda(agenda, id, event) {
     }
 }
 
+/**
+ * 
+ * @param {String} modalId l'id de la modale
+ * @param {String} agendaNameElementId l'id de l'agenda
+ * @param {String} confirmButtonId l'id du bouton de confirmation
+ * @param {String} nom le nom (pour l'agenda)
+ * @param {*} onConfirm si confirmation alors on exécute la fonction onConfirm
+ */
 export function confirmDelete(modalId, agendaNameElementId, confirmButtonId, nom, onConfirm) {
     const agendaNameElement = document.getElementById(agendaNameElementId);
     agendaNameElement.textContent = nom;
