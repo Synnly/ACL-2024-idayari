@@ -41,7 +41,7 @@
                             </button>
                             <% if(agenda.estPartage) {%>
                                 <button class="btn btn-outline-danger bi bi-trash-fill me-2"></button>
-                                <button id="bouton_copier_<%= agenda.id %>" class="btn btn-outline-info bi bi-clipboard" onclick="copierLien(<%= agenda.id %>)" onmouseout="hideCheckMark(<%= agenda.id %>)"></button>
+                                <button id="bouton_copier_<%= agenda.id %>" class="btn btn-outline-info bi bi-clipboard" onclick="copierLien(<%= agenda.id %>, '<%= agenda.link %>')" onmouseout="hideCheckMark(<%= agenda.id %>)"></button>
                             <% } else { %>
                                 <button class="btn btn-outline-secondary bi bi-share-fill" onclick="creerPartage(<%= agenda.id %>)"></button>
                             <% } %>

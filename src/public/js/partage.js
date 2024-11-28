@@ -2,8 +2,8 @@ async function creerPartage(agendaId){
 		await fetch(`/partage/new/${agendaId}`).then(() => window.location.reload());
 }
 
-function copierLien(id){
-		navigator.clipboard.writeText('localhost:3000/partage/'+id);
+function copierLien(id, link){
+		navigator.clipboard.writeText('localhost:3000/partage/'+link);
 		showCheckMark(id)
 }
 

@@ -2,6 +2,7 @@ import ejs, {render} from "ejs";
 import Agenda from "../model/Agenda.js";
 import User from "../model/User.js";
 import UserAgendaAccess from "../model/UserAgendaAccess.js";
+import crypto from 'crypto';
 
 export async function voirPartagesGET(req, res){
 		if(!res.locals.user){
@@ -18,7 +19,7 @@ export async function voirPartagesGET(req, res){
 						attributes: ["username"],
 				}]
 		});
-		res.locals.agendas = query.map(agenda => { return {id: agenda.dataValues.id, nom: agenda.dataValues.nom, estPartage: agenda.dataValues.estPartage}});
+		res.locals.agendas = query.map(agenda => { return {id: agenda.dataValues.id, nom: agenda.dataValues.nom, estPartage: agenda.dataValues.estPartage, link: agenda.link}});
 		res.locals.partages = query.map(agenda => {return {id: agenda.id, users: agenda.dataValues.Users.map(user => user.dataValues.username)}});
 
 		const html = await ejs.renderFile("views/partage.ejs", res.locals, {async:true});
@@ -29,13 +30,23 @@ export async function creerPartageGET(req, res){
 		if(!res.locals.user){
 				return res.status(403).json({message: 'Unauthorized access'});
 		}
-		try{
-				Agenda.update({estPartage: true},{where: {id: req.params.id}}).then(result => {
-						if(result[0] === 0){
-								return res.status(409).json({message: "Cet agenda est déjà partagé"});
-						}
-				});
-				return res.status(200).json();
+		try {
+			const id = req.params.id;
+			const link = crypto.randomBytes(128).toString('hex');
+			if (!id) {
+				return res.status(400).json({ message: "Paramètre invalide : ID et lien requis." });
+			}
+		
+			const result = await Agenda.update(
+				{ estPartage: true, link: link },
+				{ where: { id } }
+			);
+		
+			if (result[0] === 0) {
+				return res.status(409).json({ message: "Cet agenda est déjà partagé ou n'existe pas." });
+			}
+		
+			return res.status(200).json({ message: "Agenda mis à jour avec succès", link: link });
 		}
 		catch (e){
 				console.error("Erreur lors du partage de l'agenda:", e);
@@ -94,15 +105,11 @@ export async function confirmerAjoutPartageGET(req, res){
 		}
 		const user = await User.findByPk(res.locals.user.id);
 		res.locals.username = user.username;
-		if(isNaN(Number.parseInt(req.params.id)) || +req.params.id <= 0){
-				return res.redirect("/");
-		}
-
 		let agenda;
 		let owner;
 		try {
-				agenda = await Agenda.findByPk(req.params.id);
-				owner = await agenda.getOwner();
+			agenda = await Agenda.findOne({where: {link: req.params.id}});
+			owner = await agenda.getOwner();
 		}
 		catch (e) {
 				return res.render("error", {
@@ -128,6 +135,6 @@ export async function confirmerAjoutPartageGET(req, res){
 		}
 		res.locals.isAdding = true;
 		
-		const html = await ejs.renderFile("views/partage.ejs", {locals: res.locals, agenda: {id: agenda.id, nom: agenda.nom, owner: owner.dataValues.username}}, {async:true});
+		const html = await ejs.renderFile("views/partage.ejs", {locals: res.locals, agenda: {id: agenda.id, nom: agenda.nom, owner: owner.dataValues.username, link: agenda.link}}, {async:true});
 		res.send(html);
 }
