@@ -10,4 +10,7 @@
 .mr {
     margin-right: 10px;
 }
-  
+
+.fc-toolbar button, .fc-toolbar button.active, .fc-toolbar button:hover, .fc-toolbar button:disabled {
+    color: white !important;
+}

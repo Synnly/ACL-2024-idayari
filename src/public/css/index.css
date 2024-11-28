@@ -88,3 +88,9 @@
 .cursor-pointer {
     cursor: pointer;
 }
+
+
+#confirmationModal2 .modal-content {
+    border:solid 2px rgb(119, 181, 218);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); 
+}
