@@ -33,6 +33,8 @@ function get_event_source(agenda_id) {
                         const ev = {...rdv};
                         ev.start = new Date(date.start);
                         ev.end = new Date(date.end);
+						
+						ev.textColor = getTextColorFromBg(rdv.color);
                         events.push(ev);
                     }
                 }
@@ -134,7 +136,7 @@ class AgendaManager {
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
                 const event = info.event;
-                const data = { id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description, start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences, frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true, readonly: event.extendedProps.readonly };
+				const data = { id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description, start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences, frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true, readonly: event.extendedProps.readonly, color: event._def.ui.backgroundColor };
                 getRendezVousModal(data, (data) => {
                     manager.update_event(event, data);
                 });
@@ -270,7 +272,7 @@ class AgendaManager {
 			const startGap = new_event.startDate - old_event.start.valueOf();
 			const endGap = new_event.endDate - old_event.end.valueOf();
 			this.remove_events(id);
-			const data = { id: id, title: new_event.titre, lieu: new_event.lieu, description: new_event.description, agenda: new_event.agenda, startGap: startGap, endGap: endGap, allDay: new_event.allDay, dateFinRecurrence: new_event.date_fin_recurrence, frequence: new_event.frequence, type: new_event.type, nbOccurrences: new_event.nb_occurrence };
+			const data = { id: id, title: new_event.titre, lieu: new_event.lieu, description: new_event.description, agenda: new_event.agenda, startGap: startGap, endGap: endGap, allDay: new_event.allDay, dateFinRecurrence: new_event.date_fin_recurrence, frequence: new_event.frequence, type: new_event.type, nbOccurrences: new_event.nb_occurrence, color: new_event.color };
 			json_fetch('/calendar-rdv', 'POST', data)
 				.then((_) => {
 					if (this.agendas[new_event.agenda]) {
@@ -311,12 +313,19 @@ class AgendaManager {
 					old_event.setExtendedProp('description', new_event.description);
 					modified = true;
 				}
+				if(new_event.color !== old_event._def.ui.backgroundColor){
+					old_event.setProp('backgroundColor', "#" +new_event.color);
+					old_event.setProp('borderColor',"#" + new_event.color);
+    				old_event.setProp('textColor', getTextColorFromBg(new_event.color));
+					modified = true;
+				}
 			}
 			if (modified) {
 				const id = old_event.groupId;
 				const startGap = new_event.startDate - old_start_date;
 				const endGap = new_event.endDate - old_end_date;
-				const data = { id: id, title: new_event.titre, lieu: new_event.lieu, description: new_event.description, agenda: new_event.agenda, startGap: startGap, endGap: endGap, allDay: new_event.allDay };
+				const color = new_event.color;
+				const data = { id: id, title: new_event.titre, lieu: new_event.lieu, description: new_event.description, agenda: new_event.agenda, startGap: startGap, endGap: endGap, allDay: new_event.allDay, color: color };
 				json_fetch('/calendar-rdv', 'POST', data).catch((error) => {
 					console.log(error);
 				});
@@ -332,6 +341,25 @@ class AgendaManager {
 		}
 	}
 }
+
+/**
+ * Calcul de la luminance, détermine en gros le niveau de luminosité d'une couleur et permet
+ * de choisir la bonne couleur de texte (pour eviter de rien y voir)
+ * @param {String} bgColor la couleur choisis
+ * @returns La couleur du texte
+ */
+function getTextColorFromBg(bgColor) {
+    const color = bgColor.replace('#', '');
+
+    const r = parseInt(color.substring(0, 2), 16);
+    const g = parseInt(color.substring(2, 4), 16);
+    const b = parseInt(color.substring(4, 6), 16);
+
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    return luminance > 0.5 ? '#000000' : '#FFFFFF';
+}
+
 
 export const agendaManager = new AgendaManager();
 agendaManager.init();
