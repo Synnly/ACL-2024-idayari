@@ -59,14 +59,14 @@ export async function ajouterPartageGET(req, res){
 				return res.redirect("/");
 		}
 
-		if(isNaN(Number.parseInt(req.params.id)) || +req.params.id <= 0){
-				return res.redirect("/");
-		}
-
 		let agenda;
 		let owner;
 		try {
-				agenda = await Agenda.findByPk(req.params.id);
+				agenda = await Agenda.findOne({
+					where : {
+						link: req.params.id,
+					}
+				});
 				owner = await agenda.getOwner();
 		}
 		catch (e) {
