@@ -40,13 +40,46 @@ function selectAgenda(agenda, id, event) {
 }
 
 /**
+ * 
+ * @param {String} modalId l'id de la modale
+ * @param {String} agendaNameElementId l'id de l'agenda
+ * @param {String} confirmButtonId l'id du bouton de confirmation
+ * @param {String} nom le nom (pour l'agenda)
+ * @param {*} onConfirm si confirmation alors on exécute la fonction onConfirm
+ */
+export function confirmDelete(modalId, agendaNameElementId, confirmButtonId, nom, onConfirm) {
+    const agendaNameElement = document.getElementById(agendaNameElementId);
+    agendaNameElement.textContent = nom;
+
+    const confirmationModal = new bootstrap.Modal(document.getElementById(modalId));
+    confirmationModal.show();
+
+    const confirmButton = document.getElementById(confirmButtonId);
+    const removeClickListener = () => {
+        confirmButton.removeEventListener('click', handleConfirm);
+    };
+
+    const handleConfirm = () => {
+        removeClickListener();
+        confirmationModal.hide();
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    };
+
+    confirmButton.addEventListener('click', handleConfirm);
+}
+
+
+
+/**
  * Suppression d'un agenda
  * @param {String} id l'id de l'agenda
  * @param {String} nom le nom de l'agenda
  * @param {HTMLLIElement} removed_agenda l'agenda à supprimer (le noeud html)
  */
 function supprimerAgenda(id, nom, removed_agenda) {
-    if(confirm(`Êtes vous sûr de supprimer l'agenda ${nom}\nCette action est IRREVERSIBLE.`)){
+    confirmDelete('confirmationModal','agendaName','confirmDeleteButton',nom,   () => {
         fetch(`/supprimerAgenda/${id}`, { method: "DELETE" })
         .then(res => {
             // l'agenda a été trouvé avec succès et supprimé
@@ -63,20 +96,7 @@ function supprimerAgenda(id, nom, removed_agenda) {
         .catch(error => {
             console.log(`erreur suppression agenda: ${error}`);
         })
-    }
-}
-
-/**
- * Modification d'un agenda
- * @param {String} nom nom de l'agenda
- * @param {HTMLLIElement} agenda l'agenda à modifier
- */
-function editAgenda(id, nom, agenda) {
-    setDialog({nom: nom}, "/modifierAgenda", (sent, _) => {
-        const label = agenda.firstElementChild;
-        label.lastElementChild.textContent = sent.nom;
-        label.title = sent.nom;
-    }, {nom: nom, id: id});
+    });
 }
 
 /**
@@ -164,65 +184,90 @@ function close_dialog(elem) {
 }
 
 /**
- * Fonction qui à partir du html de la boite de dialogue, met en place la boite de dialogue et les boutons
- * @param {String} html le html de la boite de dialogue
- * @param {String} url l'url à appeler en cas de soumission réussi du formulaire
- * @param {Function} onsuccess fonction à appeler après avoir effectué les opérations backend 
- * (ajouter le html du nouvel agenda/modifier le html existant)
- * @param {object} old_data des données d'agendas à comparer pour ne pas faire de requêtes si pas de changement (et obtenir l'id)
+ * Fonction pour afficher et configurer une modal Bootstrap avec un formulaire
+ * @param {Object} data Les données à injecter dans le formulaire de la modal
+ * @param {String} url L'URL à appeler pour soumettre le formulaire
+ * @param {Function} onsuccess La fonction à appeler après une soumission réussie
+ * @param {Object} old_data Les données existantes pour comparaison (facultatif)
  */
 function setDialog(data, url, onsuccess, old_data) {
-    fetch('/views/partials/dialogAgenda.ejs', {method: "GET"})
-    .then(response => response.text())
-    .then(html => ejs.render(html, data))
-    .then(html => {
-        document.body.insertAdjacentHTML('beforeend', html);
-        const dialog_agenda = document.getElementById('dialogAgenda');
-        const fermer_dialog = document.getElementById("fermerDialogAgenda");
-        fermer_dialog.addEventListener('click', () => {
-            close_dialog(dialog_agenda);
-        });
+    // Charger le contenu de la modal depuis une vue partielle
+    fetch('/views/partials/dialogAgenda.ejs', { method: "GET" })
+        .then(response => response.text())
+        .then(html => ejs.render(html, data))
+        .then(html => {
+            // Ajouter la modal au DOM
+            document.body.insertAdjacentHTML('beforeend', html);
+            const dialogAgenda = document.getElementById('dialogAgenda');
+            
+            // Initialiser la modal Bootstrap
+            const bootstrapModal = new bootstrap.Modal(dialogAgenda);
+            bootstrapModal.show();
 
-        const form = document.getElementById("agenda_form");
-        form.addEventListener("submit", (event) => {
-            event.preventDefault();
-            const nom = form["nom"].value.trim();
-            const sent = {nom: nom};
-            if (old_data) {
-                // aucune modification
-                if (old_data.nom === sent.nom) {
-                    close_dialog(dialog_agenda);
-                    return;
-                } else {
-                    sent.id = old_data.id;
+            // Gérer la soumission du formulaire
+            const form = document.getElementById("agenda_form");
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const nom = form["nom"].value.trim();
+                const sent = { nom: nom };
+
+                // Comparer les données si fournies
+                if (old_data) {
+                    if (old_data.nom === sent.nom) {
+                        bootstrapModal.hide(); // Fermer la modal sans action
+                        return;
+                    } else {
+                        sent.id = old_data.id;
+                    }
                 }
-            }
-            json_fetch(url, "POST", sent)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error(response.statusText);
-                }
-            })
-            .then(result => {
-                onsuccess(sent, result);
-                close_dialog(dialog_agenda);
-            })
-            .catch(error => console.log(error));
-        }); 
-        dialog_agenda.showModal();
-    });
+
+                // Envoyer les données via JSON
+                json_fetch(url, "POST", sent)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error(response.statusText);
+                        }
+                    })
+                    .then(result => {
+                        onsuccess(sent, result); // Action post-soumission
+                        bootstrapModal.hide(); // Fermer la modal sans action
+                        dialogAgenda.remove(); // Supprimer la modal du DOM
+                    })
+                    .catch(error => console.error("Erreur :", error));
+            });
+
+            // Nettoyer après fermeture
+            dialogAgenda.addEventListener('hidden.bs.modal', () => {
+                dialogAgenda.remove();
+            });
+        });
 }
 
 /**
- * Click sur nouvel agenda
+ * Modification d'un agenda
+ * @param {String} id L'identifiant de l'agenda
+ * @param {String} nom Le nom de l'agenda
+ * @param {HTMLLIElement} agenda L'élément HTML de l'agenda
  */
-new_agenda_button.addEventListener('click', () => {
+function editAgenda(id, nom, agenda) {
+    setDialog({ nom: nom }, "/modifierAgenda", (sent, _) => {
+        const label = agenda.firstElementChild;
+        label.lastElementChild.textContent = sent.nom;
+        label.title = sent.nom;
+    }, { nom: nom, id: id });
+}
+
+/**
+ * Gestionnaire pour le bouton "Nouvel Agenda"
+ */
+document.getElementById("newAgenda").addEventListener("click", () => {
     setDialog({}, "/agenda/new", (_, result) => {
-        manageNewAgenda(result)
+        manageNewAgenda(result);
     });
 });
+
 
 /**
  * Ajoute l'agenda dans la liste affiché

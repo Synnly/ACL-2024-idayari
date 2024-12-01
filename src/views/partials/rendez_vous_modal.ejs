@@ -1,7 +1,8 @@
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" style="overflow: hidden;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header d-flex align-content-between justify-content-center">
+                <h1 class="fs-5 mb-0">rendez-vous</h1>
                 <button type="button" class="btn-close ferme" data-bs-dismiss="modal" aria-label="Annuler"></button>
             </div>
             <% const readonly_text = locals.readonly ? "readonly" : "" %>
@@ -29,7 +30,7 @@
                         <div class="d-flex mb-3 align-items-center">
                             <i class="bi bi-calendar mr"></i>
                             <div class="d-flex flex-grow-1">
-                                <select name="agenda" required <%= locals.readonly ? "disabled" : "" %>>
+                                <select name="agenda" class="form-select" required <%= locals.readonly ? "disabled" : "" %>>
                                     <% for (const elem of locals.agendas) { %>
                                         <option value="<%= elem.id %>" <%= elem.id == locals.agenda ? "selected" : ""%>><%= elem.nom %></option>
                                     <% } %>
@@ -84,7 +85,7 @@
                                     <span class="mr">Tous les</span>
                                     <div class="d-flex flex-grow-1 align-items-center">
                                         <input class="form-control me-2" style="width: fit-content;" type="number" min="1" value="<%= locals.frequence ? locals.frequence : "" %>" name="frequence" <%= readonly_text %>>
-                                        <select class="w-fit-content" name="recurrence_type" <%= locals.readonly ? "disabled" : "" %>>
+                                        <select class="w-fit-content form-select" name="recurrence_type"  <%= locals.readonly ? "disabled" : "" %>>
                                             <option value="Daily" <%= locals.type === "Daily" ? "selected" : ""%>>Jour(s)</option>
                                             <option value="Weekly" <%= locals.type === "Weekly" ? "selected" : ""%>>Semaine(s)</option>
                                             <option value="Monthly" <%= locals.type === "Monthly" ? "selected" : ""%>>Mois</option>
@@ -95,7 +96,7 @@
                                 <div class="mb-3 d-flex align-items-center" id="end_recurrence_div">
                                     <span class="mr">S'arrête</span>
                                     <div class="d-flex align-items-center flex-grow-1">
-                                        <select class="w-fit-content h-fit-content me-2" name="end_recurrence" <%= locals.readonly ? "disabled" : "" %>>
+                                        <select class="w-fit-content h-fit-content me-2 form-select" name="end_recurrence" <%= locals.readonly ? "disabled" : "" %>>
                                             <option value="date" <%= locals.fin_recurrence ? "selected" : ""%>>Avant le</option>
                                             <option value="nb" <%= locals.nbOccurrences ? "selected" : ""%>>Après</option>
                                             <option value="never" <%= !locals.fin_recurrence && !locals.nbOccurrences ? "selected" : ""%>>Jamais</option>
@@ -136,7 +137,7 @@
                                 <% if (locals.removeButton) { %>
                                     <button type="button" id="remove_button" class="btn btn-outline-danger btn-modal">Supprimer</button>
                                 <% } %>
-                                <input type="submit" class="btn btn-primary btn-modal" value="Valider">
+                                <input type="submit" class="btn btn-primary btn-modal text-white" value="Valider">
                             <% } %>
                         </div>
                     </div>

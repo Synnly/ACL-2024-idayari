@@ -1,5 +1,6 @@
 import { addDays, getConvertedDate, getConvertedTime } from "./utils.js";
 import { agendaManager } from "./calendar_controleur.js";
+import { confirmDelete } from "./script_agenda.js";
 
 function closeModal(modal) {
     const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -168,7 +169,7 @@ function setRendezVousModal(html, onsuccess, id) {
     const remove_button = document.getElementById('remove_button');
     if (remove_button) {
         remove_button.addEventListener('click', () => {
-            if(confirm("Voulez-vous vraiment supprimer ce rendez-vous ?\nCela supprimera aussi toutes les autres occurrences.")){
+            confirmDelete('confirmationModal2','rendezVousName','confirmDeleteButton2', "",() => {
                 fetch(`/supprimerRDV/${id}`, {method: "DELETE"})
                 .then(response => {
                     if (response.status === 200) {
@@ -179,7 +180,7 @@ function setRendezVousModal(html, onsuccess, id) {
                 .catch((error) => {
                     console.log(error);
                 });
-              }
+              });
         });
     }
 
