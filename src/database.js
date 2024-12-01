@@ -12,7 +12,7 @@ export async function initDatabase() {
     const user = "mysql";
     const host = "synnly.com:3306";
     const pass = "RJ%292tN%27ejL%7BX-dCZyd1%25%3Co%28vZ%27Z%5Bd%28L2B4-%5ESQ%60O"; // Encodé
-    const dbname = "idayari";
+    const dbname = "testIdayari3";
     const dialect = "mysql";
     const uri = `${dialect}://${user}:${pass}@${host}/${dbname}`;
     const sequelize = new Sequelize(uri, { logging: false });

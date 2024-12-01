@@ -32,7 +32,8 @@ export async function exportAgendaPOST(req, res) {
                     type: rdv.type,
                     frequence: rdv.frequence,
                     finRecurrence: rdv.finRecurrence,
-                    nbOccurrences: rdv.nbOccurrences
+                    nbOccurrences: rdv.nbOccurrences,
+                    color: rdv.color,
                 })),
             };
             return res.json(agendaData);
