@@ -97,7 +97,9 @@ export function supprimerRDVDELETE(req, res) {
     if (!res.locals.user) {
         return res.redirect('/connexion');
     }
-    RendezVous.findByPk(req.params.id)
+    const id = req.body.id;
+    const which = req.body.which;
+    RendezVous.findByPk()
     .then(rdv => {
         if (rdv) {
             if (res.locals.agendas[rdv.idAgenda].isOwner) {

@@ -87,6 +87,15 @@ export default class RendezVous extends Model {
             type: DataTypes.CHAR,
             allowNull: false,
             defaultValue: "3788d8",
+        },
+        idParent: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        deleted: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     },
     {sequelize, timestamps: false, tableName: "RendezVous"});

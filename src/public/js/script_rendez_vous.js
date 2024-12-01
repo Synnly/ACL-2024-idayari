@@ -1,4 +1,4 @@
-import { addDays, getConvertedDate, getConvertedTime } from "./utils.js";
+import { addDays, getConvertedDate, getConvertedTime, json_fetch } from "./utils.js";
 import { agendaManager } from "./calendar_controleur.js";
 import { confirmDelete } from "./script_agenda.js";
 
@@ -67,6 +67,29 @@ function add_error(message, elem) {
     msgErreur.className = 'text-danger';
     msgErreur.textContent = message;
     elem.parentNode.insertBefore(msgErreur, elem.nextSibling);
+}
+
+function setRecRDVChangeModal(action, onReady) {
+    fetch('/views/partials/validationRecRDVDialog.ejs', {method: "GET"})
+    .then(response => response.text())
+    .then(html => ejs.render(html, {action: action}))
+    .then(html => {
+        closeModal(document.getElementById('dialogRDVRec'));
+        document.body.insertAdjacentHTML('beforeend', html);
+        const dialog = document.getElementById('dialogRDVRec');
+        
+        const vraieModale = new bootstrap.Modal(dialog);
+
+        const form = document.getElementById('rec_rdv_form');
+        form.addEventListener('submit', () => {
+            onReady(form['which_event'].value);
+        })
+        document.getElementById('closeDialogRDVRec').addEventListener('click', () => {
+            closeModal(dialog);
+        });
+        vraieModale.show();
+
+    });
 }
 
 function setRendezVousModal(html, onsuccess, id) {
@@ -142,6 +165,9 @@ function setRendezVousModal(html, onsuccess, id) {
         const data = {titre: titre, lieu: lieu, description: description, agenda: agenda_id, all_day: is_all_day, 
                       startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
                       date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence, color: color};        
+        
+        if (recurrent_checkbox.checked) {
+        }
         onsuccess(data);
         closeModal(fausseModale);
     });
@@ -169,18 +195,33 @@ function setRendezVousModal(html, onsuccess, id) {
     const remove_button = document.getElementById('remove_button');
     if (remove_button) {
         remove_button.addEventListener('click', () => {
-            confirmDelete('confirmationModal2','rendezVousName','confirmDeleteButton2', "",() => {
-                fetch(`/supprimerRDV/${id}`, {method: "DELETE"})
-                .then(response => {
-                    if (response.status === 200) {
-                        agendaManager.remove_events(id);
-                        closeModal(fausseModale);
-                    }
-                })
-                .catch((error) => {
-                    console.log(error);
+            if (recurrent_checkbox.checked) {
+                setRecRDVChangeModal("Suppression", (data) => {
+                    json_fetch('/supprimerRDV', "DELETE", {which: data, id: id})
+                    .then(response => {
+                        if (response.status === 200) {
+                            agendaManager.remove_events(id);
+                            closeModal(fausseModale);
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
                 });
-              });
+            } else {
+                confirmDelete('confirmationModal2','rendezVousName','confirmDeleteButton2', "",() => {
+                    json_fetch('/supprimerRDV', "DELETE", {id: id})
+                    .then(response => {
+                        if (response.status === 200) {
+                            agendaManager.remove_events(id);
+                            closeModal(fausseModale);
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+                  });
+            }
         });
     }
 

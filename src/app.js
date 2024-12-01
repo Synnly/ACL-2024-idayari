@@ -50,7 +50,7 @@ app
 
     .post("/rendezvous/new", creationRendezVousPOST)
     .post("/calendar-rdv", modifierRendezVousCalendarPOST)
-    .delete('/supprimerRDV/:id', supprimerRDVDELETE)
+    .delete('/supprimerRDV', supprimerRDVDELETE)
 
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
