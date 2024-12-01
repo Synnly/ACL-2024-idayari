@@ -82,6 +82,11 @@ export default class RendezVous extends Model {
         idAgenda: {
             type: DataTypes.INTEGER,
             allowNull: true
+        },
+        color: {
+            type: DataTypes.CHAR,
+            allowNull: false,
+            defaultValue: "3788d8",
         }
     },
     {sequelize, timestamps: false, tableName: "RendezVous"});
@@ -105,7 +110,9 @@ export default class RendezVous extends Model {
                 endRec: this.finRecurrence,
                 nbOccurrences: this.nbOccurrences,
                 frequence: this.frequence,
-                dates: dates };
+                dates: dates,
+                color: '#'+this.color
+             };
     }
 
     get_rendezVous(periodeDebut, periodeFin) {

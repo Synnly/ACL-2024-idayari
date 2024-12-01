@@ -1,9 +1,22 @@
-<dialog id="dialogAgenda">
-    <form method="POST" id="agenda_form">
-        <label>Nom de l'agenda</label>
-        <input type="text" name="nom" value="<%= locals.nom ? nom : "" %>" required>
-        <br><br>
-        <input class="btn border" type="submit" value="Envoyer">
-        <button class="btn border" id="fermerDialogAgenda">Annuler</button>
-    </form>
-</dialog>
+<div class="modal fade" id="dialogAgenda" tabindex="-1" aria-labelledby="dialogAgendaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dialogAgendaLabel">Nom de l'agenda</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" id="agenda_form">
+            <div class="mb-3">
+              <label for="agendaName" class="form-label">Nom de l'agenda</label>
+              <input type="text" class="form-control" name="nom" value="<%= locals.nom ? nom : '' %>" required>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Annuler</button>
+              <input type="submit" class="btn btn-primary ms-2 text-white" value="Envoyer">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,5 +1,6 @@
 import { addDays, getConvertedDate, getConvertedTime } from "./utils.js";
 import { agendaManager } from "./calendar_controleur.js";
+import { confirmDelete } from "./script_agenda.js";
 
 function closeModal(modal) {
     const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -100,6 +101,7 @@ function setRendezVousModal(html, onsuccess, id) {
         const description = form["description"].value.trim();
         const agenda_id = form["agenda"].value;
         const is_all_day = all_day.checked;
+        const color = form["color"].value.split("#")[1];
         let startDate;
         let endDate;
         if (is_all_day) {
@@ -139,7 +141,7 @@ function setRendezVousModal(html, onsuccess, id) {
         // on envoie les infos du nouveau rendez-vous, ainsi que la période en vue au cas où on devra rajouter des rendez-vous sur le calendrier
         const data = {titre: titre, lieu: lieu, description: description, agenda: agenda_id, all_day: is_all_day, 
                       startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
-                      date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence};
+                      date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence, color: color};        
         onsuccess(data);
         closeModal(fausseModale);
     });
@@ -167,7 +169,7 @@ function setRendezVousModal(html, onsuccess, id) {
     const remove_button = document.getElementById('remove_button');
     if (remove_button) {
         remove_button.addEventListener('click', () => {
-            if(confirm("Voulez-vous vraiment supprimer ce rendez-vous ?\nCela supprimera aussi toutes les autres occurrences.")){
+            confirmDelete('confirmationModal2','rendezVousName','confirmDeleteButton2', "",() => {
                 fetch(`/supprimerRDV/${id}`, {method: "DELETE"})
                 .then(response => {
                     if (response.status === 200) {
@@ -178,7 +180,7 @@ function setRendezVousModal(html, onsuccess, id) {
                 .catch((error) => {
                     console.log(error);
                 });
-              }
+              });
         });
     }
 

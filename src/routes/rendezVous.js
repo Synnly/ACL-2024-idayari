@@ -40,6 +40,7 @@ export function creationRendezVousPOST(req, res){
     if (data.date_fin_recurrence) {
         data.date_fin_recurrence = new Date(+data.date_fin_recurrence);
     }
+
     RendezVous.create({
         titre: data.titre,
         lieu: data.lieu,
@@ -51,7 +52,8 @@ export function creationRendezVousPOST(req, res){
         frequence: data.frequence,
         finRecurrence: data.date_fin_recurrence,
         nbOccurrences: data.nb_occurrence,
-        idAgenda: +data.agenda
+        idAgenda: +data.agenda,
+        color: data.color
     })
     .then(rendez_vous => {
         return res.status(200).json(rendez_vous.idAgenda);
@@ -64,12 +66,13 @@ export async function modifierRendezVousCalendarPOST(req, res) {
         return res.status(403).json({ message: 'Unauthorized access' });
     }
     //Récupération des champs du form
-    const { id, title, lieu, description, agenda, startGap, endGap, allDay, type, frequence, dateFinRecurrence, nbOccurrences } = req.body;
+    const { id, title, lieu, description, agenda, startGap, endGap, allDay, type, frequence, dateFinRecurrence, nbOccurrences, color } = req.body;
     //Récupération du rdv avec l'id donné
     const rdvToUpdate = await RendezVous.findByPk(id);
     if (!rdvToUpdate) {
         return res.status(404).json({ message: 'Rendez-vous introuvable' });
     }
+
     //Sauvegarde du rdv
     rdvToUpdate.dateDebut = new Date(rdvToUpdate.dateDebut.valueOf() + startGap);
     rdvToUpdate.dateFin = new Date(rdvToUpdate.dateFin.valueOf() + endGap);
@@ -78,6 +81,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     rdvToUpdate.allDay = allDay;
     rdvToUpdate.idAgenda = agenda;
     rdvToUpdate.description = description;
+    rdvToUpdate.color = color || "FFFFFF";
     // si on a envoyé un type, alors on veut modifier aussi les informations de récurrence
     if (type) {
         rdvToUpdate.type = type;
