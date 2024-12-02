@@ -90,13 +90,35 @@ export function json_fetch(url, method, data) {
 }
 
 /**
- * Indique si str1 est inclus dans str2 sans compter les accents / maj / min / espaces(début/fin)
+ * Indique si str1 inclus le terme str2 sans compter les accents / maj / min / espaces(début/fin)
  * @param {*} str1 
  * @param {*} str2 
  */
-export  function normalizedStringComparaison(str1,str2){
+export  function normalizedStringComparaison(str1,str2){   
     return str1.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").includes(str2.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,""));
+}
 
+/**
+ * Indique si str1 inclus le terme str2 sans compter les accents / maj / min / espaces(début/fin) et en tolérant un taux d'erreur
+ * @param {*} str1 
+ * @param {*} str2 
+ */
+export  function normalizedStringComparaisonVersionFuse(str1,str2){
+    let term1 = str1.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    let term2 = str2.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+
+     const options = {
+        threshold: 0.2, //Taux d'erreur accepté
+        keys: ["text"] //Recherche les items dont la clé est text
+    };
+    let textTab =  term1.split(' ');
+    let items = textTab.map(mot => ({ text: mot })); //Fuse utilise  la clé text pour recherché
+    
+    let fuse = new Fuse(items, options);
+    let result = fuse.search(term2);
+    let trouve = result.length > 0; // true = Une corresponance a été trouvé
+
+    return trouve;
 }
 
 // listes des constantes
