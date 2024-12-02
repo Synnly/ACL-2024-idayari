@@ -92,7 +92,7 @@ function setRecRDVChangeModal(action, onReady) {
     });
 }
 
-function setRendezVousModal(html, onsuccess, id) {
+function setRendezVousModal(html, onsuccess, id, idParent) {
     // s'il y avait déjà une modale, on la supprime
     closeModal(document.getElementById('staticBackdrop'));
 
@@ -166,8 +166,6 @@ function setRendezVousModal(html, onsuccess, id) {
                       startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
                       date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence, color: color};        
         
-        if (recurrent_checkbox.checked) {
-        }
         onsuccess(data);
         closeModal(fausseModale);
     });
@@ -195,9 +193,20 @@ function setRendezVousModal(html, onsuccess, id) {
     const remove_button = document.getElementById('remove_button');
     if (remove_button) {
         remove_button.addEventListener('click', () => {
-            if (recurrent_checkbox.checked) {
+            if (recurrent_checkbox.checked || idParent) {
                 setRecRDVChangeModal("Suppression", (data) => {
-                    json_fetch('/supprimerRDV', "DELETE", {which: data, id: id})
+                    const is_all_day = all_day.checked;
+                    let startDate, endDate;
+                    if (is_all_day) {
+                        startDate = new Date(form["startDate"].value);
+                        startDate.setHours(0, 0, 0);
+                        endDate = addDays(new Date(form["endDate"].value), 1);
+                        endDate.setHours(0, 0, 0);
+                    } else {
+                        startDate = new Date(`${form["startDate"].value}T${startTime.value}`);
+                        endDate = new Date(`${form["endDate"].value}T${endTime.value}`);
+                    }
+                    json_fetch('/supprimerRDV', "DELETE", {which: data, id: id, start: startDate.valueOf(), end: endDate.valueOf()})
                     .then(response => {
                         if (response.status === 200) {
                             agendaManager.remove_events(id);
@@ -255,5 +264,5 @@ export function getRendezVousModal(data, onsuccess) {
     fetch('/views/partials/rendez_vous_modal.ejs', {method: "GET"})
     .then(response => response.text())
     .then(html => ejs.render(html, data))
-    .then(html => setRendezVousModal(html, onsuccess, data.id));
+    .then(html => setRendezVousModal(html, onsuccess, data.id, data.idParent));
 }

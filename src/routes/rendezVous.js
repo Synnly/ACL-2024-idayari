@@ -99,7 +99,21 @@ export function supprimerRDVDELETE(req, res) {
     }
     const id = req.body.id;
     const which = req.body.which;
-    RendezVous.findByPk()
+    const start = req.body.start;
+    const end = req.body.end;
+    const existing_child = req.body.existing_child;
+    if (!which)
+        removeSimpleRDV(id, res);
+    else if (which === "this") {
+        removeInstanceRecRDV(id, start, end, existing_child, res);
+    } else if (which === "all") {
+
+    }
+    
+}
+
+function removeSimpleRDV(id, res) {
+    RendezVous.findByPk(id)
     .then(rdv => {
         if (rdv) {
             if (res.locals.agendas[rdv.idAgenda].isOwner) {
@@ -116,6 +130,50 @@ export function supprimerRDVDELETE(req, res) {
     }).catch(_ => {
         res.status(400).end();
     })
-    
 }
 
+function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
+    RendezVous.findByPk(id)
+    .then(rdv => {
+        if (rdv) {
+            if (res.locals.agendas[rdv.idAgenda].isOwner) {
+                if (existing_child) {
+                    RendezVous.update({deleted: false}, {where: {id: id}})
+                    .then(results => {
+                        const nb_rows_updated = results[0];
+                        res.status(200).end();
+                    }).catch(error => {
+                        res.status(400).end();
+                    })
+                } else {
+                    startDate = new Date(+startDate);
+                    endDate = new Date(+endDate);
+                    RendezVous.findByPk(id)
+                    .then(parent => {
+                        RendezVous.create({
+                            titre: parent.titre,
+                            lieu: parent.lieu,
+                            description: parent.description,
+                            dateDebut: new Date(+startDate),
+                            dateFin: new Date(+endDate),
+                            allDay: parent.all_day,
+                            idAgenda: parent.agenda,
+                            color: parent.color,
+                            idParent: id,
+                            deleted: true
+                        })
+                        .then(_ => {
+                            res.status(200).end();
+                        }).catch(error => {
+                            res.status(400).end();
+                        })
+                    })
+                }
+            } else {
+                res.status(400).end();
+            }
+        }
+    }).catch(_ => {
+        res.status(400).end();
+    })
+}

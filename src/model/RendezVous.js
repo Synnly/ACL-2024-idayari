@@ -120,7 +120,8 @@ export default class RendezVous extends Model {
                 nbOccurrences: this.nbOccurrences,
                 frequence: this.frequence,
                 dates: dates,
-                color: '#'+this.color
+                color: '#'+this.color,
+                idParent: this.idParent
              };
     }
 
