@@ -1,3 +1,4 @@
+import { Sequelize } from "sequelize";
 import RendezVous from "../model/RendezVous.js";
 
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
@@ -13,9 +14,8 @@ export function calendarGetData(req, res) {
         const id_to_rdv = {};
         for (const rdv of rendez_vous) {
             if (rdv.idParent) {
-                console.log(rdv.idParent);
                 if (id_to_rdv[rdv.idParent] != undefined) {
-                    id_to_rdv[rdv.idParent].add(rdv.dateDebut.valueOf());
+                    id_to_rdv[rdv.idParent].add(rdv.dateDebutDansParent.valueOf());
                 } else {
                     id_to_rdv[rdv.idParent] = new Set([rdv.dateDebut.valueOf()]);
                 }
@@ -76,32 +76,49 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (!res.locals.user) {
         return res.status(403).json({ message: 'Unauthorized access' });
     }
-    //Récupération des champs du form
-    const { id, title, lieu, description, agenda, startGap, endGap, allDay, type, frequence, dateFinRecurrence, nbOccurrences, color } = req.body;
-    //Récupération du rdv avec l'id donné
-    const rdvToUpdate = await RendezVous.findByPk(id);
-    if (!rdvToUpdate) {
-        return res.status(404).json({ message: 'Rendez-vous introuvable' });
+    const id = req.body.id;
+    delete req.body['id'];
+
+    if (req.body.startGap) {
+        const gap_in_seconds = req.body.startGap / 1000; 
+        delete req.body.startGap;
+        req.body.dateDebut = Sequelize.literal(`DATE_ADD(dateDebut, INTERVAL ${gap_in_seconds} second)`);
     }
 
-    //Sauvegarde du rdv
-    rdvToUpdate.dateDebut = new Date(rdvToUpdate.dateDebut.valueOf() + startGap);
-    rdvToUpdate.dateFin = new Date(rdvToUpdate.dateFin.valueOf() + endGap);
-    rdvToUpdate.titre = title;
-    rdvToUpdate.lieu = lieu;
-    rdvToUpdate.allDay = allDay;
-    rdvToUpdate.idAgenda = agenda;
-    rdvToUpdate.description = description;
-    rdvToUpdate.color = color || "FFFFFF";
-    // si on a envoyé un type, alors on veut modifier aussi les informations de récurrence
-    if (type) {
-        rdvToUpdate.type = type;
-        rdvToUpdate.frequence = frequence;
-        rdvToUpdate.finRecurrence = dateFinRecurrence ? new Date(+dateFinRecurrence) : dateFinRecurrence;
-        rdvToUpdate.nbOccurrences = nbOccurrences;
-    } 
-    await rdvToUpdate.save();
-    return res.status(200).json();
+    if (req.body.endGap) {
+        const gap_in_seconds = req.body.endGap / 1000;
+        delete req.body.endGap;
+        req.body.dateFin = Sequelize.literal(`DATE_ADD(dateFin, INTERVAL ${gap_in_seconds} second)`);
+    }
+
+    if (req.body.finRecurrence) {
+        req.body.finRecurrence = new Date(+req.body.finRecurrence);
+    }
+
+    RendezVous.update(req.body, {where: {id: id}})
+    .then(_ => res.status(200).json())
+    .catch(err => {
+        console.log(err);
+        res.status(400).json();
+    });
+}
+
+export function modifierRendezVousRecInstancePOST(req, res) {
+    if (!res.locals.user) {
+        return res.status(403).json({ message: 'Unauthorized access' });
+    }
+    //Récupération des champs du form
+    const { id, title, lieu, description, agenda, start, end, allDay, color } = req.body;
+    
+    RendezVous.create({
+        titre: title, lieu: lieu, description: description,
+        dateDebut: new Date(+start), dateFin: new Date(+end), allDay: allDay,
+        idAgenda: agenda,
+        color: color,
+        idParent: id, deleted: false, dateDebutDansParent: start
+    })
+    .then(_ => res.status(200).end())
+    .catch(_ => res.status(400).end())
 }
 
 export function supprimerRDVDELETE(req, res) {
@@ -157,7 +174,7 @@ function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
                             dateDebut: startDate, dateFin: endDate, allDay: parent.all_day,
                             idAgenda: parent.idAgenda,
                             color: parent.color,
-                            idParent: id, deleted: true
+                            idParent: id, deleted: true, dateDebutDansParent: startDate
                         })
                         .then(_ => res.status(200).end())
                         .catch(_ => res.status(400).end())

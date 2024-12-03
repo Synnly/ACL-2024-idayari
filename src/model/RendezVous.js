@@ -48,7 +48,6 @@ export default class RendezVous extends Model {
             validate : {
                 notSimpleTypeImpliesNotNullFrequence(value){
                     if ((this.frequence === null) && (value !== 'Simple')) {
-                        console.log(value,this.frequence);
                         throw new Error(`les rdvs non Simple ont une fréquence non null (frequence : ${this.frequence},type : ${value}) `);
                     }
                 }
@@ -92,6 +91,10 @@ export default class RendezVous extends Model {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        dateDebutDansParent: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
         deleted: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
@@ -130,7 +133,7 @@ export default class RendezVous extends Model {
         if (this.dateDebut >= periodeFin || this.deleted) {
             return null;
         }
-        if (this.type == 'Simple') {
+        if (this.type == 'Simple' || this.idParent) {
             // s'il y a intersection (la condition sur la date de début est déjà vérifiée plus haut)
             if (this.dateFin > periodeDebut) {
                 return this.rendez_vous_donnees([{start: this.dateDebut, end: this.dateFin}]);
@@ -169,8 +172,6 @@ export default class RendezVous extends Model {
         while ((!finRec || debut < finRec) && debut < periodeFin) {
             if (excluded_dates == undefined || !excluded_dates.has(debut.valueOf())) {
                 dates.push({start: debut, end: fin});
-            } else {
-                console.log(debut);
             }
             debut = add_function(debut, frequence);
             fin = add_function(fin, frequence);

@@ -167,7 +167,11 @@ function setRendezVousModal(html, id, idParent, onsuccess, removeFunction) {
                       startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
                       date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence, color: color};        
         
-        onsuccess(data);
+        if (recurrent_checkbox.checked || idParent) {
+            setRecRDVChangeModal("Modification", (which) => onsuccess(data, which));
+        } else {
+            onsuccess(data);
+        }
         closeModal(fausseModale);
     });
 
@@ -195,7 +199,7 @@ function setRendezVousModal(html, id, idParent, onsuccess, removeFunction) {
     if (remove_button) {
         remove_button.addEventListener('click', () => {
             if (recurrent_checkbox.checked || idParent) {
-                setRecRDVChangeModal("Suppression", (data) => {
+                setRecRDVChangeModal("Suppression", (which) => {
                     const is_all_day = all_day.checked;
                     let startDate, endDate;
                     if (is_all_day) {
@@ -207,7 +211,6 @@ function setRendezVousModal(html, id, idParent, onsuccess, removeFunction) {
                         startDate = new Date(`${form["startDate"].value}T${startTime.value}`);
                         endDate = new Date(`${form["endDate"].value}T${endTime.value}`);
                     }
-                    const which = data;
                     json_fetch('/supprimerRDV', "DELETE", {which: which, id: id, start: startDate.valueOf(), 
                                                             end: endDate.valueOf(), idParent: idParent})
                     .then(response => {
