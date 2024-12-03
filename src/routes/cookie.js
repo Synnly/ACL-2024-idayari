@@ -24,3 +24,9 @@ export function updateViewCookies(req, res) {
     }
     res.end();
 }
+
+export function getCookies(req, res){
+    if(res.locals.user){
+        return res.json(req.cookies);
+    }
+}

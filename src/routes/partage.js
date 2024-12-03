@@ -145,7 +145,7 @@ export async function supprimerPartageGET(req, res) {
     }
 
     try {
-        const user = await User.findByPk(res.locals.user.id);
+        const user = await User.findByPk(res.locals.user.id); 
         const agenda = await Agenda.findOne({ where: { id: req.params.id } });
         if (!agenda) {
             return res.render('error', {
@@ -153,28 +153,52 @@ export async function supprimerPartageGET(req, res) {
                 status: 404,
             });
         }
-        const owner = await agenda.getOwner();
+        const owner = await agenda.getOwner(); 
 
-        if (owner.dataValues.id !== user.id) {
-            return res.render('error', {
-                message: 'Vous ne pouvez pas accéder à cette page',
-                status: 403,
+		//Cas ou le proprio arrête le partage donc on enlève tous les partages
+        if (req.params.username === user.username) {
+            if (owner.dataValues.id !== user.id) {
+                return res.render('error', {
+                    message: 'Vous ne pouvez pas accéder à cette page',
+                    status: 403,
+                });
+            }
+
+            await UserAgendaAccess.destroy({
+                where: {
+                    idAgenda: req.params.id,
+                    idUser: { [Op.ne]: user.id }, 
+                },
             });
-        }
-        await UserAgendaAccess.destroy({
-            where: {
-                idAgenda: req.params.id,
-                idUser: { [Op.ne]: user.id },
-            },
-        });
 
-        await Agenda.update(
-            { estPartage: false, link: null },
-            { where: { id: req.params.id } }
-        );
-		return res.status(200).json({message: "partage supprimer"});
+            await Agenda.update(
+                { estPartage: false, link: null },
+                { where: { id: req.params.id } }
+            );
+
+            return res.status(200).json({ message: "Partage supprimé" });
+        }
+		//Cas ou le proprio veut arreter le partage de quelqu'un
+        else {
+            const otherUser = await User.findOne({ where: { username: req.params.username } });
+            if (!otherUser) {
+                return res.render('error', {
+                    message: "Utilisateur introuvable.",
+                    status: 404,
+                });
+            }
+
+            await UserAgendaAccess.destroy({
+                where: {
+                    idAgenda: req.params.id,
+                    idUser: otherUser.id,
+                },
+            });
+
+            return res.status(200).json({ message: `Partage supprimé pour ${req.params.username}` });
+        }
     } catch (e) {
-		console.log(e);
+        console.log(e);
         return res.render('error', {
             message: 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.',
             status: 500,

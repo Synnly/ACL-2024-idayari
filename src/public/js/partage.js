@@ -21,7 +21,8 @@ function hideCheckMark(id){
 
 async function supprimerPartage(agendaId){
 	try {
-        const response = await fetch(`/partage/supprimer/${agendaId}`);
+		const username = document.getElementById("selectUser").value;
+        const response = await fetch(`/partage/supprimer/${agendaId}/${username}`);
         if (response.ok) {
             window.location.reload();
         } else {
@@ -30,4 +31,21 @@ async function supprimerPartage(agendaId){
     } catch (error) {
         console.error('Erreur réseau:', error);
     }
+}
+
+function sortTable(ascending) {
+	const table = document.querySelector("table tbody");
+	const rows = Array.from(table.rows);
+	rows.sort((rowA, rowB) => {
+		const nameA = rowA.cells[0].textContent.trim().toLowerCase();
+		const nameB = rowB.cells[0].textContent.trim().toLowerCase();
+
+		if (ascending) {
+			return nameA.localeCompare(nameB);
+		} else {
+			return nameB.localeCompare(nameA);
+		}
+	});
+
+	rows.forEach(row => table.appendChild(row));
 }

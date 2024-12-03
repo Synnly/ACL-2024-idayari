@@ -31,9 +31,11 @@
                             <i class="bi bi-calendar mr"></i>
                             <div class="d-flex flex-grow-1">
                                 <select name="agenda" class="form-select" required <%= locals.readonly ? "disabled" : "" %>>
-                                    <% for (const elem of locals.agendas) { %>
-                                        <option value="<%= elem.id %>" <%= elem.id == locals.agenda ? "selected" : ""%>><%= elem.nom %></option>
-                                    <% } %>
+                                    <% for (const elem of locals.agendas) { 
+                                        if (elem.isOwner) { %>
+                                           <option value="<%= elem.id %>" <%= elem.id == locals.agenda ? "selected" : "" %>><%= elem.nom %></option>
+                                   <%  } 
+                                   } %>                                   
                                 </select>
                             </div> 
                         </div>
