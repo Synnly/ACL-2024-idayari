@@ -3,7 +3,7 @@ import Agenda from '../model/Agenda.js';
 import User from '../model/User.js';
 import UserAgendaAccess from '../model/UserAgendaAccess.js';
 import crypto from 'crypto';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 
 export async function voirPartagesGET(req, res) {
 	if (!res.locals.user) {
@@ -194,6 +194,11 @@ export async function supprimerPartageGET(req, res) {
                     idUser: otherUser.id,
                 },
             });
+			const link = crypto.randomBytes(64).toString('hex');
+			await agenda.update(
+				{link: link },
+				{ where: { id: req.params.id } }
+			)
 
             return res.status(200).json({ message: `Partage supprimé pour ${req.params.username}` });
         }
