@@ -58,6 +58,7 @@ function newRendezVous(manager, _data) {
 					} else {
 						manager.calendrier.getEventSourceById(result).refetch();
 					}
+					manager.resetSearchBar()
 					manager.displayAllEvents();
 				}
 			});
@@ -142,6 +143,7 @@ class AgendaManager {
             },
             datesSet: function(dateInfo) {
                 manager.setViewCookies(dateInfo.view.type);
+				manager.resetSearchBar();
             },
             eventChange: function(info) {
                 const oldEvent = info.oldEvent;
@@ -348,24 +350,18 @@ class AgendaManager {
 	}
 
 	/**
-     * Filtre les rendez-vous lors d'une action sur le calendrier si l'utilisateur a entré du texte dans la barre de recherche auparavant
-     */
-    filterEventOnChange(){
-        // this.calendrier.render();
-        let term = document.getElementById("searchRdv").value;
-        this.filterByTerm(term);
-        if(term != ""){
-            this.filterByTerm(term);
-        }
-    }
-	/**
-	 * réaffiche tous les rendez vous
+	 * Réaffiche tous les rendez vous
 	 */
 	displayAllEvents(){
-		document.getElementById("searchRdv").value ="";
 		this.calendrier.getEvents().forEach((event) => {
 			event.setProp('classNames', event.classNames.filter(classe => classe !== 'invisible-rdv'));
 		});
+	}
+	/**
+	 * Réinitialise le texte de la barre de recherche
+	 */
+	resetSearchBar(){
+		document.getElementById("searchRdv").value ="";
 	}
 }
 
