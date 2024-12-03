@@ -10,8 +10,19 @@ export function calendarGetData(req, res) {
     RendezVous.findAll({ where: { idAgenda: +req.query.agenda } })
     .then(rendez_vous => {
         const infos = [];
+        const id_to_rdv = {};
         for (const rdv of rendez_vous) {
-            const data = rdv.get_rendezVous(dateStart, dateEnd);
+            if (rdv.idParent) {
+                console.log(rdv.idParent);
+                if (id_to_rdv[rdv.idParent] != undefined) {
+                    id_to_rdv[rdv.idParent].add(rdv.dateDebut.valueOf());
+                } else {
+                    id_to_rdv[rdv.idParent] = new Set([rdv.dateDebut.valueOf()]);
+                }
+            }
+        }
+        for (const rdv of rendez_vous) {
+            const data = rdv.get_rendezVous(dateStart, dateEnd, id_to_rdv[rdv.id]);
             if (data) {
                 data.readonly = !res.locals.agendas[+req.query.agenda].isOwner;
                 infos.push(data);
@@ -101,13 +112,13 @@ export function supprimerRDVDELETE(req, res) {
     const which = req.body.which;
     const start = req.body.start;
     const end = req.body.end;
-    const existing_child = req.body.existing_child;
+    const idParent = req.body.idParent;
     if (!which)
         removeSimpleRDV(id, res);
     else if (which === "this") {
-        removeInstanceRecRDV(id, start, end, existing_child, res);
+        removeInstanceRecRDV(id, start, end, idParent, res);
     } else if (which === "all") {
-
+        removeSimpleRDV(idParent ? idParent : id, res);
     }
     
 }
@@ -118,18 +129,13 @@ function removeSimpleRDV(id, res) {
         if (rdv) {
             if (res.locals.agendas[rdv.idAgenda].isOwner) {
                 rdv.destroy()
-                .then(_ => {
-                    res.status(200).end();
-                }).catch(error => {
-                    res.status(400).end();
-                })
+                .then(_ => res.status(200).end())
+                .catch(_ => res.status(400).end())
             } else {
                 res.status(400).end();
             }
         }
-    }).catch(_ => {
-        res.status(400).end();
-    })
+    }).catch(_ => res.status(400).end())
 }
 
 function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
@@ -139,41 +145,27 @@ function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
             if (res.locals.agendas[rdv.idAgenda].isOwner) {
                 if (existing_child) {
                     RendezVous.update({deleted: false}, {where: {id: id}})
-                    .then(results => {
-                        const nb_rows_updated = results[0];
-                        res.status(200).end();
-                    }).catch(error => {
-                        res.status(400).end();
-                    })
+                    .then(_ => res.status(200).end())
+                    .catch(_ => res.status(400).end())
                 } else {
                     startDate = new Date(+startDate);
                     endDate = new Date(+endDate);
                     RendezVous.findByPk(id)
                     .then(parent => {
                         RendezVous.create({
-                            titre: parent.titre,
-                            lieu: parent.lieu,
-                            description: parent.description,
-                            dateDebut: new Date(+startDate),
-                            dateFin: new Date(+endDate),
-                            allDay: parent.all_day,
-                            idAgenda: parent.agenda,
+                            titre: parent.titre, lieu: parent.lieu, description: parent.description,
+                            dateDebut: startDate, dateFin: endDate, allDay: parent.all_day,
+                            idAgenda: parent.idAgenda,
                             color: parent.color,
-                            idParent: id,
-                            deleted: true
+                            idParent: id, deleted: true
                         })
-                        .then(_ => {
-                            res.status(200).end();
-                        }).catch(error => {
-                            res.status(400).end();
-                        })
+                        .then(_ => res.status(200).end())
+                        .catch(_ => res.status(400).end())
                     })
                 }
             } else {
                 res.status(400).end();
             }
         }
-    }).catch(_ => {
-        res.status(400).end();
-    })
+    }).catch(_ => res.status(400).end())
 }

@@ -139,7 +139,7 @@ class AgendaManager {
 				const data = { id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description, start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences, frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true, readonly: event.extendedProps.readonly, color: event._def.ui.backgroundColor, idParent: event.extendedProps.idParent };
                 getRendezVousModal(data, (data) => {
                     manager.update_event(event, data);
-                });
+                }, () => event.remove());
             },
 
             datesSet: function(dateInfo) {
@@ -338,6 +338,14 @@ class AgendaManager {
 		while (elem) {
 			elem.remove();
 			elem = this.calendrier.getEventById(id);
+		}
+	}
+
+	removeEventsByParent(id) {
+		for (const ev of this.calendrier.getEvents()) {
+			if (ev.id == id || ev.extendedProps.idParent == id) {
+				ev.remove();
+			}
 		}
 	}
 }

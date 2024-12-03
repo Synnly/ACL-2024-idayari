@@ -125,9 +125,9 @@ export default class RendezVous extends Model {
              };
     }
 
-    get_rendezVous(periodeDebut, periodeFin) {
+    get_rendezVous(periodeDebut, periodeFin, excluded_dates) {
         // si le rendezVous est après la période, pas besoin de regarder les récurrents
-        if (this.dateDebut >= periodeFin) {
+        if (this.dateDebut >= periodeFin || this.deleted) {
             return null;
         }
         if (this.type == 'Simple') {
@@ -158,19 +158,20 @@ export default class RendezVous extends Model {
         // le premier rendez vous récurrent ne rentre pas dans la période, au lieu de parcourir
         // tous les rendez vous récurrents qui ne rentreraient pas, on skip jusqu'au premier rendez-vous récurrent dans la période
         if (fin <= periodeDebut) {
-            let diff = Math.ceil(diff_function(fin, periodeDebut)/frequence);
-            // le skip était de 0 car la différence n'était assez pas significative
+            // si le skip est de 0 la différence n'est assez pas significative
             // ex fin = 12-Nov, periodeDebut = 24-Nov avec une fréquence mensuelle
             // la différence mensuelle est nulle (même mois) mais fin est toujours en arrière
-            if (diff == 0) {
-                diff = 1;
-            }
+            let diff = Math.max(1, Math.ceil(diff_function(fin, periodeDebut)/frequence));
             const skip = diff * frequence;
             fin = add_function(fin, skip);
             debut = add_function(debut, skip);
         }
         while ((!finRec || debut < finRec) && debut < periodeFin) {
-            dates.push({start: debut, end: fin});
+            if (excluded_dates == undefined || !excluded_dates.has(debut.valueOf())) {
+                dates.push({start: debut, end: fin});
+            } else {
+                console.log(debut);
+            }
             debut = add_function(debut, frequence);
             fin = add_function(fin, frequence);
         }

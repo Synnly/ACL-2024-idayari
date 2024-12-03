@@ -12,7 +12,7 @@ export async function initDatabase() {
     const user = "mysql";
     const host = "synnly.com:3306";
     const pass = "RJ%292tN%27ejL%7BX-dCZyd1%25%3Co%28vZ%27Z%5Bd%28L2B4-%5ESQ%60O"; // Encodé
-    const dbname = "testIdayari3";
+    const dbname = "testIdayari";
     const dialect = "mysql";
     const uri = `${dialect}://${user}:${pass}@${host}/${dbname}`;
     const sequelize = new Sequelize(uri, { logging: false });
@@ -44,11 +44,11 @@ function initTables(sequelize) {
     Agenda.belongsTo(User, { as: "owner", foreignKey: "idOwner"});
     User.hasMany(Agenda, { as: "myAgendas", foreignKey: "idOwner" });
 
-    Agenda.hasMany(RendezVous, { as:"agenda", foreignKey: "idAgenda"});
-    RendezVous.belongsTo(Agenda, { foreignKey: "idAgenda"});
+    Agenda.hasMany(RendezVous, { as:"agenda", foreignKey: "idAgenda", onDelete: 'CASCADE'});
+    RendezVous.belongsTo(Agenda, { foreignKey: "idAgenda", onDelete: 'CASCADE'});
 
-    RendezVous.hasMany(RendezVous, { as: "instances", foreignKey: "idParent"});
-    RendezVous.belongsTo(RendezVous, { foreignKey: "idParent"});
+    RendezVous.hasMany(RendezVous, { as: "instances", foreignKey: "idParent", onDelete: 'CASCADE' });
+    RendezVous.belongsTo(RendezVous, { foreignKey: "idParent", onDelete: 'CASCADE'});
 }
 
 /**
