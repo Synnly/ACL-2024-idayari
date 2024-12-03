@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { getRendezVousModal } from '/js/script_rendez_vous.js';
-import { json_fetch,normalizedStringComparaison,normalizedStringComparaisonVersionFuse } from './utils.js';
+import { json_fetch,normalizedStringComparaison } from './utils.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/
@@ -58,6 +58,7 @@ function newRendezVous(manager, _data) {
 					} else {
 						manager.calendrier.getEventSourceById(result).refetch();
 					}
+					manager.displayAllEvents();
 				}
 			});
 	});
@@ -139,11 +140,9 @@ class AgendaManager {
                     manager.update_event(event, data);
                 });
             },
-
             datesSet: function(dateInfo) {
                 manager.setViewCookies(dateInfo.view.type);
             },
-
             eventChange: function(info) {
                 const oldEvent = info.oldEvent;
                 // si on modifie la date de début, on supprime les rendez-vous ayant dépassé la date de fin de récurrence
@@ -233,7 +232,6 @@ class AgendaManager {
         }
         // this.addData(new_agendas);
         this.updateCookie();
-		this.filterEventOnChange();
     }
 
 	/**
@@ -338,12 +336,35 @@ class AgendaManager {
 	 */
 	filterByTerm(term){
 		this.calendrier.getEvents().forEach((event) => {
-			if(normalizedStringComparaisonVersionFuse(event.title,term) || normalizedStringComparaisonVersionFuse(event.extendedProps.lieu,term)|| normalizedStringComparaisonVersionFuse(event.extendedProps.description,term)){
+			if(normalizedStringComparaison(event.title,term) || normalizedStringComparaison(event.extendedProps.lieu,term)|| normalizedStringComparaison(event.extendedProps.description,term)){
 				//classNames est la listes des classes css associé à l'event
 				event.setProp('classNames', event.classNames.filter(classe => classe !== 'invisible-rdv'));
+				event.setExtendedProp('hidden',false);
 			}else{
+				event.setExtendedProp('hidden',true);
 				event.setProp('classNames', [...event.classNames, 'invisible-rdv']);
 			}
+		});
+	}
+
+	/**
+     * Filtre les rendez-vous lors d'une action sur le calendrier si l'utilisateur a entré du texte dans la barre de recherche auparavant
+     */
+    filterEventOnChange(){
+        // this.calendrier.render();
+        let term = document.getElementById("searchRdv").value;
+        this.filterByTerm(term);
+        if(term != ""){
+            this.filterByTerm(term);
+        }
+    }
+	/**
+	 * réaffiche tous les rendez vous
+	 */
+	displayAllEvents(){
+		document.getElementById("searchRdv").value ="";
+		this.calendrier.getEvents().forEach((event) => {
+			event.setProp('classNames', event.classNames.filter(classe => classe !== 'invisible-rdv'));
 		});
 	}
 }
