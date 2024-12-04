@@ -10,11 +10,14 @@
                     <div class="mb-3">
 
                         <label>
-                            <input type="radio" name="which_event" value="this" required checked>
+                            <input type="radio" name="which_event" value="this" required <%= agenda_changed ? "disabled" : "checked" %>>
                             Ce rendez-vous
-                        </label><br>
+                        </label>
+                        <% if (agenda_changed) { %>
+                            <div style="font-size: 0.8em;">On ne peut pas modifier un rendez-vous particulier avec un agenda différent.</div>
+                        <% } %>
                         <label>
-                            <input type="radio" name="which_event" value="all">
+                            <input type="radio" name="which_event" value="all" <%= agenda_changed ? "checked" : "" %>>
                             Tous les rendez-vous
                         </label>
                     </div>

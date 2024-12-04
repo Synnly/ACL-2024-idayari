@@ -69,10 +69,10 @@ function add_error(message, elem) {
     elem.parentNode.insertBefore(msgErreur, elem.nextSibling);
 }
 
-function setRecRDVChangeModal(action, onReady) {
+function setRecRDVChangeModal(action, agenda_changed, onReady) {
     fetch('/views/partials/validationRecRDVDialog.ejs', {method: "GET"})
     .then(response => response.text())
-    .then(html => ejs.render(html, {action: action}))
+    .then(html => ejs.render(html, {action: action, agenda_changed: agenda_changed}))
     .then(html => {
         closeModal(document.getElementById('dialogRDVRec'));
         document.body.insertAdjacentHTML('beforeend', html);
@@ -93,7 +93,11 @@ function setRecRDVChangeModal(action, onReady) {
     });
 }
 
-function setRendezVousModal(html, id, idParent, onsuccess, removeFunction) {
+function get_rdv_form_infos() {
+
+}
+
+function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsuccess, removeFunction) {
     // s'il y avait déjà une modale, on la supprime
     closeModal(document.getElementById('staticBackdrop'));
 
@@ -112,6 +116,7 @@ function setRendezVousModal(html, id, idParent, onsuccess, removeFunction) {
     const nb_occurrence_div = document.getElementById('occurrence_div');
     const nb_occurrence_input = form['nb_occurrence'];
     const type_end_recurrence = form['end_recurrence'];
+    const remove_button = document.getElementById('remove_button');
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -167,12 +172,15 @@ function setRendezVousModal(html, id, idParent, onsuccess, removeFunction) {
                       startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
                       date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence, color: color};        
         
-        if (recurrent_checkbox.checked || idParent) {
-            setRecRDVChangeModal("Modification", (which) => onsuccess(data, which));
+        if (remove_button && (initiallyRec || idParent)) {
+            setRecRDVChangeModal("Modification", idAgenda != form["agenda"].value, (which) => {
+                onsuccess(data, which);
+                closeModal(fausseModale);
+            });
         } else {
             onsuccess(data);
+            closeModal(fausseModale);
         }
-        closeModal(fausseModale);
     });
 
     all_day.addEventListener('change', () => {
@@ -195,11 +203,10 @@ function setRendezVousModal(html, id, idParent, onsuccess, removeFunction) {
         btn.addEventListener('click', () => closeModal(fausseModale));
     }
 
-    const remove_button = document.getElementById('remove_button');
     if (remove_button) {
         remove_button.addEventListener('click', () => {
             if (recurrent_checkbox.checked || idParent) {
-                setRecRDVChangeModal("Suppression", (which) => {
+                setRecRDVChangeModal("Suppression", false, (which) => {
                     const is_all_day = all_day.checked;
                     let startDate, endDate;
                     if (is_all_day) {
@@ -269,5 +276,5 @@ export function getRendezVousModal(data, onsuccess, removeFunction) {
     fetch('/views/partials/rendez_vous_modal.ejs', {method: "GET"})
     .then(response => response.text())
     .then(html => ejs.render(html, data))
-    .then(html => setRendezVousModal(html, data.id, data.idParent, onsuccess, removeFunction));
+    .then(html => setRendezVousModal(html, data.id, data.agenda, data.type != 'Simple', data.idParent, onsuccess, removeFunction));
 }

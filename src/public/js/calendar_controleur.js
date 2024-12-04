@@ -139,29 +139,28 @@ class AgendaManager {
                 const event = info.event;
 				const idParent = event.extendedProps.idParent;
 				const data = { id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description, start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences, frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true, readonly: event.extendedProps.readonly, color: event._def.ui.backgroundColor, idParent: idParent };
-                getRendezVousModal(data, (data, which) => {
+                getRendezVousModal(data, (form_data, which) => {
 					if (!which) {
-						manager.update_event(event, data);
+						manager.update_event(event, form_data);
 					} else if (which == "this") {
 						// if the event we modify is already special
 						if (idParent) {
-							manager.update_event(event, data, true);
+							manager.update_event(event, form_data, true);
 						} else {
 							const id = event.groupId;
-							const start = data.startDate;
-							const end = data.endDate;
-							const color = data.color;
-							const data = { id: id, title: data.titre, lieu: data.lieu, description: data.description, agenda: data.agenda, start: start, end: end, allDay: data.allDay, color: color };
-							json_fetch('/calendar-rdv-rec-instance', 'POST', data)
-							.catch((error) => {
-								console.log(error);
-							});
+							const start = form_data.startDate;
+							const end = form_data.endDate;
+							const color = form_data.color;
+							const data2 = { id: id, title: form_data.titre, lieu: form_data.lieu, description: form_data.description, agenda: form_data.agenda, start: start, end: end, allDay: form_data.all_day, type: data.type, fin_recurrence: data.fin_recurrence ? data.fin_recurrence.valueOf() : null, nbOccurrences: data.nbOccurrences, frequence: data.frequence, color: color, dateDebutDansParent: data.start.valueOf() };
+							json_fetch('/calendar-rdv-rec-instance', 'POST', data2)
+							.then(_ => manager.calendrier.getEventSourceById(data.agenda).refetch())
+							.catch(error => console.log(error));
 						}
 					} else if (which == "all") {
 						if (idParent) {
-
+							manager.update_event(event, form_data, null, null, true);
 						} else {
-							
+							manager.update_event(event, form_data, null, true);
 						}
 					}
                     
@@ -289,7 +288,7 @@ class AgendaManager {
 	}
 
 	/*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
-	update_event(old_event, new_event, noRec) {
+	update_event(old_event, new_event, noRec = false, children = false, parent = false) {
 
 		const data_to_send = {}
 		let rec_modified = false;
@@ -317,10 +316,15 @@ class AgendaManager {
 		}
 		let modified = rec_modified;
 		let purged = false;
+		const update_children_infos = {};
 		if (old_event.extendedProps.agenda != new_event.agenda) {
 			modified = purged = true;
 			data_to_send['idAgenda'] = new_event.agenda;
-			this.remove_events(old_event.groupId);
+			if (children || parent) {
+				this.removeEventsByParent(children ? old_event.groupId : old_event.extendedProps.idParent);
+			} else {
+				this.remove_events(old_event.groupId);
+			}
 		}
 
 		if (new_event.titre != old_event.title) {
@@ -328,6 +332,7 @@ class AgendaManager {
 			data_to_send['titre'] = new_event.titre;
 			if (!rec_modified && !purged) {
 				old_event.setProp('title', new_event.titre);
+				update_children_infos['title'] = ['P', new_event.titre];
 			}
 		}
 
@@ -348,7 +353,9 @@ class AgendaManager {
 		}
 
 		if (date_modified && !rec_modified && !purged) {
-			old_event.setDates(new Date(new_event.startDate), new Date(new_event.endDate), { allDay: new_event.all_day });
+			const all_day_opt ={ allDay: new_event.all_day };
+			old_event.setDates(new Date(new_event.startDate), new Date(new_event.endDate), all_day_opt);
+			update_children_infos['Dates'] = [data_to_send['startGap'] ?? 0, data_to_send['endGap'] ?? 0, all_day_opt];
 		}
 
 		if (new_event.lieu != old_event.extendedProps.lieu) {
@@ -356,6 +363,7 @@ class AgendaManager {
 			data_to_send['lieu'] = new_event.lieu;
 			if (!rec_modified && !purged) {
 				old_event.setExtendedProp('lieu', new_event.lieu);
+				update_children_infos['lieu'] = ['E', new_event.lieu]; 
 			}
 		}
 
@@ -364,6 +372,7 @@ class AgendaManager {
 			data_to_send['description'] = new_event.description;
 			if (!rec_modified && !purged) {
 				old_event.setExtendedProp('description', new_event.description);
+				update_children_infos['description'] = ['E', new_event.description]; 
 			}
 		}
 
@@ -371,14 +380,45 @@ class AgendaManager {
 			modified = true;
 			data_to_send['color'] = new_event.color;
 			if (!rec_modified && !purged) {
+				const txtCol = getTextColorFromBg(new_event.color);
 				old_event.setProp('backgroundColor', "#" +new_event.color);
 				old_event.setProp('borderColor',"#" + new_event.color);
-				old_event.setProp('textColor', getTextColorFromBg(new_event.color));
+				old_event.setProp('textColor', txtCol);
+				update_children_infos['backgroundColor'] = ['P', "#" +new_event.color]; 
+				update_children_infos['borderColor'] = ['P', "#" +new_event.color]; 
+				update_children_infos['textColor'] = ['P', txtCol]; 
+			}
+		}
+		
+		// met à jour les rdv simples associés
+		if ((children || parent) && !rec_modified && !purged) {
+			const visited = new Set();
+			for (const ev of this.calendrier.getEvents()) {
+				if (((children && ev.extendedProps.idParent == old_event.groupId) || 
+				(parent && ((ev.groupId == old_event.extendedProps.idParent) || (ev.idParent == old_event.extendedProps.idParent)))) && !visited.has(ev.groupId)) {
+					for (const key of Object.keys(update_children_infos)) {
+						if (key != 'Dates') {
+							const val = update_children_infos[key];
+							if (val[0] = 'P') {
+								ev.setProp(key, val[1]);
+							} else {
+								ev.setExtendedProp(key, val[1]);
+							}
+						}
+					}
+					const info_dates = update_children_infos['Dates'];
+					if (info_dates) {
+						ev.setDates(new Date(ev.start.valueOf()+info_dates[0]), new Date(ev.end.valueOf()+info_dates[1]),
+									info_dates[2]);
+					}
+					visited.add(ev.groupId);
+				}
 			}
 		}
 
 		if (modified) {
-			data_to_send['id'] = old_event.groupId;
+			console.log("ok");
+			data_to_send['id'] = parent ? old_event.idParent : old_event.groupId;
 			json_fetch('/calendar-rdv', 'POST', data_to_send)
 			.then(_ => {
 				if ((purged && this.agendas[new_event.agenda]) || rec_modified) {

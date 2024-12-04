@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, Op } from "sequelize";
 import RendezVous from "../model/RendezVous.js";
 
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
@@ -72,10 +72,11 @@ export function creationRendezVousPOST(req, res){
 }
 
 /*Fonction modifie un rendez vous */
-export async function modifierRendezVousCalendarPOST(req, res) {
+export function modifierRendezVousCalendarPOST(req, res) {
     if (!res.locals.user) {
         return res.status(403).json({ message: 'Unauthorized access' });
     }
+    console.log("ok");
     const id = req.body.id;
     delete req.body['id'];
 
@@ -95,7 +96,11 @@ export async function modifierRendezVousCalendarPOST(req, res) {
         req.body.finRecurrence = new Date(+req.body.finRecurrence);
     }
 
-    RendezVous.update(req.body, {where: {id: id}})
+    RendezVous.update(req.body, {
+        where: {
+            [Op.or]: [{id: id}, {idParent: id}]
+        }
+    })
     .then(_ => res.status(200).json())
     .catch(err => {
         console.log(err);
@@ -108,14 +113,15 @@ export function modifierRendezVousRecInstancePOST(req, res) {
         return res.status(403).json({ message: 'Unauthorized access' });
     }
     //Récupération des champs du form
-    const { id, title, lieu, description, agenda, start, end, allDay, color } = req.body;
+    const { id, title, lieu, description, agenda, start, end, allDay, color, type, frequence, fin_recurrence, nbOccurrences, dateDebutDansParent } = req.body;
     
     RendezVous.create({
         titre: title, lieu: lieu, description: description,
         dateDebut: new Date(+start), dateFin: new Date(+end), allDay: allDay,
         idAgenda: agenda,
-        color: color,
-        idParent: id, deleted: false, dateDebutDansParent: start
+        color: color, type: type, nbOccurrences: nbOccurrences,
+        frequence: frequence, fin_recurrence: fin_recurrence ? new Date(+fin_recurrence) : null,
+        idParent: id, deleted: false, dateDebutDansParent: new Date(+dateDebutDansParent)
     })
     .then(_ => res.status(200).end())
     .catch(_ => res.status(400).end())
@@ -161,7 +167,7 @@ function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
         if (rdv) {
             if (res.locals.agendas[rdv.idAgenda].isOwner) {
                 if (existing_child) {
-                    RendezVous.update({deleted: false}, {where: {id: id}})
+                    RendezVous.update({deleted: true}, {where: {id: id}})
                     .then(_ => res.status(200).end())
                     .catch(_ => res.status(400).end())
                 } else {
@@ -174,6 +180,8 @@ function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
                             dateDebut: startDate, dateFin: endDate, allDay: parent.all_day,
                             idAgenda: parent.idAgenda,
                             color: parent.color,
+                            type: parent.type, frequence: parent.frequence, 
+                            finRecurrence: parent.finRecurrence, nbOccurrences: parent.nbOccurrences,
                             idParent: id, deleted: true, dateDebutDansParent: startDate
                         })
                         .then(_ => res.status(200).end())
