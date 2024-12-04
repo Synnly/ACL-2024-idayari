@@ -85,10 +85,16 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     const update_date_debut_dans_parent = req.body.update_spec_date;
     delete req.body.update_spec_date;
 
+    const real_id = req.body.real_id;
+    delete req.body.real_id;
+
     if (req.body.startGap) {
         const gap_in_seconds = req.body.startGap / 1000; 
         delete req.body.startGap;
-        req.body.dateDebut = Sequelize.literal(`DATE_ADD(dateDebut, INTERVAL ${gap_in_seconds} second)`);
+        req.body.dateDebut = Sequelize.literal(`CASE
+                                                    WHEN id = ${real_id} THEN DATE_ADD(dateDebut, INTERVAL ${gap_in_seconds} second)
+                                                    ELSE dateDebut
+                                                END`);
         if (update_date_debut_dans_parent) {
             req.body.dateDebutDansParent = Sequelize.literal(`DATE_ADD(dateDebutDansParent, INTERVAL ${gap_in_seconds} second)`);
         }
@@ -97,7 +103,10 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (req.body.endGap) {
         const gap_in_seconds = req.body.endGap / 1000;
         delete req.body.endGap;
-        req.body.dateFin = Sequelize.literal(`DATE_ADD(dateFin, INTERVAL ${gap_in_seconds} second)`);
+        req.body.dateFin = Sequelize.literal(`CASE
+                                                WHEN id = ${real_id} THEN DATE_ADD(dateFin, INTERVAL ${gap_in_seconds} second)
+                                                ELSE dateFin
+                                              END`);
     }
 
     if (req.body.finRecurrence) {

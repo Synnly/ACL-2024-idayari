@@ -356,7 +356,7 @@ class AgendaManager {
 		if (date_modified && !rec_modified && !purged) {
 			const all_day_opt ={ allDay: new_event.all_day };
 			old_event.setDates(new Date(new_event.startDate), new Date(new_event.endDate), all_day_opt);
-			update_children_infos['Dates'] = [data_to_send['startGap'] ?? 0, data_to_send['endGap'] ?? 0, all_day_opt];
+			update_children_infos['dateDebutDansParent'] = ['E', data_to_send['startGap'] ?? 0];
 		}
 
 		if (new_event.lieu != old_event.extendedProps.lieu) {
@@ -398,19 +398,12 @@ class AgendaManager {
 				if (((children && ev.extendedProps.idParent == old_event.groupId) || 
 				(parent && ((ev.groupId == old_event.extendedProps.idParent) || (ev.idParent == old_event.extendedProps.idParent)))) && !visited.has(ev.groupId)) {
 					for (const key of Object.keys(update_children_infos)) {
-						if (key != 'Dates') {
-							const val = update_children_infos[key];
-							if (val[0] = 'P') {
-								ev.setProp(key, val[1]);
-							} else {
-								ev.setExtendedProp(key, val[1]);
-							}
+						const val = update_children_infos[key];
+						if (val[0] == 'P') {
+							ev.setProp(key, val[1]);
+						} else {
+							ev.setExtendedProp(key, val[1]);
 						}
-					}
-					const info_dates = update_children_infos['Dates'];
-					if (info_dates) {
-						ev.setDates(new Date(ev.start.valueOf()+info_dates[0]), new Date(ev.end.valueOf()+info_dates[1]),
-									info_dates[2]);
 					}
 					visited.add(ev.groupId);
 				}
@@ -418,9 +411,10 @@ class AgendaManager {
 		}
 
 		if (modified) {
-			data_to_send['id'] = parent ? old_event.idParent : old_event.groupId;
+			data_to_send['id'] = parent ? old_event.extendedProps.idParent : old_event.groupId;
 			data_to_send['rec_changes'] = rec_modified;
 			data_to_send['update_spec_date'] = parent || children;
+			data_to_send['real_id'] = old_event.groupId;
 			json_fetch('/calendar-rdv', 'POST', data_to_send)
 			.then(_ => {
 				if ((purged && this.agendas[new_event.agenda]) || rec_modified) {
