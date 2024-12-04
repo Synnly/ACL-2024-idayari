@@ -196,10 +196,10 @@ export async function getRendezVousModal(data, onsuccess) {
     // on récupère la liste des agendas
     for (const elem of document.getElementById('agendaList').children) {
         const id = elem.id.split("_")[1];
-        if (elem.children.length === 2 || data.readonly) {
+        if (elem.lastElementChild.lastElementChild.children.length === 3 || data.readonly) {
             const agendasCookie = await getCookie(); 
-
-            let isOwner = false;
+            
+            let isOwner = !data.readonly;
             
             if (agendasCookie && agendasCookie[id]) {
                 isOwner = agendasCookie[id].isOwner;
