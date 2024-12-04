@@ -95,16 +95,17 @@ export function json_fetch(url, method, data) {
  * @param {*} str2 
  */
 export  function normalizedStringComparaison(str1,str2){
-    let term1 = str1.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    let term1 = str1.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,""); //ni espace inutiles, ni maj ,ni accent
     let term2 = str2.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 
      const options = {
         threshold: 0.2, //Taux d'erreur accepté
         keys: ["text"] //Recherche les items dont la clé est text
     };
+    //On va recherché term2 dans toutes les partie de term1 et dans term1 
     let textTab =  term1.split(' ');
     let items = textTab.map(mot => ({ text: mot })); //Fuse utilise  la clé text pour rechercher
-    items.push({ text: term1 });
+    items.push({ text: term1 }); 
     
     let fuse = new Fuse(items, options);
     let result = fuse.search(term2);

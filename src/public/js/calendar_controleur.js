@@ -339,22 +339,19 @@ class AgendaManager {
 	filterByTerm(term){
 		this.calendrier.getEvents().forEach((event) => {
 			if(normalizedStringComparaison(event.title,term) || normalizedStringComparaison(event.extendedProps.lieu,term)|| normalizedStringComparaison(event.extendedProps.description,term)){
-				//classNames est la listes des classes css associé à l'event
-				event.setProp('classNames', event.classNames.filter(classe => classe !== 'invisible-rdv'));
-				event.setExtendedProp('hidden',false);
+				event.setProp('display','auto');
 			}else{
-				event.setExtendedProp('hidden',true);
-				event.setProp('classNames', [...event.classNames, 'invisible-rdv']);
+				event.setProp('display','none');			
 			}
 		});
 	}
 
 	/**
-	 * Réaffiche tous les rendez vous
+	 * Réaffiche tous les rendez vous (désinvisibilise plutôt)
 	 */
 	displayAllEvents(){
 		this.calendrier.getEvents().forEach((event) => {
-			event.setProp('classNames', event.classNames.filter(classe => classe !== 'invisible-rdv'));
+			event.setProp('display','auto');
 		});
 	}
 	/**

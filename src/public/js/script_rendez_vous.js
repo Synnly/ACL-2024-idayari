@@ -228,7 +228,9 @@ searchButton.addEventListener("click",searchRdv);
 
 let idTimeOut=0; // Id Pour gérer l'interval entre chaque touche pressée
 
-
+/**
+ * Lance la recherche de rdv à lors de l'event 'keyup', seulement si la dernière touche a été entrée il y a plus de 300 ms
+ */
 function searchRdv(){
     //On efface réinitialise le timeout à chaque nouvelle frappe pour ne pas filtrer les rdvs immédiatement (utile pour requête serveur)
     clearTimeout(idTimeOut);
@@ -236,5 +238,5 @@ function searchRdv(){
     idTimeOut = setTimeout(() =>{
         let term = document.getElementById("searchRdv").value;
         agendaManager.filterByTerm(term);
-    },500);
+    },300);
 }
