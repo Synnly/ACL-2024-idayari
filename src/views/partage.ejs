@@ -39,7 +39,6 @@
                         </th>
                         <th scope="col">Utilisateurs</th>
                         <th scope="col">Nombre de personnes partageant</th> 
-                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,17 +61,10 @@
                             <% } %>                            
                             </td>
                             <td class="w-25 align-middle">
-                                <% 
-                                    const usersCount = locals.partages.find(obj => obj.id === agenda.id).users.length;
-                                    const usersCountExcludingOwner = usersCount - 1;
-                                %>
-                                <%= usersCountExcludingOwner %> 
-                            </td>
-                            <td class="w-25 align-middle">
                                 <% if(agenda.estPartage) {%>
                                     <button class="btn btn-outline-danger bi bi-trash-fill me-2" onclick="supprimerPartage(<%= agenda.id %>, '')"></button>
                                     <button id="bouton_copier_<%= agenda.id %>" class="btn btn-outline-info bi bi-clipboard" onclick="copierLien(<%= agenda.id %>, '<%= agenda.link %>')" onmouseout="hideCheckMark(<%= agenda.id %>)"></button>
-                                    <button class="btn btn-outline-danger" onclick="supprimerPartagePerso(<%= agenda.id %>, '<%= username %>')">Supprimer le partage à tous</button>
+                                    <button class="btn btn-outline-danger" onclick="supprimerPartagePerso(<%= agenda.id %>, '<%= username %>')">Désactiver le partage à tous</button>
                                 <% } else { %>
                                     <button class="btn btn-outline-secondary bi bi-share-fill" onclick="creerPartage(<%= agenda.id %>)"></button>
                                 <% } %>
