@@ -134,7 +134,7 @@ function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsucces
             return;
         }
         const lieu = form["lieu"].value;
-        const description = form["description"];
+        const description = form["description"].value;
         const agenda_id = form["agenda"].value;
         const is_all_day = all_day.checked;
         const color = form["color"].value.split("#")[1];
