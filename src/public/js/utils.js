@@ -102,17 +102,15 @@ export  function normalizedStringComparaison(str1,str2){
         threshold: 0.2, //Taux d'erreur accepté
         keys: ["text"] //Recherche les items dont la clé est text
     };
-    //On va recherché term2 dans toutes les partie de term1 et dans term1 
+    //On va rechercher term2 dans toutes les parties de term1 et dans term1 
     let textTab =  term1.split(' ');
-    let items = textTab.map(mot => ({ text: mot })); //Fuse utilise  la clé text pour rechercher
+    let items = textTab.map(mot => ({ text: mot }));
     items.push({ text: term1 }); 
     
     let fuse = new Fuse(items, options);
     let result = fuse.search(term2);
 
-    let trouve = result.length > 0; // result.length > 0 = Une corresponance a été trouvé
-
-    return trouve || term2 == "";
+    return result.length > 0 || term2 == ""; // result.length > 0 = Une corresponance a été trouvé
 }
 
 // listes des constantes

@@ -219,12 +219,8 @@ export function getRendezVousModal(data, onsuccess) {
 
 //Recherche de rendez vous
 const inputSearch = document.getElementById("searchRdv");
-const searchButton = document.getElementById("searchButton");
-
-
 
 inputSearch.addEventListener("keyup",searchRdv);
-searchButton.addEventListener("click",searchRdv);
 
 let idTimeOut=0; // Id Pour gérer l'interval entre chaque touche pressée
 
