@@ -45,26 +45,34 @@
                 <tbody>
                     <% for (const agenda of locals.agendas) { %>
                         <tr>
-                            <td class="w-25"><%= agenda.nom %></td>
-                            <td class="w-25">
-                                <select class="form-select form-select-sm" id="selectUser" aria-label="Sélectionner un utilisateur">                                    
-                                    <% const users = locals.partages.find(obj => obj.id === agenda.id).users; 
-                                        users.forEach(user => { %>
+                            <td class="w-25 align-middle"><%= agenda.nom %></td>
+                            <td class="w-25 align-middle">
+                                <% 
+                                let users = locals.partages.find(obj => obj.id === agenda.id).users;
+                                let filteredUsers = users.filter(user => user !== username); 
+                            %>
+                            <% if (filteredUsers.length > 0) { %>
+                                <select id="selectUser" class="form-select">
+                                    <% filteredUsers.forEach(user => { %>
                                         <option value="<%= user %>"><%= user %></option>
                                     <% }); %>
                                 </select>
+                            <% } else { %>
+                                Aucun utilisateur n'a le partage.
+                            <% } %>                            
                             </td>
-                            <td class="w-25">
+                            <td class="w-25 align-middle">
                                 <% 
                                     const usersCount = locals.partages.find(obj => obj.id === agenda.id).users.length;
                                     const usersCountExcludingOwner = usersCount - 1;
                                 %>
                                 <%= usersCountExcludingOwner %> 
                             </td>
-                            <td class="w-25">
+                            <td class="w-25 align-middle">
                                 <% if(agenda.estPartage) {%>
-                                    <button class="btn btn-outline-danger bi bi-trash-fill me-2" onclick="supprimerPartage(<%= agenda.id %>)"></button>
+                                    <button class="btn btn-outline-danger bi bi-trash-fill me-2" onclick="supprimerPartage(<%= agenda.id %>, '')"></button>
                                     <button id="bouton_copier_<%= agenda.id %>" class="btn btn-outline-info bi bi-clipboard" onclick="copierLien(<%= agenda.id %>, '<%= agenda.link %>')" onmouseout="hideCheckMark(<%= agenda.id %>)"></button>
+                                    <button class="btn btn-outline-danger" onclick="supprimerPartagePerso(<%= agenda.id %>, '<%= username %>')">Supprimer le partage à tous</button>
                                 <% } else { %>
                                     <button class="btn btn-outline-secondary bi bi-share-fill" onclick="creerPartage(<%= agenda.id %>)"></button>
                                 <% } %>
@@ -73,10 +81,6 @@
                     <% } %>
                 </tbody>
             </table>
-        </div>
-        <div class="text-center">
-            <em class="fw-light">Note : Si la liste d'utilisateurs affiche votre nom et que vous supprimez le partage, ça supprime tous les partages pour cet agenda.
-                Mais si vous choisissez un utilisateur spécifique, alors vous supprimerez le partage avec lui</em>
         </div>
     <% } %>
     

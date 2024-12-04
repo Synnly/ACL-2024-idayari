@@ -19,10 +19,19 @@ function hideCheckMark(id){
 		button.classList.remove("bi-check-lg");
 }
 
-async function supprimerPartage(agendaId){
+async function supprimerPartagePerso(agendaId, name) {
+	supprimerPartage(agendaId, name)
+}
+
+async function supprimerPartage(agendaId, myname){
 	try {
-		const username = document.getElementById("selectUser").value;
-        const response = await fetch(`/partage/supprimer/${agendaId}/${username}`);
+		let name = '';
+		if(myname === ''){
+			name = document.getElementById("selectUser").value;
+		}else {
+			name = myname;
+		}
+        const response = await fetch(`/partage/supprimer/${agendaId}/${name}`);
         if (response.ok) {
             window.location.reload();
         } else {
