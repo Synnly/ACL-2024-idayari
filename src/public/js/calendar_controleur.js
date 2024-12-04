@@ -464,6 +464,7 @@ class AgendaManager {
 	 */
 	resetSearchBar(){
 		document.getElementById("searchRdv").value ="";
+	}
 
 	removeEventsByParent(id) {
 		for (const ev of this.calendrier.getEvents()) {
