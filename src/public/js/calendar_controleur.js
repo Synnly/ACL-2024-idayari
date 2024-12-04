@@ -24,6 +24,7 @@ function get_event_source(agenda_id) {
                     return ;
                 }
                 const events = [];
+				let term = document.getElementById('searchRdv').value;
                 for (const rdv of rendezVous) {
                     rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
                     rdv.id = rdv.groupId; // permet une suppression + rapide (apparemment)
@@ -34,10 +35,13 @@ function get_event_source(agenda_id) {
                         ev.start = new Date(date.start);
                         ev.end = new Date(date.end);
                         events.push(ev);
+						if(normalizedStringComparaison(ev.title,term) || normalizedStringComparaison(ev.lieu,term)|| normalizedStringComparaison(ev.description,term)){
+							ev.display ='';
+						}else{
+							ev.display = 'none';			
+						}
                     }
                 }
-
-				// let filteredEvent = filterByTermVersion2(events);
                 successCallback(events);
             }).catch(err => {
                 console.log(err.message);
@@ -88,7 +92,6 @@ class AgendaManager {
 
         //Récupération de la balise contenant le calendar
         const elementCalendrier = document.getElementById('calendar');
-		let eventsLoaded = false;
         const options = {
             //Appel des différents composants 
             plugins : [dayGridPlugin,timeGridPlugin,listPlugin, bootstrap5Plugin, interactionPlugin],
@@ -146,16 +149,7 @@ class AgendaManager {
             },
             datesSet: function(dateInfo) {
                 manager.setViewCookies(dateInfo.view.type);
-				if(eventsLoaded){
-					manager.sourceFilterByTerm();
-					console.log("mes rdvs",this.getEvents());  
-				}
-				
 			},
-			eventsSet: function() {
-				eventsLoaded = true;
-			},
-		
             eventChange: function(info) {
                 const oldEvent = info.oldEvent;
                 // si on modifie la date de début, on supprime les rendez-vous ayant dépassé la date de fin de récurrence
@@ -356,20 +350,6 @@ class AgendaManager {
 			}
 		});
 	}
-	
-	sourceFilterByTerm(){
-		let term = document.getElementById("searchRdv").value;
-		let newEvents = Array.from(this.calendrier.getEvents());
-		newEvents.forEach((event) => {
-			if(normalizedStringComparaison(event.title,term) || normalizedStringComparaison(event.extendedProps.lieu,term)|| normalizedStringComparaison(event.extendedProps.description,term)){
-				event.setProp('display','auto');
-			}else{
-				event.setProp('display','none');			
-			}
-		});
-		this.calendrier.removeAllEventSources(); 
-  		this.calendrier.addEventSource(newEvents);
-	}
 
 	/**
 	 * Réaffiche tous les rendez vous (désinvisibilise plutôt)
@@ -379,15 +359,6 @@ class AgendaManager {
 			event.setProp('display','auto');
 		});
 	}
-	/**
-     * Filtre les rendez-vous lors d'une action sur le calendrier si l'utilisateur a entré du texte dans la barre de recherche auparavant
-     */
-    filterEventOnChange(){
-        // this.calendrier.render();
-        let term = document.getElementById("searchRdv").value;
-        this.filterByTerm(term);
-        
-    }
 	/**
 	 * Réinitialise le texte de la barre de recherche
 	 */
