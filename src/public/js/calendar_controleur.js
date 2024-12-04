@@ -216,6 +216,7 @@ class AgendaManager {
         Object.keys(this.agendas).forEach(id => this.agendas[id] = false);
         this.calendrier.getEventSources().forEach(es => es.remove());
         this.updateCookie();
+		this.resetSearchBar();
     }
 
     /**
@@ -234,6 +235,8 @@ class AgendaManager {
         }
         // this.addData(new_agendas);
         this.updateCookie();
+		this.resetSearchBar();
+		this.displayAllEvents();
     }
 
 	/**
