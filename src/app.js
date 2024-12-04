@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
-import { index } from './routes/index.js';
+import { index, supprimerAgendaAccepteGET } from './routes/index.js';
 import { updateAgendasCookie, updateViewCookies } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
@@ -13,7 +13,7 @@ import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierIn
 
 import { exportAgendaPOST } from './routes/export.js';
 import { importAgendaPOST } from './routes/import.js';
-import {voirPartagesGET, creerPartageGET, ajouterPartageGET, confirmerAjoutPartageGET} from "./routes/partage.js";
+import {voirPartagesGET, creerPartageGET, ajouterPartageGET, confirmerAjoutPartageGET, supprimerPartageGET} from "./routes/partage.js";
 
 
 export const app = express();
@@ -64,6 +64,8 @@ app
     .get("/partage/:id", confirmerAjoutPartageGET)
     .get("/partage/:id/yes", ajouterPartageGET)
     .get("/partage/new/:id", creerPartageGET)
+    .get("/partage/supprimer/:id/:username", supprimerPartageGET)
+    .get("/supprimerAgendaAccepte/:id", supprimerAgendaAccepteGET)
     
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))

@@ -190,29 +190,40 @@ function setRendezVousModal(html, onsuccess, id) {
     vraieModale.show();
 }
 
-
-export function getRendezVousModal(data, onsuccess) {
+export async function getRendezVousModal(data, onsuccess) {
     data.agendas = [];
+    
     // on récupère la liste des agendas
     for (const elem of document.getElementById('agendaList').children) {
         const id = elem.id.split("_")[1];
-        if(elem.children.length === 2 || data.readonly){
-            data.agendas.push({id: id, nom: elem.firstElementChild.title});
+        if (elem.lastElementChild.lastElementChild.children.length === 3 || data.readonly) {            
+            let isOwner = !data.readonly;
+            
+            data.agendas.push({
+                id: id,
+                nom: elem.firstElementChild.title,
+                isOwner: isOwner 
+            });
         }
     }
+
     if (data.end && data.all_day) {
         data.end.setDate(data.end.getDate() - 1);
     }
+
     // date et heure par défaut
     if (!data.start && !data.end) {
         data.start = new Date(Date.now());
         data.end = new Date(data.start);
-        data.end.setHours(data.end.getHours()+1);
+        data.end.setHours(data.end.getHours() + 1);
     }
+
     data.toDate = getConvertedDate;
     data.toTime = getConvertedTime;
-    fetch('/views/partials/rendez_vous_modal.ejs', {method: "GET"})
-    .then(response => response.text())
-    .then(html => ejs.render(html, data))
-    .then(html => setRendezVousModal(html, onsuccess, data.id));
+
+    fetch('/views/partials/rendez_vous_modal.ejs', { method: "GET" })
+        .then(response => response.text())
+        .then(html => ejs.render(html, data))
+        .then(html => setRendezVousModal(html, onsuccess, data.id));
 }
+

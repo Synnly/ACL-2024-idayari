@@ -19,6 +19,10 @@ export default class Agenda extends Model {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
+            link: {
+                type: DataTypes.TEXT,
+                defaultValue: null,
+            }
         },
         {sequelize, timestamps: false, tableName: "Agendas"}
     );
