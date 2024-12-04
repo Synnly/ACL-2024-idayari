@@ -293,7 +293,6 @@ class AgendaManager {
 		const data_to_send = {}
 		let rec_modified = false;
 		if (!noRec) {
-			console.log("ok");
 			if (new_event.type !== old_event.extendedProps.type) {
 				data_to_send['type'] = new_event.type;
 				rec_modified = true;

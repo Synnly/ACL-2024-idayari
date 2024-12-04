@@ -42,7 +42,6 @@ function change_recurrent_option(is_checked, recurrent_div, freq_input, rec_type
 }
 
 function change_fin_recurrence_option(elem, end_date_rec, nb_occurrence, nb_occurrence_div) {
-    console.log(elem.value);
     if (elem.value === "date") {
         end_date_rec.style.display = 'block';
         end_date_rec.required = true;
