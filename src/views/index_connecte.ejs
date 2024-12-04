@@ -137,6 +137,10 @@
 <script>
     const savedViewType = "<%= locals.currentView ? locals.currentView : '' %>";
     const savedDateStart = "<%= locals.currentDateStart ? locals.currentDateStart : '' %>";
+
+async function supprimerAgendaAccepte(idAgenda) {
+    await fetch(`/supprimerAgendaAccepte/${idAgenda}`).then(() => window.location.reload());
+}
 </script>
 <script type="module" src="./js/calendar_controleur.js"></script>
 <script type="module" src="./js/script_agenda.js"></script>
