@@ -17,7 +17,21 @@ npm install && npm start
 - Création de rendez-vous récurrents ou simples
 - Modification ou suppresson d'agendas        
 - Modification ou suppresson de rendez-vous 
-- Sélection des agendas affichés             
+- Sélection des agendas affichés (multiple possible)
+
+- Modifier un rendez-vous en récurrent
+- Créer un partage d'agenda 
+- Ajouter un agenda partagé
+- Annuler un partage d'agenda
+- Importer un agenda en JSON
+- Exporter un agenda en JSON 
+
+- Rechercher un RDV par critères
+- Arrêter un partage (côté propriétaire) 
+- Partager un agenda de manière sécurisé
+- Supprimer un agenda reçu d'un partage 
+- Modifier des instances particulières de rendez-vous récurrents
+- Supprimer des instances particulières de rendez-vous récurrents
 
 ## Auteurs
 - FERNANDES DOS SANTOS Emanuel (Synnly)
