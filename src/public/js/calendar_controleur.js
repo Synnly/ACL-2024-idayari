@@ -147,7 +147,7 @@ class AgendaManager {
             datesSet: function(dateInfo) {
                 manager.setViewCookies(dateInfo.view.type);
 				if(eventsLoaded){
-					manager.filterEventOnChange();
+					manager.sourceFilterByTerm();
 					console.log("mes rdvs",this.getEvents());  
 				}
 				
@@ -367,7 +367,7 @@ class AgendaManager {
 				event.setProp('display','none');			
 			}
 		});
-		this.calendrier.removeAllEventSources(); // Retirer toutes les sources actuelles
+		this.calendrier.removeAllEventSources(); 
   		this.calendrier.addEventSource(newEvents);
 	}
 
