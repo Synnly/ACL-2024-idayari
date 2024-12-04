@@ -27,18 +27,24 @@ async function supprimerPartage(agendaId, myname){
 	try {
 		let name = '';
 		if(myname === ''){
-			name = document.getElementById("selectUser").value;
+			if(document.getElementById("selectUser")){
+				name = document.getElementById("selectUser").value;
+			}
 		}else {
 			name = myname;
 		}
-        const response = await fetch(`/partage/supprimer/${agendaId}/${name}`);
-        if (response.ok) {
-            window.location.reload();
-        } else {
-            console.error('Erreur lors de la suppression du partage:', await response.text());
-        }
+		let response;
+		if(name !==''){
+			response = await fetch(`/partage/supprimer/${agendaId}/${name}`);
+			if (response?.ok) {
+				window.location.reload();
+			} else {
+				console.error('Erreur lors de la suppression du partage:', await response?.text());
+			}
+		}
+        
     } catch (error) {
-        console.error('Erreur réseau:', error);
+        console.error('Erreur :', error);
     }
 }
 

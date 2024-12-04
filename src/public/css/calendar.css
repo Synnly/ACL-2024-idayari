@@ -10,7 +10,13 @@
 .mr {
     margin-right: 10px;
 }
+.searchRdv {
+    height:37px;
+    margin-right:30px;
+    width:250px;
+}
 
 .fc-toolbar button, .fc-toolbar button.active, .fc-toolbar button:hover, .fc-toolbar button:disabled {
     color: white !important;
+
 }

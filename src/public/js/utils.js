@@ -89,5 +89,29 @@ export function json_fetch(url, method, data) {
     })
 }
 
+/**
+ * Indique si str1 inclus le terme str2 sans compter les accents / maj / min / espaces(début/fin) et en tolérant un taux d'erreur
+ * @param {*} str1 
+ * @param {*} str2 
+ */
+export  function normalizedStringComparaison(str1,str2){
+    let term1 = str1.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,""); //ni espace inutiles, ni maj ,ni accent
+    let term2 = str2.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+
+     const options = {
+        threshold: 0.2, //Taux d'erreur accepté
+        keys: ["text"] //Recherche les items dont la clé est text
+    };
+    //On va rechercher term2 dans toutes les parties de term1 et dans term1 
+    let textTab =  term1.split(' ');
+    let items = textTab.map(mot => ({ text: mot }));
+    items.push({ text: term1 }); 
+    
+    let fuse = new Fuse(items, options);
+    let result = fuse.search(term2);
+
+    return result.length > 0 || term2 == ""; // result.length > 0 = Une corresponance a été trouvé
+}
+
 // listes des constantes
 export const DISPLAYED_BY_DEFAULT = false;

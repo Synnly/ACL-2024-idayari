@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { getRendezVousModal } from '/js/script_rendez_vous.js';
-import { json_fetch } from './utils.js';
+import { json_fetch,normalizedStringComparaison } from './utils.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/
@@ -24,6 +24,7 @@ function get_event_source(agenda_id) {
                     return ;
                 }
                 const events = [];
+				let term = document.getElementById('searchRdv').value;
                 for (const rdv of rendezVous) {
                     rdv.endRec = rdv.endRec ? new Date(rdv.endRec) : rdv.endRec;
                     rdv.id = rdv.groupId; // permet une suppression + rapide (apparemment)
@@ -36,6 +37,11 @@ function get_event_source(agenda_id) {
 						
 						ev.textColor = getTextColorFromBg(rdv.color);
                         events.push(ev);
+						if(normalizedStringComparaison(ev.title,term) || normalizedStringComparaison(ev.lieu,term)|| normalizedStringComparaison(ev.description,term)){
+							ev.display ='';
+						}else{
+							ev.display = 'none';			
+						}
                     }
                 }
                 successCallback(events);
@@ -61,6 +67,8 @@ function newRendezVous(manager, _data) {
 					} else {
 						manager.calendrier.getEventSourceById(result).refetch();
 					}
+					manager.displayAllEvents();
+					manager.resetSearchBar();
 				}
 			});
 	});
@@ -166,11 +174,9 @@ class AgendaManager {
                     
                 }, () => event.remove());
             },
-
             datesSet: function(dateInfo) {
                 manager.setViewCookies(dateInfo.view.type);
-            },
-
+			},
             eventChange: function(info) {
                 const oldEvent = info.oldEvent;
                 // si on modifie la date de début, on supprime les rendez-vous ayant dépassé la date de fin de récurrence
@@ -431,6 +437,34 @@ class AgendaManager {
 			elem = this.calendrier.getEventById(id);
 		}
 	}
+	/**
+	 * Filtrage des rendez vous par terme recherché
+	 * @param {*} term (terme recherché dans les titres/lieux/descriptions)
+	 */
+	filterByTerm(term){
+		this.calendrier.getEvents().forEach((event) => {
+			if(normalizedStringComparaison(event.title,term) || normalizedStringComparaison(event.extendedProps.lieu,term)|| normalizedStringComparaison(event.extendedProps.description,term)){
+				event.setProp('display','auto');
+			}else{
+				event.setProp('display','none');			
+			}
+		});
+	}
+
+	/**
+	 * Réaffiche tous les rendez vous (désinvisibilise plutôt)
+	 */
+	displayAllEvents(){
+		this.calendrier.getEvents().forEach((event) => {
+			event.setProp('display','auto');
+		});
+	}
+	/**
+	 * Réinitialise le texte de la barre de recherche
+	 */
+	resetSearchBar(){
+		document.getElementById("searchRdv").value ="";
+	}
 
 	removeEventsByParent(id) {
 		for (const ev of this.calendrier.getEvents()) {
@@ -438,6 +472,7 @@ class AgendaManager {
 				ev.remove();
 			}
 		}
+
 	}
 }
 

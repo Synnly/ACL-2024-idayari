@@ -1,4 +1,4 @@
-<%- include('partials/header.ejs') %>
+<%- include('partials/header.ejs',{search: true}) %>
 <div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1" >
     <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
         <div class="w-100">
@@ -121,6 +121,8 @@
     window.addEventListener('load', adjustListHeight);
     window.addEventListener('resize', adjustListHeight);
 </script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+
 <script type='importmap'>
     {
       "imports": {

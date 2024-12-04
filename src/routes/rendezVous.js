@@ -179,6 +179,7 @@ function removeSimpleRDV(id, res) {
                 res.status(400).end();
             }
         }
+
     }).catch(_ => res.status(400).end())
 }
 

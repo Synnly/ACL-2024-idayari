@@ -291,3 +291,27 @@ export function getRendezVousModal(data, onsuccess, removeFunction) {
     .then(html => ejs.render(html, data))
     .then(html => setRendezVousModal(html, data.id, data.agenda, data.type != 'Simple', data.idParent, onsuccess, removeFunction));
 }
+
+
+
+//Recherche de rendez vous
+const inputSearch = document.getElementById("searchRdv");
+
+inputSearch.addEventListener("keyup",searchRdv);
+
+
+let idTimeOut=0; // Id Pour gérer l'interval entre chaque touche pressée
+
+/**
+ * Lance la recherche de rdv à lors de l'event 'keyup', seulement si la dernière touche a été entrée il y a plus de 300 ms
+ */
+function searchRdv(){
+    //On efface réinitialise le timeout à chaque nouvelle frappe pour ne pas filtrer les rdvs immédiatement (utile pour requête serveur)
+    clearTimeout(idTimeOut);
+    //Pour ne pas générer la recherche immédiatement
+    idTimeOut = setTimeout(() =>{
+        let term = document.getElementById("searchRdv").value;
+        agendaManager.filterByTerm(term);
+    },300);
+}
+
