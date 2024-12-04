@@ -9,13 +9,13 @@
             <div class="modal-body">
                 <form id="rendezvous_form" method="POST">
                     <div style="overflow: auto; padding-left: 32px; padding-right: 32px; max-height: 60vh;">
-                        <div class="d-flex mb-3 align-items-center">
+                        <div id="titleDiv" class="d-flex mb-1 align-items-center">
                             <i class="bi bi-card-heading mr"></i>
-                            <div class="d-flex flex-grow-1">
+                            <div  class="d-flex flex-grow-1">
                                 <input type="text" class="form-control" maxlenght="100" placeholder="Titre du rendez-vous" name="titre" value="<%= locals.titre ? locals.titre : "" %>" required <%= readonly_text %>>    
                             </div>
                         </div>
-                        <div class="d-flex mb-3 align-items-center">
+                        <div class="d-flex mt-3 mb-3 align-items-center">
                             <i class="bi bi-geo-alt mr"></i>
                             <div class="d-flex flex-grow-1">
                                 <input type="text" class="form-control" maxlenght="100" placeholder="Lieu du rendez-vous" value="<%= locals.lieu ? locals.lieu : "" %>" name="lieu" <%= readonly_text %>>

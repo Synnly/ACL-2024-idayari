@@ -42,6 +42,7 @@ function change_recurrent_option(is_checked, recurrent_div, freq_input, rec_type
 }
 
 function change_fin_recurrence_option(elem, end_date_rec, nb_occurrence, nb_occurrence_div) {
+    console.log(elem.value);
     if (elem.value === "date") {
         end_date_rec.style.display = 'block';
         end_date_rec.required = true;
@@ -49,11 +50,13 @@ function change_fin_recurrence_option(elem, end_date_rec, nb_occurrence, nb_occu
         reset_and_hide(end_date_rec)
     }
     if (elem.value === "nb") {
+        nb_occurrence_div.classList.remove('d-none');
         nb_occurrence_div.classList.add('d-flex');
         nb_occurrence.required = true;
     } else {
         reset(nb_occurrence);
         nb_occurrence_div.classList.remove('d-flex');
+        nb_occurrence_div.classList.add('d-none');
     }
 }
 
@@ -126,8 +129,12 @@ function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsucces
         }
 
         const titre = form["titre"].value.trim();
-        const lieu = form["lieu"].value.trim();
-        const description = form["description"].value.trim();
+        if (!titre) {
+            add_error("Le titre doit contenir au moins un caractère", document.getElementById('titleDiv'));
+            return;
+        }
+        const lieu = form["lieu"].value;
+        const description = form["description"];
         const agenda_id = form["agenda"].value;
         const is_all_day = all_day.checked;
         const color = form["color"].value.split("#")[1];

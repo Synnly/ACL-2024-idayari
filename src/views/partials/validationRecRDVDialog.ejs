@@ -8,7 +8,6 @@
                 <br>
                 <form method="POST" id="rec_rdv_form">
                     <div class="mb-3">
-
                         <label>
                             <input type="radio" name="which_event" value="this" required <%= agenda_changed ? "disabled" : "checked" %>>
                             Ce rendez-vous
@@ -16,10 +15,12 @@
                         <% if (agenda_changed) { %>
                             <div style="font-size: 0.8em;">On ne peut pas modifier un rendez-vous particulier avec un agenda différent.</div>
                         <% } %>
+                        <div style="font-size: 0.8em;">Les modifications de récurrence seront perdus</div>
                         <label>
                             <input type="radio" name="which_event" value="all" <%= agenda_changed ? "checked" : "" %>>
                             Tous les rendez-vous
                         </label>
+                        <div style="font-size: 0.8em;">Les modifications de dates ne seront pas propagées aux rendez-vous modifiés auparavant</div>
                     </div>
                     <div>
                         <button type="button" class="btn btn-secondary text-white" id="closeDialogRDVRec" data-bs-dismiss="modal">Annuler</button>
