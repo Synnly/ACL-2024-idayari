@@ -196,15 +196,9 @@ export async function getRendezVousModal(data, onsuccess) {
     // on récupère la liste des agendas
     for (const elem of document.getElementById('agendaList').children) {
         const id = elem.id.split("_")[1];
-        if (elem.lastElementChild.lastElementChild.children.length === 3 || data.readonly) {
-            const agendasCookie = await getCookie(); 
-            
+        if (elem.lastElementChild.lastElementChild.children.length === 3 || data.readonly) {            
             let isOwner = !data.readonly;
             
-            if (agendasCookie && agendasCookie[id]) {
-                isOwner = agendasCookie[id].isOwner;
-            }
-
             data.agendas.push({
                 id: id,
                 nom: elem.firstElementChild.title,
@@ -233,14 +227,3 @@ export async function getRendezVousModal(data, onsuccess) {
         .then(html => setRendezVousModal(html, onsuccess, data.id));
 }
 
-async function getCookie() {
-    const response = await fetch("/getCookies");
-    
-    if (!response.ok) {
-        console.error("Erreur lors de la récupération des cookies");
-        return null; 
-    }
-    
-    const cookies = await response.json(); 
-    return cookies.agendas;
-}

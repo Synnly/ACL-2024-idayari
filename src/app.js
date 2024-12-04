@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
 import { index, supprimerAgendaAccepteGET } from './routes/index.js';
-import { getCookies, updateAgendasCookie, updateViewCookies } from './routes/cookie.js';
+import { updateAgendasCookie, updateViewCookies } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
@@ -66,7 +66,6 @@ app
     .get("/partage/new/:id", creerPartageGET)
     .get("/partage/supprimer/:id/:username", supprimerPartageGET)
     .get("/supprimerAgendaAccepte/:id", supprimerAgendaAccepteGET)
-    .get("/getCookies", getCookies)
     
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))

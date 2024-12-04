@@ -48,7 +48,6 @@ export default class RendezVous extends Model {
             validate : {
                 notSimpleTypeImpliesNotNullFrequence(value){
                     if ((this.frequence === null) && (value !== 'Simple')) {
-                        console.log(value,this.frequence);
                         throw new Error(`les rdvs non Simple ont une fréquence non null (frequence : ${this.frequence},type : ${value}) `);
                     }
                 }
