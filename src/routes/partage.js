@@ -110,6 +110,12 @@ export async function confirmerAjoutPartageGET(req, res) {
 	let owner;
 	try {
 		agenda = await Agenda.findOne({ where: { link: req.params.id } });
+		if(!agenda){
+			return res.render('error', {
+				message: 'Le liens est invalide',
+				status: 404,
+			});
+		}
 		owner = await agenda.getOwner();
 	} catch (e) {
 		return res.render('error', {
