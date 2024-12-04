@@ -58,7 +58,6 @@ function newRendezVous(manager, _data) {
 					} else {
 						manager.calendrier.getEventSourceById(result).refetch();
 					}
-					manager.resetSearchBar()
 					manager.displayAllEvents();
 				}
 			});
@@ -143,7 +142,6 @@ class AgendaManager {
             },
             datesSet: function(dateInfo) {
                 manager.setViewCookies(dateInfo.view.type);
-				manager.resetSearchBar();
             },
             eventChange: function(info) {
                 const oldEvent = info.oldEvent;
@@ -216,7 +214,6 @@ class AgendaManager {
         Object.keys(this.agendas).forEach(id => this.agendas[id] = false);
         this.calendrier.getEventSources().forEach(es => es.remove());
         this.updateCookie();
-		this.resetSearchBar();
     }
 
     /**
@@ -235,7 +232,6 @@ class AgendaManager {
         }
         // this.addData(new_agendas);
         this.updateCookie();
-		this.resetSearchBar();
 		this.displayAllEvents();
     }
 
@@ -356,12 +352,6 @@ class AgendaManager {
 		this.calendrier.getEvents().forEach((event) => {
 			event.setProp('display','auto');
 		});
-	}
-	/**
-	 * Réinitialise le texte de la barre de recherche
-	 */
-	resetSearchBar(){
-		document.getElementById("searchRdv").value ="";
 	}
 }
 
