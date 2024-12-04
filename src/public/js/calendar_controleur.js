@@ -34,6 +34,8 @@ function get_event_source(agenda_id) {
                         const ev = {...rdv};
                         ev.start = new Date(date.start);
                         ev.end = new Date(date.end);
+						
+						ev.textColor = getTextColorFromBg(rdv.color);
                         events.push(ev);
 						if(normalizedStringComparaison(ev.title,term) || normalizedStringComparaison(ev.lieu,term)|| normalizedStringComparaison(ev.description,term)){
 							ev.display ='';
@@ -45,6 +47,7 @@ function get_event_source(agenda_id) {
                 successCallback(events);
             }).catch(err => {
                 console.log(err.message);
+				failureCallback();
             });
         },
         id: agenda_id
@@ -142,10 +145,34 @@ class AgendaManager {
             //Gestion du clique sur un rendez vous
             eventClick: function(info) {
                 const event = info.event;
-                const data = { id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description, start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences, frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true, readonly: event.extendedProps.readonly };
-                getRendezVousModal(data, (data) => {
-                    manager.update_event(event, data);
-                });
+				const idParent = event.extendedProps.idParent;
+				const data = { id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description, start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences, frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true, readonly: event.extendedProps.readonly, color: event._def.ui.backgroundColor, idParent: idParent };
+                getRendezVousModal(data, (form_data, which) => {
+					if (!which) {
+						manager.update_event(event, form_data);
+					} else if (which == "this") {
+						// if the event we modify is already special
+						if (idParent) {
+							manager.update_event(event, form_data, true);
+						} else {
+							const id = event.groupId;
+							const start = form_data.startDate;
+							const end = form_data.endDate;
+							const color = form_data.color;
+							const data2 = { id: id, title: form_data.titre, lieu: form_data.lieu, description: form_data.description, agenda: form_data.agenda, start: start, end: end, allDay: form_data.all_day, type: data.type, fin_recurrence: data.fin_recurrence ? data.fin_recurrence.valueOf() : null, nbOccurrences: data.nbOccurrences, frequence: data.frequence, color: color, dateDebutDansParent: data.start.valueOf() };
+							json_fetch('/calendar-rdv-rec-instance', 'POST', data2)
+							.then(_ => manager.calendrier.getEventSourceById(data.agenda).refetch())
+							.catch(error => console.log(error));
+						}
+					} else if (which == "all") {
+						if (idParent) {
+							manager.update_event(event, form_data, null, null, true);
+						} else {
+							manager.update_event(event, form_data, null, true);
+						}
+					}
+                    
+                }, () => event.remove());
             },
             datesSet: function(dateInfo) {
                 manager.setViewCookies(dateInfo.view.type);
@@ -267,66 +294,139 @@ class AgendaManager {
 	}
 
 	/*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
-	update_event(old_event, new_event) {
-		const end_rec_value = old_event.extendedProps.endRec ? old_event.extendedProps.endRec.valueOf() : old_event.extendedProps.endRec;
-		// si on a changé les infos de recurrence
-		// on supprime tous les evenements affichés et on regénère de nouveaux après modifications
-		if (new_event.type != old_event.extendedProps.type || new_event.frequence != old_event.extendedProps.frequence || new_event.date_fin_recurrence != end_rec_value || new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
-			const id = old_event.groupId;
-			const startGap = new_event.startDate - old_event.start.valueOf();
-			const endGap = new_event.endDate - old_event.end.valueOf();
-			this.remove_events(id);
-			const data = { id: id, title: new_event.titre, lieu: new_event.lieu, description: new_event.description, agenda: new_event.agenda, startGap: startGap, endGap: endGap, allDay: new_event.allDay, dateFinRecurrence: new_event.date_fin_recurrence, frequence: new_event.frequence, type: new_event.type, nbOccurrences: new_event.nb_occurrence };
-			json_fetch('/calendar-rdv', 'POST', data)
-				.then((_) => {
-					if (this.agendas[new_event.agenda]) {
-						this.calendrier.getEventSourceById(new_event.agenda).refetch();
+	update_event(old_event, new_event, noRec = false, children = false, parent = false) {
+
+		const data_to_send = {}
+		let rec_modified = false;
+		if (!noRec) {
+			if (new_event.type !== old_event.extendedProps.type) {
+				data_to_send['type'] = new_event.type;
+				rec_modified = true;
+			}
+
+			if (new_event.frequence != old_event.extendedProps.frequence) {
+				data_to_send['frequence'] = new_event.frequence;
+				rec_modified = true;
+			}
+
+			const end_rec_value = old_event.extendedProps.endRec ? old_event.extendedProps.endRec.valueOf() : old_event.extendedProps.endRec;
+			if (new_event.date_fin_recurrence != end_rec_value) {
+				data_to_send['finRecurrence'] = new_event.date_fin_recurrence;
+				rec_modified = true;
+			}
+
+			if (new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
+				data_to_send['nbOccurrences'] = new_event.nb_occurrence;
+				rec_modified = true;
+			}
+		}
+		let modified = rec_modified;
+		let purged = false;
+		const update_children_infos = {};
+		if (old_event.extendedProps.agenda != new_event.agenda) {
+			modified = purged = true;
+			data_to_send['idAgenda'] = new_event.agenda;
+			if (children || parent) {
+				this.removeEventsByParent(children ? old_event.groupId : old_event.extendedProps.idParent);
+			} else {
+				this.remove_events(old_event.groupId);
+			}
+		}
+
+		if (new_event.titre != old_event.title) {
+			modified = true;
+			data_to_send['titre'] = new_event.titre;
+			if (!rec_modified && !purged) {
+				old_event.setProp('title', new_event.titre);
+				update_children_infos['title'] = ['P', new_event.titre];
+			}
+		}
+
+		let date_modified = false;
+		if (new_event.startDate != old_event.start.valueOf()) {
+			modified = date_modified = true;
+			data_to_send['startGap'] = new_event.startDate - old_event.start.valueOf();
+		}
+
+		if (new_event.endDate != old_event.end.valueOf()) {
+			modified = date_modified = true;
+			data_to_send['endGap'] = new_event.endDate - old_event.end.valueOf();
+		}
+
+		if (new_event.all_day != old_event.allDay) {
+			modified = date_modified = true;
+			data_to_send['allDay'] = new_event.all_day;
+		}
+
+		if (date_modified && !rec_modified && !purged) {
+			const all_day_opt ={ allDay: new_event.all_day };
+			old_event.setDates(new Date(new_event.startDate), new Date(new_event.endDate), all_day_opt);
+			update_children_infos['dateDebutDansParent'] = ['E', data_to_send['startGap'] ?? 0];
+		}
+
+		if (new_event.lieu != old_event.extendedProps.lieu) {
+			modified = true;
+			data_to_send['lieu'] = new_event.lieu;
+			if (!rec_modified && !purged) {
+				old_event.setExtendedProp('lieu', new_event.lieu);
+				update_children_infos['lieu'] = ['E', new_event.lieu]; 
+			}
+		}
+
+		if (new_event.description != old_event.extendedProps.description) {
+			modified = true;
+			data_to_send['description'] = new_event.description;
+			if (!rec_modified && !purged) {
+				old_event.setExtendedProp('description', new_event.description);
+				update_children_infos['description'] = ['E', new_event.description]; 
+			}
+		}
+
+		if("#"+new_event.color !== old_event._def.ui.backgroundColor){
+			modified = true;
+			data_to_send['color'] = new_event.color;
+			if (!rec_modified && !purged) {
+				const txtCol = getTextColorFromBg(new_event.color);
+				old_event.setProp('backgroundColor', "#" +new_event.color);
+				old_event.setProp('borderColor',"#" + new_event.color);
+				old_event.setProp('textColor', txtCol);
+				update_children_infos['backgroundColor'] = ['P', "#" +new_event.color]; 
+				update_children_infos['borderColor'] = ['P', "#" +new_event.color]; 
+				update_children_infos['textColor'] = ['P', txtCol]; 
+			}
+		}
+		
+		// met à jour les rdv simples associés
+		if ((children || parent) && !rec_modified && !purged) {
+			const visited = new Set();
+			for (const ev of this.calendrier.getEvents()) {
+				if (((children && ev.extendedProps.idParent == old_event.groupId) || 
+				(parent && ((ev.groupId == old_event.extendedProps.idParent) || (ev.idParent == old_event.extendedProps.idParent)))) && !visited.has(ev.groupId)) {
+					for (const key of Object.keys(update_children_infos)) {
+						const val = update_children_infos[key];
+						if (val[0] == 'P') {
+							ev.setProp(key, val[1]);
+						} else {
+							ev.setExtendedProp(key, val[1]);
+						}
 					}
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		} else {
-			let modified = false;
-			let purged = false;
-			const old_start_date = old_event.start.valueOf();
-			const old_end_date = old_event.end.valueOf();
-			if (old_event.extendedProps.agenda !== new_event.agenda) {
-				modified = true;
-				old_event.setExtendedProp('agenda', new_event.agenda);
-				if (!this.agendas[new_event.agenda]) {
-					this.remove_events(old_event.groupId);
-					purged = true;
+					visited.add(ev.groupId);
 				}
 			}
-			// si les events ont été effacés, pas besoin de vérifier les eventuelles autres modifications
-			if (!purged) {
-				if (new_event.titre != old_event.title) {
-					old_event.setProp('title', new_event.titre);
-					modified = true;
+		}
+
+		if (modified) {
+			data_to_send['id'] = parent ? old_event.extendedProps.idParent : old_event.groupId;
+			data_to_send['rec_changes'] = rec_modified;
+			data_to_send['update_spec_date'] = parent || children;
+			data_to_send['real_id'] = old_event.groupId;
+			json_fetch('/calendar-rdv', 'POST', data_to_send)
+			.then(_ => {
+				if ((purged && this.agendas[new_event.agenda]) || rec_modified) {
+					this.calendrier.getEventSourceById(new_event.agenda).refetch();
 				}
-				if (new_event.startDate != old_event.start.valueOf() || new_event.endDate != old_event.end.valueOf() || new_event.all_day != old_event.allDay) {
-					old_event.setDates(new Date(new_event.startDate), new Date(new_event.endDate), { allDay: new_event.all_day });
-					modified = true;
-				}
-				if (new_event.lieu != old_event.extendedProps.lieu) {
-					old_event.setExtendedProp('lieu', new_event.lieu);
-					modified = true;
-				}
-				if (new_event.description != old_event.extendedProps.description) {
-					old_event.setExtendedProp('description', new_event.description);
-					modified = true;
-				}
-			}
-			if (modified) {
-				const id = old_event.groupId;
-				const startGap = new_event.startDate - old_start_date;
-				const endGap = new_event.endDate - old_end_date;
-				const data = { id: id, title: new_event.titre, lieu: new_event.lieu, description: new_event.description, agenda: new_event.agenda, startGap: startGap, endGap: endGap, allDay: new_event.allDay };
-				json_fetch('/calendar-rdv', 'POST', data).catch((error) => {
-					console.log(error);
-				});
-			}
+			})
+			.catch(error => console.log(error));
 		}
 	}
 
@@ -364,8 +464,35 @@ class AgendaManager {
 	 */
 	resetSearchBar(){
 		document.getElementById("searchRdv").value ="";
+
+	removeEventsByParent(id) {
+		for (const ev of this.calendrier.getEvents()) {
+			if (ev.id == id || ev.extendedProps.idParent == id) {
+				ev.remove();
+			}
+		}
+
 	}
 }
+
+/**
+ * Calcul de la luminance, détermine en gros le niveau de luminosité d'une couleur et permet
+ * de choisir la bonne couleur de texte (pour eviter de rien y voir)
+ * @param {String} bgColor la couleur choisis
+ * @returns La couleur du texte
+ */
+function getTextColorFromBg(bgColor) {
+    const color = bgColor.replace('#', '');
+
+    const r = parseInt(color.substring(0, 2), 16);
+    const g = parseInt(color.substring(2, 4), 16);
+    const b = parseInt(color.substring(4, 6), 16);
+
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    return luminance > 0.5 ? '#000000' : '#FFFFFF';
+}
+
 
 export const agendaManager = new AgendaManager();
 agendaManager.init();

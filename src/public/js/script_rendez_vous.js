@@ -1,5 +1,6 @@
-import { addDays, getConvertedDate, getConvertedTime } from "./utils.js";
+import { addDays, getConvertedDate, getConvertedTime, json_fetch } from "./utils.js";
 import { agendaManager } from "./calendar_controleur.js";
+import { confirmDelete } from "./script_agenda.js";
 
 function closeModal(modal) {
     const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -48,11 +49,13 @@ function change_fin_recurrence_option(elem, end_date_rec, nb_occurrence, nb_occu
         reset_and_hide(end_date_rec)
     }
     if (elem.value === "nb") {
+        nb_occurrence_div.classList.remove('d-none');
         nb_occurrence_div.classList.add('d-flex');
         nb_occurrence.required = true;
     } else {
         reset(nb_occurrence);
         nb_occurrence_div.classList.remove('d-flex');
+        nb_occurrence_div.classList.add('d-none');
     }
 }
 
@@ -68,7 +71,35 @@ function add_error(message, elem) {
     elem.parentNode.insertBefore(msgErreur, elem.nextSibling);
 }
 
-function setRendezVousModal(html, onsuccess, id) {
+function setRecRDVChangeModal(action, agenda_changed, onReady) {
+    fetch('/views/partials/validationRecRDVDialog.ejs', {method: "GET"})
+    .then(response => response.text())
+    .then(html => ejs.render(html, {action: action, agenda_changed: agenda_changed}))
+    .then(html => {
+        closeModal(document.getElementById('dialogRDVRec'));
+        document.body.insertAdjacentHTML('beforeend', html);
+        const dialog = document.getElementById('dialogRDVRec');
+        
+        const vraieModale = new bootstrap.Modal(dialog);
+
+        const form = document.getElementById('rec_rdv_form');
+        form.addEventListener('submit', () => {
+            onReady(form['which_event'].value);
+            closeModal(dialog);
+        })
+        document.getElementById('closeDialogRDVRec').addEventListener('click', () => {
+            closeModal(dialog);
+        });
+        vraieModale.show();
+
+    });
+}
+
+function get_rdv_form_infos() {
+
+}
+
+function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsuccess, removeFunction) {
     // s'il y avait déjà une modale, on la supprime
     closeModal(document.getElementById('staticBackdrop'));
 
@@ -87,6 +118,7 @@ function setRendezVousModal(html, onsuccess, id) {
     const nb_occurrence_div = document.getElementById('occurrence_div');
     const nb_occurrence_input = form['nb_occurrence'];
     const type_end_recurrence = form['end_recurrence'];
+    const remove_button = document.getElementById('remove_button');
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -96,10 +128,15 @@ function setRendezVousModal(html, onsuccess, id) {
         }
 
         const titre = form["titre"].value.trim();
-        const lieu = form["lieu"].value.trim();
-        const description = form["description"].value.trim();
+        if (!titre) {
+            add_error("Le titre doit contenir au moins un caractère", document.getElementById('titleDiv'));
+            return;
+        }
+        const lieu = form["lieu"].value;
+        const description = form["description"].value;
         const agenda_id = form["agenda"].value;
         const is_all_day = all_day.checked;
+        const color = form["color"].value.split("#")[1];
         let startDate;
         let endDate;
         if (is_all_day) {
@@ -139,9 +176,17 @@ function setRendezVousModal(html, onsuccess, id) {
         // on envoie les infos du nouveau rendez-vous, ainsi que la période en vue au cas où on devra rajouter des rendez-vous sur le calendrier
         const data = {titre: titre, lieu: lieu, description: description, agenda: agenda_id, all_day: is_all_day, 
                       startDate: startDate.valueOf(), endDate: endDate.valueOf(), type: type, frequence: frequence, 
-                      date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence};
-        onsuccess(data);
-        closeModal(fausseModale);
+                      date_fin_recurrence: date_fin_recurrence, nb_occurrence: nb_occurrence, color: color};        
+        
+        if (remove_button && (initiallyRec || idParent)) {
+            setRecRDVChangeModal("Modification", idAgenda != form["agenda"].value, (which) => {
+                onsuccess(data, which);
+                closeModal(fausseModale);
+            });
+        } else {
+            onsuccess(data);
+            closeModal(fausseModale);
+        }
     });
 
     all_day.addEventListener('change', () => {
@@ -164,55 +209,87 @@ function setRendezVousModal(html, onsuccess, id) {
         btn.addEventListener('click', () => closeModal(fausseModale));
     }
 
-    const remove_button = document.getElementById('remove_button');
     if (remove_button) {
         remove_button.addEventListener('click', () => {
-            if(confirm("Voulez-vous vraiment supprimer ce rendez-vous ?\nCela supprimera aussi toutes les autres occurrences.")){
-                fetch(`/supprimerRDV/${id}`, {method: "DELETE"})
-                .then(response => {
-                    if (response.status === 200) {
-                        agendaManager.remove_events(id);
-                        closeModal(fausseModale);
+            if (recurrent_checkbox.checked || idParent) {
+                setRecRDVChangeModal("Suppression", false, (which) => {
+                    const is_all_day = all_day.checked;
+                    let startDate, endDate;
+                    if (is_all_day) {
+                        startDate = new Date(form["startDate"].value);
+                        startDate.setHours(0, 0, 0);
+                        endDate = addDays(new Date(form["endDate"].value), 1);
+                        endDate.setHours(0, 0, 0);
+                    } else {
+                        startDate = new Date(`${form["startDate"].value}T${startTime.value}`);
+                        endDate = new Date(`${form["endDate"].value}T${endTime.value}`);
                     }
-                })
-                .catch((error) => {
-                    console.log(error);
+                    json_fetch('/supprimerRDV', "DELETE", {which: which, id: id, start: startDate.valueOf(), 
+                                                            end: endDate.valueOf(), idParent: idParent})
+                    .then(response => {
+                        if (response.status === 200) {
+                            if (which === "this") {
+                                removeFunction(); // on supprime l'event
+                            } else if (which === "all") {
+                                agendaManager.removeEventsByParent(idParent ? idParent : id);
+                            }
+                            closeModal(fausseModale);
+                        }
+                    })
+                    .catch((error) => console.log(error));
                 });
-              }
+            } else {
+                confirmDelete('confirmationModal2','rendezVousName','confirmDeleteButton2', "",() => {
+                    json_fetch('/supprimerRDV', "DELETE", {id: id})
+                    .then(response => {
+                        if (response.status === 200) {
+                            agendaManager.remove_events(id);
+                            closeModal(fausseModale);
+                        }
+                    })
+                    .catch((error) => console.log(error));
+                  });
+            }
         });
     }
-
     recurrent_checkbox.addEventListener('change', () => change_recurrent_option(recurrent_checkbox.checked, recurrence_div, frequence_input, type_end_recurrence, end_date_rec, nb_occurrence_input, nb_occurrence_div));
     type_end_recurrence.addEventListener('change', () => change_fin_recurrence_option(type_end_recurrence, end_date_rec, nb_occurrence_input, nb_occurrence_div));
 
     vraieModale.show();
 }
 
-
-export function getRendezVousModal(data, onsuccess) {
+export function getRendezVousModal(data, onsuccess, removeFunction) {
     data.agendas = [];
+    
     // on récupère la liste des agendas
     for (const elem of document.getElementById('agendaList').children) {
         const id = elem.id.split("_")[1];
-        if(elem.children.length === 2 || data.readonly){
-            data.agendas.push({id: id, nom: elem.firstElementChild.title});
+        if (elem.lastElementChild.lastElementChild.children.length === 3 || data.readonly) {                        
+            data.agendas.push({
+                id: id,
+                nom: elem.firstElementChild.title,
+                isOwner: !data.readonly 
+            });
         }
     }
+
     if (data.end && data.all_day) {
         data.end.setDate(data.end.getDate() - 1);
     }
+
     // date et heure par défaut
     if (!data.start && !data.end) {
         data.start = new Date(Date.now());
         data.end = new Date(data.start);
-        data.end.setHours(data.end.getHours()+1);
+        data.end.setHours(data.end.getHours() + 1);
     }
+
     data.toDate = getConvertedDate;
     data.toTime = getConvertedTime;
     fetch('/views/partials/rendez_vous_modal.ejs', {method: "GET"})
     .then(response => response.text())
     .then(html => ejs.render(html, data))
-    .then(html => setRendezVousModal(html, onsuccess, data.id));
+    .then(html => setRendezVousModal(html, data.id, data.agenda, data.type != 'Simple', data.idParent, onsuccess, removeFunction));
 }
 
 
@@ -237,3 +314,4 @@ function searchRdv(){
         agendaManager.filterByTerm(term);
     },300);
 }
+

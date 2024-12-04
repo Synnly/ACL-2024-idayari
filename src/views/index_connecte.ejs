@@ -49,6 +49,65 @@
         <span class="visually-hidden">Loading...</span>
     </div>
 </div>  
+
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Êtes-vous sûr de vouloir supprimer l'agenda <strong id="agendaName"></strong> ?
+          <br>
+          <small class="text-danger">Cette action est IRREVERSIBLE.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteButton">Supprimer</button>
+        </div>
+      </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Êtes-vous sûr de vouloir supprimer l'agenda <strong id="agendaName"></strong> ?
+          <br>
+          <small class="text-danger">Cette action est IRREVERSIBLE.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteButton">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>  
+
+  <div class="modal fade" id="confirmationModal2" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true" style="z-index: 1056; box-shadow: 10px;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Voulez-vous vraiment supprimer ce rendez-vous <strong id="rendezVousName"></strong> ?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteButton2">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 <script>
     /**
      * Fonction qui change la taille de la liste des agendas en fonction de la taille de la fenetre
@@ -80,6 +139,10 @@
 <script>
     const savedViewType = "<%= locals.currentView ? locals.currentView : '' %>";
     const savedDateStart = "<%= locals.currentDateStart ? locals.currentDateStart : '' %>";
+
+async function supprimerAgendaAccepte(idAgenda) {
+    await fetch(`/supprimerAgendaAccepte/${idAgenda}`).then(() => window.location.reload());
+}
 </script>
 <script type="module" src="./js/calendar_controleur.js"></script>
 <script type="module" src="./js/script_agenda.js"></script>

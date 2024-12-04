@@ -92,7 +92,6 @@ export function manageAddedAgenda(agenda,res){
     const agendas = res.locals.agendas;
     agendas[agenda.id.toString()] = {nom: agenda.nom, displayed: DISPLAYED_BY_DEFAULT, isOwner: true};
     createCookie("agendas", agendas, res);
-    console.log(agendas);
     res.locals.agendas = agendas;
     let data = {id: agenda.id.toString(), agenda: agendas[agenda.id.toString()]};
     return data;

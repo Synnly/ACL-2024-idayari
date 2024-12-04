@@ -1,3 +1,4 @@
+import { Sequelize, Op } from "sequelize";
 import RendezVous from "../model/RendezVous.js";
 
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
@@ -10,8 +11,18 @@ export function calendarGetData(req, res) {
     RendezVous.findAll({ where: { idAgenda: +req.query.agenda } })
     .then(rendez_vous => {
         const infos = [];
+        const id_to_rdv = {};
         for (const rdv of rendez_vous) {
-            const data = rdv.get_rendezVous(dateStart, dateEnd);
+            if (rdv.idParent) {
+                if (id_to_rdv[rdv.idParent] != undefined) {
+                    id_to_rdv[rdv.idParent].add(rdv.dateDebutDansParent.valueOf());
+                } else {
+                    id_to_rdv[rdv.idParent] = new Set([rdv.dateDebut.valueOf()]);
+                }
+            }
+        }
+        for (const rdv of rendez_vous) {
+            const data = rdv.get_rendezVous(dateStart, dateEnd, id_to_rdv[rdv.id]);
             if (data) {
                 data.readonly = !res.locals.agendas[+req.query.agenda].isOwner;
                 infos.push(data);
@@ -40,6 +51,7 @@ export function creationRendezVousPOST(req, res){
     if (data.date_fin_recurrence) {
         data.date_fin_recurrence = new Date(+data.date_fin_recurrence);
     }
+
     RendezVous.create({
         titre: data.titre,
         lieu: data.lieu,
@@ -51,7 +63,8 @@ export function creationRendezVousPOST(req, res){
         frequence: data.frequence,
         finRecurrence: data.date_fin_recurrence,
         nbOccurrences: data.nb_occurrence,
-        idAgenda: +data.agenda
+        idAgenda: +data.agenda,
+        color: data.color
     })
     .then(rendez_vous => {
         return res.status(200).json(rendez_vous.idAgenda);
@@ -63,51 +76,143 @@ export async function modifierRendezVousCalendarPOST(req, res) {
     if (!res.locals.user) {
         return res.status(403).json({ message: 'Unauthorized access' });
     }
-    //Récupération des champs du form
-    const { id, title, lieu, description, agenda, startGap, endGap, allDay, type, frequence, dateFinRecurrence, nbOccurrences } = req.body;
-    //Récupération du rdv avec l'id donné
-    const rdvToUpdate = await RendezVous.findByPk(id);
-    if (!rdvToUpdate) {
-        return res.status(404).json({ message: 'Rendez-vous introuvable' });
+    const id = req.body.id;
+    delete req.body['id'];
+
+    const rec_changes = req.body.rec_changes;
+    delete req.body['rec_changes'];
+
+    const update_date_debut_dans_parent = req.body.update_spec_date;
+    delete req.body.update_spec_date;
+
+    const real_id = req.body.real_id;
+    delete req.body.real_id;
+
+    if (req.body.startGap) {
+        const gap_in_seconds = req.body.startGap / 1000; 
+        delete req.body.startGap;
+        req.body.dateDebut = Sequelize.literal(`CASE
+                                                    WHEN id = ${real_id} THEN DATE_ADD(dateDebut, INTERVAL ${gap_in_seconds} second)
+                                                    ELSE dateDebut
+                                                END`);
+        if (update_date_debut_dans_parent) {
+            req.body.dateDebutDansParent = Sequelize.literal(`DATE_ADD(dateDebutDansParent, INTERVAL ${gap_in_seconds} second)`);
+        }
     }
-    //Sauvegarde du rdv
-    rdvToUpdate.dateDebut = new Date(rdvToUpdate.dateDebut.valueOf() + startGap);
-    rdvToUpdate.dateFin = new Date(rdvToUpdate.dateFin.valueOf() + endGap);
-    rdvToUpdate.titre = title;
-    rdvToUpdate.lieu = lieu;
-    rdvToUpdate.allDay = allDay;
-    rdvToUpdate.idAgenda = agenda;
-    rdvToUpdate.description = description;
-    // si on a envoyé un type, alors on veut modifier aussi les informations de récurrence
-    if (type) {
-        rdvToUpdate.type = type;
-        rdvToUpdate.frequence = frequence;
-        rdvToUpdate.finRecurrence = dateFinRecurrence ? new Date(+dateFinRecurrence) : dateFinRecurrence;
-        rdvToUpdate.nbOccurrences = nbOccurrences;
-    } 
-    await rdvToUpdate.save();
-    return res.status(200).json();
+
+    if (req.body.endGap) {
+        const gap_in_seconds = req.body.endGap / 1000;
+        delete req.body.endGap;
+        req.body.dateFin = Sequelize.literal(`CASE
+                                                WHEN id = ${real_id} THEN DATE_ADD(dateFin, INTERVAL ${gap_in_seconds} second)
+                                                ELSE dateFin
+                                              END`);
+    }
+
+    if (req.body.finRecurrence) {
+        req.body.finRecurrence = new Date(+req.body.finRecurrence);
+    }
+
+    if (rec_changes) {
+        await RendezVous.destroy({where: {idParent: id}});
+    }
+
+    RendezVous.update(req.body, {
+        where: {
+            [Op.or]: [{id: id}, {idParent: id}]
+        }
+    })
+    .then(_ => res.status(200).json())
+    .catch(err => {
+        console.log(err);
+        res.status(400).json();
+    });
+}
+
+export function modifierRendezVousRecInstancePOST(req, res) {
+    if (!res.locals.user) {
+        return res.status(403).json({ message: 'Unauthorized access' });
+    }
+    //Récupération des champs du form
+    const { id, title, lieu, description, agenda, start, end, allDay, color, type, frequence, fin_recurrence, nbOccurrences, dateDebutDansParent } = req.body;
+    
+    RendezVous.create({
+        titre: title, lieu: lieu, description: description,
+        dateDebut: new Date(+start), dateFin: new Date(+end), allDay: allDay,
+        idAgenda: agenda,
+        color: color, type: type, nbOccurrences: nbOccurrences,
+        frequence: frequence, fin_recurrence: fin_recurrence ? new Date(+fin_recurrence) : null,
+        idParent: id, deleted: false, dateDebutDansParent: new Date(+dateDebutDansParent)
+    })
+    .then(_ => res.status(200).end())
+    .catch(_ => res.status(400).end())
 }
 
 export function supprimerRDVDELETE(req, res) {
     if (!res.locals.user) {
         return res.redirect('/connexion');
     }
-    RendezVous.findByPk(req.params.id)
+    const id = req.body.id;
+    const which = req.body.which;
+    const start = req.body.start;
+    const end = req.body.end;
+    const idParent = req.body.idParent;
+    if (!which)
+        removeSimpleRDV(id, res);
+    else if (which === "this") {
+        removeInstanceRecRDV(id, start, end, idParent, res);
+    } else if (which === "all") {
+        removeSimpleRDV(idParent ? idParent : id, res);
+    }
+    
+}
+
+function removeSimpleRDV(id, res) {
+    RendezVous.findByPk(id)
     .then(rdv => {
         if (rdv) {
             if (res.locals.agendas[rdv.idAgenda].isOwner) {
                 rdv.destroy()
-                .then(_ => {
-                    res.status(200).end();
-                }).catch(error => {
-                    res.status(400).end();
-                })
+                .then(_ => res.status(200).end())
+                .catch(_ => res.status(400).end())
             } else {
                 res.status(400).end();
             }
         }
-    }).catch(_ => {
-        res.status(400).end();
-    })
+
+    }).catch(_ => res.status(400).end())
+}
+
+function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
+    RendezVous.findByPk(id)
+    .then(rdv => {
+        if (rdv) {
+            if (res.locals.agendas[rdv.idAgenda].isOwner) {
+                if (existing_child) {
+                    RendezVous.update({deleted: true}, {where: {id: id}})
+                    .then(_ => res.status(200).end())
+                    .catch(_ => res.status(400).end())
+                } else {
+                    startDate = new Date(+startDate);
+                    endDate = new Date(+endDate);
+                    RendezVous.findByPk(id)
+                    .then(parent => {
+                        RendezVous.create({
+                            titre: parent.titre, lieu: parent.lieu, description: parent.description,
+                            dateDebut: startDate, dateFin: endDate, allDay: parent.all_day,
+                            idAgenda: parent.idAgenda,
+                            color: parent.color,
+                            type: parent.type, frequence: parent.frequence, 
+                            finRecurrence: parent.finRecurrence, nbOccurrences: parent.nbOccurrences,
+                            idParent: id, deleted: true, dateDebutDansParent: startDate
+                        })
+                        .then(_ => res.status(200).end())
+                        .catch(_ => res.status(400).end())
+                    })
+                }
+            } else {
+                res.status(400).end();
+            }
+        }
+    }).catch(_ => res.status(400).end())
 }

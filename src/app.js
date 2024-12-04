@@ -3,17 +3,17 @@ import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import { authenticate } from "./token.js";
-import { index } from './routes/index.js';
+import { index, supprimerAgendaAccepteGET } from './routes/index.js';
 import { updateAgendasCookie, updateViewCookies } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
-import {calendarGetData, modifierRendezVousCalendarPOST, creationRendezVousPOST, supprimerRDVDELETE} from "./routes/rendezVous.js";
+import {calendarGetData, modifierRendezVousCalendarPOST, modifierRendezVousRecInstancePOST, creationRendezVousPOST, supprimerRDVDELETE} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
 import { exportAgendaPOST } from './routes/export.js';
 import { importAgendaPOST } from './routes/import.js';
-import {voirPartagesGET, creerPartageGET, ajouterPartageGET, confirmerAjoutPartageGET} from "./routes/partage.js";
+import {voirPartagesGET, creerPartageGET, ajouterPartageGET, confirmerAjoutPartageGET, supprimerPartageGET} from "./routes/partage.js";
 
 
 export const app = express();
@@ -50,7 +50,8 @@ app
 
     .post("/rendezvous/new", creationRendezVousPOST)
     .post("/calendar-rdv", modifierRendezVousCalendarPOST)
-    .delete('/supprimerRDV/:id', supprimerRDVDELETE)
+    .post("/calendar-rdv-rec-instance", modifierRendezVousRecInstancePOST)
+    .delete('/supprimerRDV', supprimerRDVDELETE)
 
     .get('/infos_perso', modifierInfosPersoGET)
     .post('/infos_perso', modifierInfosPersoPOST)
@@ -64,6 +65,8 @@ app
     .get("/partage/:id", confirmerAjoutPartageGET)
     .get("/partage/:id/yes", ajouterPartageGET)
     .get("/partage/new/:id", creerPartageGET)
+    .get("/partage/supprimer/:id/:username", supprimerPartageGET)
+    .get("/supprimerAgendaAccepte/:id", supprimerAgendaAccepteGET)
     
 
     .use((req, res) => res.status(404).render('error', {message: "Cette page n'existe pas.", status: 404}))
