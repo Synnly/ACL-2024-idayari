@@ -293,13 +293,14 @@ class AgendaManager {
 		const data_to_send = {}
 		let rec_modified = false;
 		if (!noRec) {
+			console.log("ok");
 			if (new_event.type !== old_event.extendedProps.type) {
 				data_to_send['type'] = new_event.type;
 				rec_modified = true;
 			}
 
 			if (new_event.frequence != old_event.extendedProps.frequence) {
-				data_to_send['type'] = new_event.type;
+				data_to_send['frequence'] = new_event.frequence;
 				rec_modified = true;
 			}
 
@@ -417,8 +418,9 @@ class AgendaManager {
 		}
 
 		if (modified) {
-			console.log("ok");
 			data_to_send['id'] = parent ? old_event.idParent : old_event.groupId;
+			data_to_send['rec_changes'] = rec_modified;
+			data_to_send['update_spec_date'] = parent || children;
 			json_fetch('/calendar-rdv', 'POST', data_to_send)
 			.then(_ => {
 				if ((purged && this.agendas[new_event.agenda]) || rec_modified) {

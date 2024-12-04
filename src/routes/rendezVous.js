@@ -72,18 +72,26 @@ export function creationRendezVousPOST(req, res){
 }
 
 /*Fonction modifie un rendez vous */
-export function modifierRendezVousCalendarPOST(req, res) {
+export async function modifierRendezVousCalendarPOST(req, res) {
     if (!res.locals.user) {
         return res.status(403).json({ message: 'Unauthorized access' });
     }
-    console.log("ok");
     const id = req.body.id;
     delete req.body['id'];
+
+    const rec_changes = req.body.rec_changes;
+    delete req.body['rec_changes'];
+
+    const update_date_debut_dans_parent = req.body.update_spec_date;
+    delete req.body.update_spec_date;
 
     if (req.body.startGap) {
         const gap_in_seconds = req.body.startGap / 1000; 
         delete req.body.startGap;
         req.body.dateDebut = Sequelize.literal(`DATE_ADD(dateDebut, INTERVAL ${gap_in_seconds} second)`);
+        if (update_date_debut_dans_parent) {
+            req.body.dateDebutDansParent = Sequelize.literal(`DATE_ADD(dateDebutDansParent, INTERVAL ${gap_in_seconds} second)`);
+        }
     }
 
     if (req.body.endGap) {
@@ -94,6 +102,10 @@ export function modifierRendezVousCalendarPOST(req, res) {
 
     if (req.body.finRecurrence) {
         req.body.finRecurrence = new Date(+req.body.finRecurrence);
+    }
+
+    if (rec_changes) {
+        await RendezVous.destroy({where: {idParent: id}});
     }
 
     RendezVous.update(req.body, {
