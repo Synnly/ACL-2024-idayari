@@ -294,7 +294,7 @@ export function getRendezVousModal(data, onsuccess, removeFunction) {
 
 
 
-//Recherche de rendez vous
+//Recherche de rendez vous (filtre)
 const inputSearch = document.getElementById("searchRdv");
 
 inputSearch.addEventListener("keyup",searchRdv);
@@ -314,4 +314,39 @@ function searchRdv(){
         agendaManager.filterByTerm(term);
     },300);
 }
+
+
+//Recherche RDV server
+const searchButton = document.getElementById("searchButton");
+
+const results = document.getElementById("results");
+
+
+
+
+/**
+ * Lance la recherche de rdv lors du clique sur boutton
+ */
+searchButton.addEventListener("click",(event) => {
+
+        const {startDate ,endDate} = agendaManager.getDisplayedDatInterval();
+        console.log({startDate ,endDate},inputSearch.value);
+        fetch(
+            "/calendar-search?start=" + startDate.valueOf() +
+                "&end=" + endDate.valueOf() +
+                "&agenda=" + 3 +
+                "&search=" + inputSearch.value
+        ).then((response) => response.json())
+        .then(rendezVous => {
+            results.innerHTML ="";
+            rendezVous.forEach(event => {
+                let p = document.createElement('p');
+                p.textContent = event.title;
+                results.appendChild(p);
+            });
+            console.log(rendezVous)
+        }).catch(err => {
+            console.log(err.message);
+        });       
+});
 
