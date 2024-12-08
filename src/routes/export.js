@@ -21,9 +21,7 @@ export async function exportAgendaPOST(req, res) {
             }
             const rendezVous = rdv.map(rdv => {
                 return Object.fromEntries(
-                    Object.entries(rdv.dataValues).map(([key, value]) => {
-                        return [key, value];
-                    })
+                    Object.entries(rdv.dataValues).filter(([key, value]) => key !== 'idAgenda')
                 );
             });
             
