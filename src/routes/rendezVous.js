@@ -1,5 +1,7 @@
 import { Sequelize, Op } from "sequelize";
 import RendezVous from "../model/RendezVous.js";
+import User from "../model/User.js";
+
 
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
 export function calendarGetData(req, res) {
@@ -218,32 +220,42 @@ function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
 }
 
 
-//Partie du code recherche de rendez-vous (server)
-
+//Duplication du code pour inclure le terme recherché
 /** 
- * Duplication du code pour inclure le terme recherché
+ * Recherche de rendezVous par le server (Récupération des Rdvs par Agendas lié à l'User)
  */
 export function calendarGetDataBySearch(req, res) {
     if (!res.locals.user) {
         return res.status(403).json({err: "not auth"});
     }
-    
-    const dateStart = new Date(+req.query.start);
-    const dateEnd = new Date(+req.query.end);
-    console.log("bhjecdbcjkdcbkkejcdnbkejcnjed",req.query.search);
-    RendezVous.findAll({ where: {[Op.and]:{ idAgenda: +req.query.agenda }, [Op.or] :[{titre: {[Op.like]:`%${req.query.search}%`}},{description: {[Op.like]:`%${req.query.search}%`}},{lieu: {[Op.like]:`%${req.query.search}%`}}]} })
-    .then(rendez_vous => {
-        const infos = [];
-        for (const rdv of rendez_vous) {
-            const data = rdv.get_rendezVous(dateStart, dateEnd);
-            if (data) {
-                data.readonly = !res.locals.agendas[+req.query.agenda].isOwner;
-                infos.push(data);
-            }
-        }
-        return res.json(infos);
+    //Triche = Pour ne pas avoir à toucher RendezVous.get_rendezVous
+    const dateStart = new Date();
+    dateStart.setFullYear(dateStart.getFullYear() - 30);
+    const dateEnd = new Date();
+    dateEnd.setFullYear(dateEnd.getFullYear() + 30);
+
+    User.findByPk(res.locals.user.id)
+        .then(user =>user.getAgendas()
+            .then(agendas => {
+                let agendasId = agendas.map(agenda => agenda.id);
+                RendezVous.findAll({ where: { idAgenda: { [Op.in]: agendasId }, [Op.or]: [{ titre: { [Op.like]: `%${req.query.search}%` } }, { description: { [Op.like]: `%${req.query.search}%` } }, { lieu: { [Op.like]: `%${req.query.search}%` } }] } })
+                .then(rendez_vous => {
+                    const infos = [];
+                    for (const rdv of rendez_vous) {
+                        const data = rdv.get_rendezVous(dateStart,dateEnd);
+                        if (data) {
+                            data.readonly = !res.locals.agendas[+rdv.idAgenda].isOwner;
+                            infos.push(data);
+                        }
+                    }
+                    return res.json(infos);
+                }).catch(err => {
+                    console.log(err); res.status(500).json({ err: "Internal Server Error" });
+                });
+            })
+        ).catch(err => {
+            console.log(err); res.status(500).json({ err: "Internal Server Error" });
     }).catch(err => {
-        console.log(err);
-        res.status(500).json({ err: "Internal Server Error" });
-    });
+        console.log(err); res.status(500).json({ err: "Internal Server Error" });
+    });;
 }

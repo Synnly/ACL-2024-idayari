@@ -330,20 +330,12 @@ const results = document.getElementById("results");
 searchButton.addEventListener("click",(event) => {
 
         const {startDate ,endDate} = agendaManager.getDisplayedDatInterval();
-        console.log({startDate ,endDate},inputSearch.value);
+        // console.log({startDate ,endDate},inputSearch.value);
         fetch(
-            "/calendar-search?start=" + startDate.valueOf() +
-                "&end=" + endDate.valueOf() +
-                "&agenda=" + 3 +
-                "&search=" + inputSearch.value
+            "/calendar-search?search=" + inputSearch.value
         ).then((response) => response.json())
         .then(rendezVous => {
-            results.innerHTML ="";
-            rendezVous.forEach(event => {
-                let p = document.createElement('p');
-                p.textContent = event.title;
-                results.appendChild(p);
-            });
+            
             console.log(rendezVous)
         }).catch(err => {
             console.log(err.message);

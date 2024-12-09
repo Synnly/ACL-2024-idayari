@@ -20,7 +20,7 @@ export async function initDatabase() {
     return sequelize.authenticate().then(_ => {
         initTables(sequelize);
         // si modification de la base de données, décommenter puis commenter
-        syncTables();
+        // syncTables();
     });
 }
 
