@@ -163,8 +163,21 @@ export function supprimerRDVDELETE(req, res) {
         removeInstanceRecRDV(id, start, end, idParent, res);
     } else if (which === "all") {
         removeSimpleRDV(idParent ? idParent : id, res);
-    }
-    
+    } else if (which === "future") {
+        removeFutureRDV(idParent ? idParent : id, start, res);
+    }  
+}
+
+function removeFutureRDV(id, start, res) {
+    RendezVous.findByPk(id)
+    .then(rdv => {
+        if (rdv.nbOccurrences) {
+
+        } else {
+            rdv.set('finRecurrence', new Date(+start));
+            RendezVous.destroy({where: {idParent: id, startEDEE}})
+        }
+    })
 }
 
 function removeSimpleRDV(id, res) {

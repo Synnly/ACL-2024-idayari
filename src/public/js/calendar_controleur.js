@@ -472,7 +472,14 @@ class AgendaManager {
 				ev.remove();
 			}
 		}
+	}
 
+	removeEventsByParentAfter(id, date) {
+		for (const ev of this.calendrier.getEvents()) {
+			if ((ev.id == id || ev.extendedProps.idParent == id) && ev.start.valueOf() >= date) {
+				ev.remove();
+			}
+		}
 	}
 }
 

@@ -17,7 +17,11 @@
                         <% } %>
                         <div style="font-size: 0.8em;">Les modifications de récurrence seront perdus</div>
                         <label>
-                            <input type="radio" name="which_event" value="all" <%= agenda_changed ? "checked" : "" %>>
+                            <input type="radio" name="which_event" value="future" <%= agenda_changed ? "checked" : "" %>>
+                            Ce rendez-vous et les rendez-vous futurs
+                        </label>
+                        <label>
+                            <input type="radio" name="which_event" value="all">
                             Tous les rendez-vous
                         </label>
                         <div style="font-size: 0.8em;">Les modifications de dates ne seront pas propagées aux rendez-vous modifiés auparavant</div>

@@ -232,6 +232,8 @@ function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsucces
                                 removeFunction(); // on supprime l'event
                             } else if (which === "all") {
                                 agendaManager.removeEventsByParent(idParent ? idParent : id);
+                            } else if (which === "future") {
+                                agendaManager.removeEventsByParentAfter(idParent ? idParent : id, startDate.valueOf());
                             }
                             closeModal(fausseModale);
                         }
