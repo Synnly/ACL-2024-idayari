@@ -20,9 +20,8 @@ export async function exportAgendaPOST(req, res) {
                 })
             }
             const rendezVous = rdv.map(rdv => {
-                const newRdv = { ...rdv.dataValues };
-                delete newRdv.idAgenda;
-                return newRdv;
+                delete rdv.dataValues.idAgenda;
+                return rdv;
             });
             
             const agendaData = {
