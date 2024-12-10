@@ -296,8 +296,8 @@ export function modifyFutureRecRDV(res, req) {
         return res.redirect('/connexion');
     }
     const id = req.body.id;
+    const start = req.body.start;
     const startNoHours = req.body.startNoHours;
-    const isAChild = req.body.isAChild;
     const changes = req.body.changes;
     RendezVous.findByPk(id)
     .then(rdv => {
@@ -340,11 +340,7 @@ export function modifyFutureRecRDV(res, req) {
         .then(_ => {
             RendezVous.create(old_data)
             .then(new_rdv => {
-                if (isAChild) {
-                    // trouver le premier rendez-vous "normal" après le rendez-vous particulier
-                }
-                new_rdv.dateDebut = new Date(+changes.start);
-                delete changes.start;
+                new_rdv.set('dateDebut', new Date(+start));
             })
             .catch(_ => res.status(400).end());
         });
