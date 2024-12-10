@@ -226,36 +226,50 @@ function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
  */
 export function calendarGetDataBySearch(req, res) {
     if (!res.locals.user) {
-        return res.status(403).json({err: "not auth"});
+        return res.status(403).json({ err: "not auth" });
     }
+
     //Triche = Pour ne pas avoir à toucher RendezVous.get_rendezVous
     const dateStart = new Date();
     dateStart.setFullYear(dateStart.getFullYear() - 30);
     const dateEnd = new Date();
     dateEnd.setFullYear(dateEnd.getFullYear() + 30);
 
+    const requestedAgendas = req.query.agendas ? req.query.agendas.split(",").map(Number) : [];
     User.findByPk(res.locals.user.id)
-        .then(user =>user.getAgendas()
-            .then(agendas => {
-                let agendasId = agendas.map(agenda => agenda.id);
-                RendezVous.findAll({ where: { idAgenda: { [Op.in]: agendasId }, [Op.or]: [{ titre: { [Op.like]: `%${req.query.search}%` } }, { description: { [Op.like]: `%${req.query.search}%` } }, { lieu: { [Op.like]: `%${req.query.search}%` } }] } })
-                .then(rendez_vous => {
-                    const infos = [];
-                    for (const rdv of rendez_vous) {
-                        const data = rdv.get_rendezVous(dateStart,dateEnd);
-                        if (data) {
-                            data.readonly = !res.locals.agendas[+rdv.idAgenda].isOwner;
-                            infos.push(data);
+        .then(user =>
+            user.getAgendas()
+                .then(agendas => {
+                    const agendasId = requestedAgendas.length > 0
+                        ? agendas.filter(agenda => requestedAgendas.includes(agenda.id)).map(agenda => agenda.id)
+                        : agendas.map(agenda => agenda.id);
+                    RendezVous.findAll({
+                        where: {
+                            idAgenda: { [Op.in]: agendasId },
+                            [Op.or]: [
+                                { titre: { [Op.like]: `%${req.query.search}%` } },
+                                { description: { [Op.like]: `%${req.query.search}%` } },
+                                { lieu: { [Op.like]: `%${req.query.search}%` } }
+                            ]
                         }
-                    }
-                    return res.json(infos);
-                }).catch(err => {
-                    console.log(err); res.status(500).json({ err: "Internal Server Error" });
-                });
-            })
+                    })
+                        .then(rendez_vous => {
+                            const infos = [];
+                            for (const rdv of rendez_vous) {
+                                const data = rdv.get_rendezVous(dateStart, dateEnd);
+                                if (data) {
+                                    data.readonly = !res.locals.agendas[+rdv.idAgenda].isOwner;
+                                    infos.push(data);
+                                }
+                            }
+                            return res.json(infos);
+                        }).catch(err => {
+                            console.log(err);
+                            res.status(500).json({ err: "Internal Server Error" });
+                        });
+                })
         ).catch(err => {
-            console.log(err); res.status(500).json({ err: "Internal Server Error" });
-    }).catch(err => {
-        console.log(err); res.status(500).json({ err: "Internal Server Error" });
-    });;
+            console.log(err);
+            res.status(500).json({ err: "Internal Server Error" });
+        });
 }

@@ -318,19 +318,27 @@ function searchRdv(){
 
 //Recherche RDV server
 const searchButton = document.getElementById("searchButton");
+const list_agendas = document.getElementById('agendaList');
+const agendaView = document.getElementById("calendar");
 
-/**
- * Lance la recherche de rdv lors du clique sur boutton
- */
-searchButton.addEventListener("click", () => {
+
+function SearchRdvs() {
+    const checkedAgendas = Array.from(document.querySelectorAll('#agendaList .li_agenda')).filter((li) => {
+        const checkbox = li.querySelector('input[type="checkbox"]');
+        return checkbox && checkbox.checked;
+    }).map(li => {
+        return li.id.split("_")[1];
+    });       
+
+    const agendaQuery = checkedAgendas.join(","); 
+    const query = `/calendar-search?&search=${encodeURIComponent(inputSearch.value)}&agendas=${agendaQuery}`;
     const { startDate, endDate } = agendaManager.getDisplayedDatInterval();
-    const agendaView = document.getElementById("calendar");
 
-    fetch("/calendar-search?search=" + inputSearch.value)
-        .then((response) => response.json())
+    fetch(query)
+        .then(response => response.json())
         .then(async (rendezVous) => {
             let allEvents = [];
-            const tenYears = 10* 365 * 24 * 60 * 60 * 1000;
+            const tenYears = 315360000000;
             const currentTime = new Date().getTime();
             rendezVous.forEach((rdv) => {
                 rdv.dates.forEach((date) => {
@@ -359,6 +367,7 @@ searchButton.addEventListener("click", () => {
 
             if (existingSearchResultsView) {
                 agendaContainer.removeChild(existingSearchResultsView);
+                
             }
         
             const searchResultsView = document.createElement("div");
@@ -373,15 +382,16 @@ searchButton.addEventListener("click", () => {
                 agendaContainer.removeChild(searchResultsView);
                 agendaView.style.display = "flex";
                 agendaManager.calendrier.updateSize();
-            });
+            })
+        }).catch(err => console.error("Erreur lors de la recherche :", err));
+}
 
-        })
-        .catch((err) => {
-            console.error(err.message);
-        });
+/**
+ * Lance la recherche de rdv lors du clique sur boutton
+ */
+searchButton.addEventListener("click", () => {
+    SearchRdvs();
 });
-
-
 
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -390,3 +400,27 @@ function formatDate(dateString) {
 function formatEventTime(startString, endString) {
    return `${getConvertedTime(new Date(startString))}- ${getConvertedTime(new Date(endString))}`;
 }
+
+function addCheckboxListeners() {
+    Array.from(list_agendas.getElementsByTagName("INPUT")).forEach(input => {
+        input.addEventListener("change", SearchRdvs);
+    });
+
+    const selectAllCheckbox = document.getElementById("selectAll");
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener("change", SearchRdvs);
+    }
+}
+
+// Si le dom change pour ajouter searchResultsView alors on à fait un recherche
+// Donc ça veut dire qu'il faut ajouter les écouteurs à ce moments
+const observer = new MutationObserver(() => {
+    const existingSearchResultsView = document.getElementById("searchResultsView");
+    if (existingSearchResultsView) {
+        addCheckboxListeners();
+        observer.disconnect(); 
+    }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+
