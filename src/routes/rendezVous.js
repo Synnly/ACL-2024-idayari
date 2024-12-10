@@ -1,6 +1,7 @@
 import { Sequelize, Op } from "sequelize";
 import RendezVous from "../model/RendezVous.js";
-import { monthDiff, yearDiff, ONE_DAY } from "../public/js/utils.js";
+import { monthDiff, yearDiff, ONE_DAY, THIS_EVENT, ALL_EVENTS, FUTURE_EVENTS } from "../public/js/utils.js";
+import { ALL } from "dns";
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
 export function calendarGetData(req, res) {
     if (!res.locals.user) {
@@ -71,6 +72,8 @@ export function creationRendezVousPOST(req, res){
     })
 }
 
+
+
 /*Fonction modifie un rendez vous */
 export async function modifierRendezVousCalendarPOST(req, res) {
     if (!res.locals.user) {
@@ -107,6 +110,16 @@ export async function modifierRendezVousCalendarPOST(req, res) {
                                                 WHEN id = ${real_id} THEN DATE_ADD(dateFin, INTERVAL ${gap_in_seconds} second)
                                                 ELSE dateFin
                                               END`);
+    }
+
+    if (req.body.start) {
+        req.body.dateDebut = new Date(+req.body.start);
+        delete req.body.start;
+    }
+
+    if (req.body.end) {
+        req.body.dateFin = new Date(+req.body.end);
+        delete req.body.end;
     }
 
     if (req.body.finRecurrence != undefined) {
@@ -165,11 +178,11 @@ export function supprimerRDVDELETE(req, res) {
     const idParent = req.body.idParent;
     if (!which)
         removeSimpleRDV(id, res);
-    else if (which === "this") {
+    else if (which === THIS_EVENT) {
         removeInstanceRecRDV(id, start, end, idParent, res);
-    } else if (which === "all") {
+    } else if (which === ALL_EVENTS) {
         removeSimpleRDV(idParent ? idParent : id, res);
-    } else if (which === "future") {
+    } else if (which === FUTURE_EVENTS) {
         removeFutureRDV(idParent ? idParent : id, startNoHours, res);
     }  
 }

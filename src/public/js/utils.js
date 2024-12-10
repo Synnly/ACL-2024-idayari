@@ -113,3 +113,7 @@ export  function normalizedStringComparaison(str1,str2){
 
 // listes des constantes
 export const DISPLAYED_BY_DEFAULT = false;
+
+export const ALL_EVENTS = "all";
+export const FUTURE_EVENTS = "future";
+export const THIS_EVENT = "this";

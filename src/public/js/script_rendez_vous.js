@@ -1,4 +1,4 @@
-import { addDays, getConvertedDate, getConvertedTime, json_fetch } from "./utils.js";
+import { addDays, getConvertedDate, getConvertedTime, json_fetch, THIS_EVENT } from "./utils.js";
 import { agendaManager } from "./calendar_controleur.js";
 import { confirmDelete } from "./script_agenda.js";
 
@@ -226,7 +226,7 @@ function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsucces
                                                             end: endDate.valueOf(), startNoHours: startNoHours.valueOf(), idParent: idParent})
                     .then(response => {
                         if (response.status === 200) {
-                            if (which === "this") {
+                            if (which === THIS_EVENT) {
                                 removeFunction(); // on supprime l'event
                             } else if (which === "all") {
                                 agendaManager.removeEventsByParent(idParent ? idParent : id);

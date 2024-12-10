@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { getRendezVousModal } from '/js/script_rendez_vous.js';
-import { json_fetch,normalizedStringComparaison } from './utils.js';
+import { ALL_EVENTS, FUTURE_EVENTS, json_fetch,normalizedStringComparaison, THIS_EVENT } from './utils.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/
@@ -150,7 +150,7 @@ class AgendaManager {
                 getRendezVousModal(data, (form_data, which) => {
 					if (!which) {
 						manager.update_event(event, form_data);
-					} else if (which == "this") {
+					} else if (which === THIS_EVENT) {
 						// if the event we modify is already special
 						if (idParent) {
 							manager.update_event(event, form_data, true);
@@ -164,14 +164,23 @@ class AgendaManager {
 							.then(_ => manager.calendrier.getEventSourceById(data.agenda).refetch())
 							.catch(error => console.log(error));
 						}
-					} else if (which == "all") {
+					} else if (which == ALL_EVENTS) {
 						if (idParent) {
 							manager.update_event(event, form_data, null, null, true);
 						} else {
 							manager.update_event(event, form_data, null, true);
 						}
-					}
-                    
+					} else if (which == FUTURE_EVENTS) {
+						const startDate = new Date(date.start);
+						startDate.setHours(0, 0, 0);
+						// revient à mettre une fin sur le rendez-vous récurrent et à créer un nouveau rendez-vous recurrent complètement indépendant
+
+
+						// on "coupe" le rendez-vous récurrent actuel
+						json_fetch('/supprimerRDV', "DELETE", {which: FUTURE_EVENTS, id: data.id, startNoHours: startDate.valueOf(), idParent: data.idParent})
+						.then()
+						.catch((error) => console.log(error));
+					}  
                 }, () => event.remove());
             },
             datesSet: function(dateInfo) {
@@ -298,9 +307,13 @@ class AgendaManager {
 		console.log(noRec, children, parent);
 		const data_to_send = {}
 		let rec_modified = false;
+		let rec_removed = false;
 		if (!noRec) {
 			if (new_event.type !== old_event.extendedProps.type) {
 				data_to_send['type'] = new_event.type;
+				if (new_event.type === "Simple") {
+					rec_removed = true;
+				}
 				rec_modified = true;
 			}
 
@@ -335,7 +348,7 @@ class AgendaManager {
 			}
 		}
 
-		if (new_event.titre != old_event.title) {
+		if (new_event.titre != old_event.title || rec_removed) {
 			modified = true;
 			data_to_send['titre'] = new_event.titre;
 			if (!rec_modified && !purged) {
@@ -345,17 +358,25 @@ class AgendaManager {
 		}
 
 		let date_modified = false;
-		if (new_event.startDate != old_event.start.valueOf()) {
+		if (new_event.startDate != old_event.start.valueOf() || rec_removed) {
 			modified = date_modified = true;
-			data_to_send['startGap'] = new_event.startDate - old_event.start.valueOf();
+			if (rec_removed) {
+				data_to_send['start'] = new_event.startDate;
+			} else {
+				data_to_send['startGap'] = new_event.startDate - old_event.start.valueOf();
+			}
 		}
 
-		if (new_event.endDate != old_event.end.valueOf()) {
+		if (new_event.endDate != old_event.end.valueOf() || rec_removed) {
 			modified = date_modified = true;
-			data_to_send['endGap'] = new_event.endDate - old_event.end.valueOf();
+			if (rec_removed) {
+				data_to_send['end'] = new_event.endDate;
+			} else {
+				data_to_send['endGap'] = new_event.endDate - old_event.end.valueOf();
+			}
 		}
 
-		if (new_event.all_day != old_event.allDay) {
+		if (new_event.all_day != old_event.allDay || rec_removed) {
 			modified = date_modified = true;
 			data_to_send['allDay'] = new_event.all_day;
 		}
@@ -366,7 +387,7 @@ class AgendaManager {
 			update_children_infos['dateDebutDansParent'] = ['E', data_to_send['startGap'] ?? 0];
 		}
 
-		if (new_event.lieu != old_event.extendedProps.lieu) {
+		if (new_event.lieu != old_event.extendedProps.lieu || rec_removed) {
 			modified = true;
 			data_to_send['lieu'] = new_event.lieu;
 			if (!rec_modified && !purged) {
@@ -375,7 +396,7 @@ class AgendaManager {
 			}
 		}
 
-		if (new_event.description != old_event.extendedProps.description) {
+		if (new_event.description != old_event.extendedProps.description || rec_removed) {
 			modified = true;
 			data_to_send['description'] = new_event.description;
 			if (!rec_modified && !purged) {
@@ -384,7 +405,7 @@ class AgendaManager {
 			}
 		}
 
-		if("#"+new_event.color !== old_event._def.ui.backgroundColor){
+		if("#"+new_event.color !== old_event._def.ui.backgroundColor || rec_removed){
 			modified = true;
 			data_to_send['color'] = new_event.color;
 			if (!rec_modified && !purged) {
