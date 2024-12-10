@@ -42,7 +42,13 @@
 
                 <p><strong>Lieu :</strong> <%= event.lieu || 'Non spécifié' %></p>
 
-                <p><strong>Description :</strong> <%= event.description || 'Pas de description' %></p>
+                <p><strong>Description :</strong> <br>
+                    <% if (event.description) { %>
+                        <span><%- event.description.replace(/\n/g, '<br>') %></span>
+                    <% } else { %>
+                        <span>Pas de description</span>
+                    <% } %>
+                </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Fermer</button>

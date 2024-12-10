@@ -166,7 +166,6 @@ async function supprimerAgendaAccepte(idAgenda) {
 <script>
   function showInformation(element) {
     const event = JSON.parse(element.getAttribute('data-event'));
-    console.log(event);
     fetch('../views/partials/modal_search_list.ejs')
         .then((response) => response.text())
         .then((templateText) => {
