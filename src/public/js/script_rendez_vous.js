@@ -346,7 +346,8 @@ function SearchRdvs() {
                     if (startTime >= currentTime - tenYears && startTime <= currentTime + tenYears) {
                     allEvents.push({
                         ...date,
-                        ...rdv
+                        ...rdv,
+                        agendaName: rdv.agendaName,
                     })
                 };
                 });

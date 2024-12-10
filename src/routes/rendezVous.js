@@ -240,9 +240,15 @@ export function calendarGetDataBySearch(req, res) {
         .then(user =>
             user.getAgendas()
                 .then(agendas => {
+                    const agendasMap = agendas.reduce((map, agenda) => {
+                        map[agenda.id] = agenda;
+                        return map;
+                    }, {});
+
                     const agendasId = requestedAgendas.length > 0
                         ? agendas.filter(agenda => requestedAgendas.includes(agenda.id)).map(agenda => agenda.id)
                         : agendas.map(agenda => agenda.id);
+                    
                     RendezVous.findAll({
                         where: {
                             idAgenda: { [Op.in]: agendasId },
@@ -259,6 +265,7 @@ export function calendarGetDataBySearch(req, res) {
                                 const data = rdv.get_rendezVous(dateStart, dateEnd);
                                 if (data) {
                                     data.readonly = !res.locals.agendas[+rdv.idAgenda].isOwner;
+                                    data.agendaName = agendasMap[rdv.idAgenda]?.nom ;
                                     infos.push(data);
                                 }
                             }
@@ -273,3 +280,4 @@ export function calendarGetDataBySearch(req, res) {
             res.status(500).json({ err: "Internal Server Error" });
         });
 }
+

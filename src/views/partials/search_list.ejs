@@ -15,6 +15,7 @@
                     end: event.end,
                     lieu: event.lieu,
                     description: event.description,
+                    agendaName: event.agendaName,
                     allDay: event.allDay
                 }) %>'
                     onclick="showInformation(this)" style="cursor: pointer;" title="Afficher plus d'informations">
@@ -64,10 +65,14 @@
                         <% } %>
                     </div>
                                             
-                    
-                    <div class="d-flex align-items-center ms-2" style="flex: 6; word-wrap: break-word;">
-                        <strong><%= event.title %></strong>
-                    </div>
+                    <div class="d-flex align-items-center gap-2" style="flex: 6; word-wrap: break-word;">
+                        <div style="flex: 2;">
+                            <p>Agenda : <%= event.agendaName %></p>
+                        </div>
+                        <div style="flex: 3;">
+                            <strong><%= event.title %></strong>
+                        </div>
+                    </div>                    
                 </div>
             <% }); %>
         <% } %>
