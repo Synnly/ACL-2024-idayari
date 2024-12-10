@@ -1,6 +1,6 @@
 export function addDays(date, days) {
     const result = new Date(date.getTime());
-    result.setDate(result.getDate() + days);
+    result.setUTCDate(result.getDate() + days);
     return result;
 }
 
@@ -18,7 +18,7 @@ export function addMonths(date, months) {
 export function addYears(date, years) {
     const result = new Date(date.getTime());
     const m = result.getMonth();
-    result.setFullYear(result.getFullYear() + years);
+    result.setUTCFullYear(result.getFullYear() + years);
     if (result.getMonth() != m) {
         result.setUTCDate(result.getDate()-1);
     }
