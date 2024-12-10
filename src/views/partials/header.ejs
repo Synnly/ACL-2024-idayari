@@ -1,22 +1,22 @@
 <nav class="navbar bg-primary px-4">
-    <span class="g-0">
+    <span class="g-0" title="page d'accueil">
         <a class="navbar-brand fs-4 text-light fw-medium" href="/">
         <img class="logo" src="/img/favicon.ico"/>Idayari</a>
     </span>
     <div class="d-flex ms-auto align-items-center" style="gap: 10px;">
         <% if (locals.search) { %>
             <div class="input-group searchRdv">
-                <input type="text" class="form-control" placeholder="Rechercher..." id="searchRdv">
+                <input type="text" class="form-control" placeholder="Rechercher..." id="searchRdv" title="Faire une recherche">
                 <span class="input-group-text" id="searchButton" style="cursor: pointer;">
                   <i class="bi bi-search"></i> 
                 </span>
             </div>
         <% } %>
-        <a href="/infos_perso" class="text-white me-2" style="text-decoration: none;">
+        <a href="/infos_perso" class="text-white me-2" style="text-decoration: none;" title="Mes informations personnelles">
             <img src="/img/user.png" alt="user" class="border-1 border-white rounded-5 border ms-3 align-self-center">
             <%= locals.username %>
         </a>
-        <a class="deconnexion bi bi-door-closed text-light fs-3" href="/deconnexion"
+        <a class="deconnexion bi bi-door-closed text-light fs-3" href="/deconnexion" title="Déconnexion"
            onmouseover="this.classList.remove('bi-door-closed'); this.classList.add('bi-door-open')"
            onmouseout="this.classList.remove('bi-door-open'); this.classList.add('bi-door-closed')">
         </a>

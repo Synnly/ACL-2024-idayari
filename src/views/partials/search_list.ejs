@@ -7,7 +7,7 @@
         <% } else { %>
             <% allEvents.forEach(event => { %>
                 <div class="list-group-item d-flex align-items-center mb-3" data-event='<%= JSON.stringify(event) %>'
-                    onclick="showInformation(this)">
+                    onclick="showInformation(this)" style="cursor: pointer;" title="Afficher plus d'informations">
 
                     <div class="d-flex align-items-center justify-content-between" style="flex: 2;">
                         <strong><%= new Date(event.start).toLocaleString('fr-FR', { weekday: 'short' }) %></strong> 

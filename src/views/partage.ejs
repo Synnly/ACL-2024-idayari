@@ -62,11 +62,11 @@
                             </td>
                             <td class="w-25 align-middle">
                                 <% if(agenda.estPartage) {%>
-                                    <button class="btn btn-outline-danger bi bi-trash-fill me-2" onclick="supprimerPartage(<%= agenda.id %>, '')"></button>
-                                    <button id="bouton_copier_<%= agenda.id %>" class="btn btn-outline-info bi bi-clipboard me-2" onclick="copierLien(<%= agenda.id %>, '<%= agenda.link %>')" onmouseout="hideCheckMark(<%= agenda.id %>)"></button>
-                                    <button class="btn btn-outline-danger" onclick="supprimerPartagePerso(<%= agenda.id %>, '<%= username %>')">Désactiver le partage à tous</button>
+                                    <button class="btn btn-outline-danger bi bi-trash-fill me-2" onclick="supprimerPartage(<%= agenda.id %>, '')" title="Supprimer"></button>
+                                    <button id="bouton_copier_<%= agenda.id %>" class="btn btn-outline-info bi bi-clipboard me-2" onclick="copierLien(<%= agenda.id %>, '<%= agenda.link %>')" onmouseout="hideCheckMark(<%= agenda.id %>)" title="Copier le lien"></button>
+                                    <button class="btn btn-outline-danger" onclick="supprimerPartagePerso(<%= agenda.id %>, '<%= username %>')" title="Supprimer le partage pour les utilisateurs"> Désactiver le partage à tous</button>
                                 <% } else { %>
-                                    <button class="btn btn-outline-secondary bi bi-share-fill" onclick="creerPartage(<%= agenda.id %>)"></button>
+                                    <button class="btn btn-outline-secondary bi bi-share-fill" onclick="creerPartage(<%= agenda.id %>)" title="Partage l'agenda"></button>
                                 <% } %>
                             </td>
                         </tr>
