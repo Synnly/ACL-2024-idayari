@@ -21,6 +21,7 @@ export async function initDatabase() {
         initTables(sequelize);
         // si modification de la base de données, décommenter puis commenter
         // syncTables();
+
     });
 }
 

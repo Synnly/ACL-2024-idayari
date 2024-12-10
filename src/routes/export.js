@@ -19,22 +19,14 @@ export async function exportAgendaPOST(req, res) {
                     message: "Agenda non trouvé"
                 })
             }
-    
+            const rendezVous = rdv.map(rdv => {
+                delete rdv.dataValues.idAgenda;
+                return rdv;
+            });
+            
             const agendaData = {
                 nom: agenda.nom,
-                rendezVous:  rdv.map(rdv => ({
-                    titre: rdv.titre,
-                    description: rdv.description,
-                    dateDebut: rdv.dateDebut,
-                    dateFin: rdv.dateFin,
-                    allDay: rdv.allDay,
-                    lieu: rdv.lieu,
-                    type: rdv.type,
-                    frequence: rdv.frequence,
-                    finRecurrence: rdv.finRecurrence,
-                    nbOccurrences: rdv.nbOccurrences,
-                    color: rdv.color,
-                })),
+                rendezVous:  rendezVous
             };
             return res.json(agendaData);
         } catch (error) {
