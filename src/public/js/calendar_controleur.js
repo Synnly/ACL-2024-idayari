@@ -173,13 +173,7 @@ class AgendaManager {
 					} else if (which == FUTURE_EVENTS) {
 						const startDate = new Date(date.start);
 						startDate.setHours(0, 0, 0);
-						// revient à mettre une fin sur le rendez-vous récurrent et à créer un nouveau rendez-vous recurrent complètement indépendant
-
-
-						// on "coupe" le rendez-vous récurrent actuel
-						json_fetch('/supprimerRDV', "DELETE", {which: FUTURE_EVENTS, id: data.id, startNoHours: startDate.valueOf(), idParent: data.idParent})
-						.then()
-						.catch((error) => console.log(error));
+						// A COMPLETER
 					}  
                 }, () => event.remove());
             },

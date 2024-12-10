@@ -290,3 +290,63 @@ function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
         }
     }).catch(_ => res.status(400).end())
 }
+
+export function modifyFutureRecRDV(res, req) {
+    if (!res.locals.user) {
+        return res.redirect('/connexion');
+    }
+    const id = req.body.id;
+    const startNoHours = req.body.startNoHours;
+    const isAChild = req.body.isAChild;
+    const changes = req.body.changes;
+    RendezVous.findByPk(id)
+    .then(rdv => {
+        const old_data = rdv.dataValues;
+        const startDate = new Date(+startNoHours);
+        if (rdv.nbOccurrences != null) {
+            // on trouve le nouveau nombre d'occurrences si on compte jusqu'à l'évènement cliqué
+            const debut = rdv.dateDebut.valueOf();
+            let nbOccurrences;
+            if (startNoHours <= debut) {
+                nbOccurrences = 0;
+            } else {
+                if (rdv.type === 'Daily') {
+                    nbOccurrences = Math.ceil((startNoHours - debut)/(rdv.frequence * ONE_DAY));
+                } else if (rdv.type === 'Weekly') {
+                    nbOccurrences = Math.ceil((startNoHours - debut)/(rdv.frequence * ONE_DAY * 7));
+                } else if (rdv.type === 'Monthly') {
+                    let month_diff = monthDiff(rdv.dateDebut, startDate);
+                    if (startDate.getDate() > rdv.dateDebut.getDate()) {
+                        month_diff += 1;
+                    }
+                    nbOccurrences = Math.ceil(month_diff / rdv.frequence);
+                } else { // year
+                    let year_diff = yearDiff(rdv.dateDebut, startDate);
+                    if (startDate.getMonth() > rdv.dateDebut.getMonth() || (startDate.getMonth() === rdv.dateDebut.getMonth() && startDate.getDate() > rdv.dateDebut.getDate())) {
+                        year_diff += 1;
+                    }
+                    nbOccurrences = Math.ceil(year_diff / rdv.frequence);
+                }
+            }
+            modif['nbOccurrences'] = nbOccurrences;
+        } else {
+            modif['finRecurrence'] = startDate;
+        }
+        RendezVous.update(modif, {
+            where: {
+                [Op.or]: [{id: id}, {idParent: id}]
+            }
+        })
+        .then(_ => {
+            RendezVous.create(old_data)
+            .then(new_rdv => {
+                if (isAChild) {
+                    // trouver le premier rendez-vous "normal" après le rendez-vous particulier
+                }
+                new_rdv.dateDebut = new Date(+changes.start);
+                delete changes.start;
+            })
+            .catch(_ => res.status(400).end());
+        });
+    })
+}
