@@ -1,36 +1,34 @@
-export function removeDays(date, days) {
-    const result = new Date(date.getTime());
-    result.setDate(result.getDate() - days);
-    return result;
-}
-
 export function addDays(date, days) {
     const result = new Date(date.getTime());
     result.setDate(result.getDate() + days);
     return result;
 }
 
-    // quick addMonth and addYears functions, should use moment.js in the future
+// quick addMonth and addYears functions, should use moment.js in the future
 export function addMonths(date, months) {
     const result = new Date(date.getTime());
-    const d = date.getDate();
-    result.setMonth(result.getMonth() + months);
+    const d = result.getDate();
+    result.setUTCMonth(result.getMonth() + months);
     if (result.getDate() != d) {
-    	result.setDate(0);
+    	result.setUTCDate(0);
     }
     return result;
 }
 
 export function addYears(date, years) {
     const result = new Date(date.getTime());
+    const m = result.getMonth();
     result.setFullYear(result.getFullYear() + years);
+    if (result.getMonth() != m) {
+        result.setUTCDate(result.getDate()-1);
+    }
     return result;
 }
 
+export const ONE_DAY = 1000 * 60 * 60 * 24;
+
 export function daysDiff(d1, d2) {
     // nombre de millisecondes en un jour
-    const ONE_DAY = 1000 * 60 * 60 * 24;
-
     const differenceMs = Math.abs(d1 - d2);
     return differenceMs / ONE_DAY;
 }

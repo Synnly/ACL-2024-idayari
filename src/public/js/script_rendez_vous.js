@@ -163,10 +163,6 @@ function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsucces
             frequence = +frequence_input.value;
             if (type_end_recurrence.value === "date") {
                 date_fin_recurrence = new Date(end_date_rec.value);
-                if (date_fin_recurrence <= startDate) {
-                    add_error("La date de fin de récurrence doit être supérieure à la date de début.", document.getElementById('end_recurrence_div'));
-                    return;
-                }
                 date_fin_recurrence = date_fin_recurrence.valueOf();
             }
             if (type_end_recurrence.value === "nb") {
@@ -224,8 +220,10 @@ function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsucces
                         startDate = new Date(`${form["startDate"].value}T${startTime.value}`);
                         endDate = new Date(`${form["endDate"].value}T${endTime.value}`);
                     }
+                    const startNoHours = new Date(startDate);
+                    startNoHours.setHours(0, 0, 0);
                     json_fetch('/supprimerRDV', "DELETE", {which: which, id: id, start: startDate.valueOf(), 
-                                                            end: endDate.valueOf(), idParent: idParent})
+                                                            end: endDate.valueOf(), startNoHours: startNoHours.valueOf(), idParent: idParent})
                     .then(response => {
                         if (response.status === 200) {
                             if (which === "this") {

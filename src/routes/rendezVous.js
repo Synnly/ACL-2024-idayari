@@ -1,6 +1,6 @@
 import { Sequelize, Op } from "sequelize";
 import RendezVous from "../model/RendezVous.js";
-
+import { monthDiff, yearDiff, ONE_DAY } from "../public/js/utils.js";
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
 export function calendarGetData(req, res) {
     if (!res.locals.user) {
@@ -109,8 +109,13 @@ export async function modifierRendezVousCalendarPOST(req, res) {
                                               END`);
     }
 
-    if (req.body.finRecurrence) {
+    if (req.body.finRecurrence != undefined) {
         req.body.finRecurrence = new Date(+req.body.finRecurrence);
+        req.body.nbOccurrences = null;
+    }
+
+    if (req.body.nbOccurrences != undefined) {
+        req.body.finRecurrence = null;
     }
 
     if (rec_changes) {
@@ -156,6 +161,7 @@ export function supprimerRDVDELETE(req, res) {
     const which = req.body.which;
     const start = req.body.start;
     const end = req.body.end;
+    const startNoHours = req.body.startNoHours;
     const idParent = req.body.idParent;
     if (!which)
         removeSimpleRDV(id, res);
@@ -164,19 +170,61 @@ export function supprimerRDVDELETE(req, res) {
     } else if (which === "all") {
         removeSimpleRDV(idParent ? idParent : id, res);
     } else if (which === "future") {
-        removeFutureRDV(idParent ? idParent : id, start, res);
+        removeFutureRDV(idParent ? idParent : id, startNoHours, res);
     }  
 }
 
 function removeFutureRDV(id, start, res) {
     RendezVous.findByPk(id)
     .then(rdv => {
-        if (rdv.nbOccurrences) {
-
+        const modif = {};
+        const startDate = new Date(+start);
+        if (rdv.nbOccurrences != null) {
+            // on trouve le nouveau nombre d'occurrences si on compte jusqu'à l'évènement cliqué
+            const debut = rdv.dateDebut.valueOf();
+            let nbOccurrences;
+            if (start <= debut) {
+                nbOccurrences = 0;
+            } else {
+                if (rdv.type === 'Daily') {
+                    nbOccurrences = Math.ceil((start - debut)/(rdv.frequence * ONE_DAY));
+                } else if (rdv.type === 'Weekly') {
+                    nbOccurrences = Math.ceil((start - debut)/(rdv.frequence * ONE_DAY * 7));
+                } else if (rdv.type === 'Monthly') {
+                    let month_diff = monthDiff(rdv.dateDebut, startDate);
+                    if (startDate.getDate() > rdv.dateDebut.getDate()) {
+                        month_diff += 1;
+                    }
+                    nbOccurrences = Math.ceil(month_diff / rdv.frequence);
+                } else { // year
+                    let year_diff = yearDiff(rdv.dateDebut, startDate);
+                    if (startDate.getMonth() > rdv.dateDebut.getMonth() || (startDate.getMonth() === rdv.dateDebut.getMonth() && startDate.getDate() > rdv.dateDebut.getDate())) {
+                        year_diff += 1;
+                    }
+                    nbOccurrences = Math.ceil(year_diff / rdv.frequence);
+                }
+            }
+            modif['nbOccurrences'] = nbOccurrences;
         } else {
-            rdv.set('finRecurrence', new Date(+start));
-            RendezVous.destroy({where: {idParent: id, startEDEE}})
+            modif['finRecurrence'] = startDate;
         }
+        RendezVous.update(modif, {
+            where: {
+                [Op.or]: [{id: id}, {idParent: id}]
+            }
+        })
+        .then(_ => {
+            RendezVous.destroy({
+                where: {
+                    idParent: id, 
+                    dateDebut: {
+                        [Op.gte]: startDate
+                    }
+                }
+            })
+            .then(_ => res.status(200).end())
+            .catch(_ => res.status(400).end());
+        });
     })
 }
 

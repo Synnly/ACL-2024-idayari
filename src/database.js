@@ -55,7 +55,7 @@ function initTables(sequelize) {
  * Synchronise les tables
  */
 async function syncTables() {
-    await User.sync({alter: true});
+    // await User.sync({alter: true}); // déclenche une exception
     await Agenda.sync({alter: true});
     await UserAgendaAccess.sync({alter: true});
     await RendezVous.sync({alter: true});
