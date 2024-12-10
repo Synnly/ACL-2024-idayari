@@ -1,0 +1,65 @@
+<div id="searchResults" class="p-3">
+    <button id="closeSearchView" class="btn btn-outline-secondary mb-3">Revenir à l'agenda</button>
+    <h1 class="fs-4 py-3">Voici les résultat de la recherche : <%= search %> (<%= allEvents.length %> résultats trouvés)</h1> 
+    <div id="resultsContainer" class="overflow-auto list-group list-group-flush" style="max-height: 75vh;">
+        <% if (allEvents.length === 0) { %>
+            <p class="text-center text-muted">Aucun résultat trouvé.</p>
+        <% } else { %>
+            <% allEvents.forEach(event => { %>
+                <div class="list-group-item d-flex align-items-center mb-3" data-event='<%= JSON.stringify(event) %>'
+                    onclick="showInformation(this)">
+
+                    <div class="d-flex align-items-center justify-content-between" style="flex: 2;">
+                        <strong><%= new Date(event.start).toLocaleString('fr-FR', { weekday: 'short' }) %></strong> 
+
+                        <span class="text-muted"><%= String(new Date(event.start).getDate()).padStart(2, '0') %></span>
+                        <span class="text-muted"><%= new Date(event.start).toLocaleString('fr-FR', { month: 'short' }).toUpperCase() %></span> 
+                        <span class="text-muted"><%= new Date(event.start).getFullYear() %></span> 
+                    </div>
+
+                   
+
+                    <div class="d-flex align-items-center mx-3" style="flex-shrink: 0; width: 16px; height: 16px; background-color: <%= event.color %>; border-radius: 50%;"></div>
+
+                    <div class="d-flex align-items-center mx-3" style="flex: 3;">
+                        <% if (event.allDay) { %>
+                            <span>
+                                Toute la journée
+                                <% if (event.end) { %>
+                                    - jusqu'au 
+                                    <%= new Date(event.end).toLocaleDateString('fr-FR', {
+                                        weekday: 'short',
+                                        day: 'numeric',
+                                        month: 'numeric',
+                                        year: 'numeric'
+                                    }) %>
+                                <% } %>
+                            </span>
+                        <% } else { %>
+                            <span>
+                                <% if (event.end) { %>
+                                    Jusqu'au 
+                                    <%= new Date(event.end).toLocaleDateString('fr-FR', {
+                                        weekday: 'short',
+                                        day: 'numeric',
+                                        month: 'numeric',
+                                        year: 'numeric'
+                                    }) %> 
+                                    de 
+                                    <%= new Date(event.start).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) %> 
+                                    à 
+                                    <%= new Date(event.end).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) %>
+                                <% } %>
+                            </span>
+                        <% } %>
+                    </div>
+                                            
+                    
+                    <div class="d-flex align-items-center ms-2" style="flex: 6; word-wrap: break-word;">
+                        <strong><%= event.title %></strong>
+                    </div>
+                </div>
+            <% }); %>
+        <% } %>
+    </div>
+</div>  

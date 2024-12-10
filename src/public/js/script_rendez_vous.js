@@ -319,26 +319,70 @@ function searchRdv(){
 //Recherche RDV server
 const searchButton = document.getElementById("searchButton");
 
-const results = document.getElementById("results");
-
-
-
-
 /**
  * Lance la recherche de rdv lors du clique sur boutton
  */
-searchButton.addEventListener("click",(event) => {
+searchButton.addEventListener("click", () => {
+    const { startDate, endDate } = agendaManager.getDisplayedDatInterval();
+    const agendaView = document.getElementById("calendar");
 
-        const {startDate ,endDate} = agendaManager.getDisplayedDatInterval();
-        // console.log({startDate ,endDate},inputSearch.value);
-        fetch(
-            "/calendar-search?search=" + inputSearch.value
-        ).then((response) => response.json())
-        .then(rendezVous => {
-            
-            console.log(rendezVous)
-        }).catch(err => {
-            console.log(err.message);
-        });       
+    fetch("/calendar-search?search=" + inputSearch.value)
+        .then((response) => response.json())
+        .then(async (rendezVous) => {
+            let allEvents = [];
+
+            rendezVous.forEach((rdv) => {
+                rdv.dates.forEach((date) => {
+                    allEvents.push({
+                        ...date,
+                        ...rdv
+                    });
+                });
+            });
+
+            allEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+            const templateResponse = await fetch('../views/partials/search_list.ejs');
+            const templateText = await templateResponse.text();
+
+            const compiledTemplate = ejs.render(templateText, {
+                allEvents: allEvents,
+                formatEventTime: formatEventTime,
+                formatDate: formatDate,
+                search: inputSearch.value
+            });
+            const existingSearchResultsView = document.getElementById("searchResultsView");
+
+            if (existingSearchResultsView) {
+                agendaContainer.removeChild(existingSearchResultsView);
+            }
+        
+            const searchResultsView = document.createElement("div");
+            searchResultsView.id = "searchResultsView";
+            searchResultsView.innerHTML = compiledTemplate;
+
+            agendaContainer.appendChild(searchResultsView);
+            agendaView.style.display = "none";
+
+            const closeSearchView = document.getElementById("closeSearchView");
+            closeSearchView.addEventListener("click", () => {
+                agendaContainer.removeChild(searchResultsView);
+                agendaView.style.display = "flex";
+                agendaManager.calendrier.updateSize();
+            });
+
+        })
+        .catch((err) => {
+            console.error(err.message);
+        });
 });
 
+
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return getConvertedDate(date); 
+}
+function formatEventTime(startString, endString) {
+   return `${getConvertedTime(new Date(startString))}- ${getConvertedTime(new Date(endString))}`;
+}

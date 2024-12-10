@@ -1,5 +1,5 @@
 <%- include('partials/header.ejs',{search: true}) %>
-<div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1" >
+<div class="row min-vw-100 p-0 m-0 h-100 flex-grow-1" id="mainView">
     <nav class="col col-2 nav flex-grow-1 p-0 text-break bg-light">
         <div class="w-100">
             <div class="w-100 h-fit-content">
@@ -40,7 +40,7 @@
 
         </div>
     </nav>
-    <div class="col col-10 p-3 d-flex flex-column">
+    <div class="col col-10 p-3 d-flex flex-column" id="agendaContainer">
         <div id="calendar"></div>
     </div>
 </div>
@@ -107,7 +107,22 @@
       </div>
     </div>
   </div>
-  
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="errorModalLabel">Erreur</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="errorModalBody">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Fermer</button>
+          </div>
+      </div>
+  </div>
+</div>
+
 <script>
     /**
      * Fonction qui change la taille de la liste des agendas en fonction de la taille de la fenetre
@@ -148,3 +163,34 @@ async function supprimerAgendaAccepte(idAgenda) {
 <script type="module" src="./js/script_agenda.js"></script>
 <script type="module" src="./js/import.js"></script>
 <script src="/js/export.js"></script>
+<script>
+  function showInformation(element) {
+    const event = JSON.parse(element.getAttribute('data-event'));
+    console.log(event);
+    fetch('../views/partials/modal_search_list.ejs')
+        .then((response) => response.text())
+        .then((templateText) => {
+           
+            const compiledTemplate = ejs.render(templateText, {
+                event: event,
+            });
+
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = compiledTemplate;
+
+            document.body.appendChild(modalContainer);
+
+            const modal = new bootstrap.Modal(modalContainer.querySelector('.modal'));
+            modal.show();
+
+            modalContainer.querySelector('.btn-close').addEventListener('click', () => {
+                modal.hide();
+                modalContainer.remove();
+            });
+        })
+        .catch((error) => {
+            console.error('Erreur lors du chargement de la modale:', error);
+        });
+}
+
+</script>
