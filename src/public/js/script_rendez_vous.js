@@ -163,6 +163,7 @@ function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsucces
             frequence = +frequence_input.value;
             if (type_end_recurrence.value === "date") {
                 date_fin_recurrence = new Date(end_date_rec.value);
+                date_fin_recurrence.setHours(0, 0, 0);
                 date_fin_recurrence = date_fin_recurrence.valueOf();
             }
             if (type_end_recurrence.value === "nb") {

@@ -6,18 +6,12 @@ export function addDays(date, days) {
 
 // quick addMonth and addYears functions, should use moment.js in the future
 export function addMonths(date, months) {
-    const result = new Date(date.valueOf());
-    console.log("a", result);
+    const result = new Date(date.getTime());
     const d = result.getDate();
     result.setMonth(result.getMonth() + months);
-    console.log(result.getHours());
-    result.setUTCHours(0, 0, 0);
-    console.log(result.getHours());
-    console.log("b", result);
     if (result.getDate() != d) {
     	result.setDate(0);
     }
-    console.log("c", result);
     return result;
 }
 

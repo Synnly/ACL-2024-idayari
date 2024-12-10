@@ -298,7 +298,6 @@ class AgendaManager {
 
 	/*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
 	update_event(old_event, new_event, noRec = false, children = false, parent = false) {
-		console.log(noRec, children, parent);
 		const data_to_send = {}
 		let rec_modified = false;
 		let rec_removed = false;
@@ -317,11 +316,9 @@ class AgendaManager {
 			}
 
 			const end_rec_value = old_event.extendedProps.endRec ? old_event.extendedProps.endRec.valueOf() : old_event.extendedProps.endRec;
-			console.log()
 			if (new_event.date_fin_recurrence != end_rec_value) {
 				data_to_send['finRecurrence'] = new_event.date_fin_recurrence;
 				rec_modified = true;
-				console.log("oo");
 			}
 
 			if (new_event.nb_occurrence != old_event.extendedProps.nbOccurrences) {
