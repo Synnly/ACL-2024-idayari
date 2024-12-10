@@ -1,26 +1,32 @@
 export function addDays(date, days) {
     const result = new Date(date.getTime());
-    result.setUTCDate(result.getDate() + days);
+    result.setDate(result.getDate() + days);
     return result;
 }
 
 // quick addMonth and addYears functions, should use moment.js in the future
 export function addMonths(date, months) {
-    const result = new Date(date.getTime());
+    const result = new Date(date.valueOf());
+    console.log("a", result);
     const d = result.getDate();
-    result.setUTCMonth(result.getMonth() + months);
+    result.setMonth(result.getMonth() + months);
+    console.log(result.getHours());
+    result.setUTCHours(0, 0, 0);
+    console.log(result.getHours());
+    console.log("b", result);
     if (result.getDate() != d) {
-    	result.setUTCDate(0);
+    	result.setDate(0);
     }
+    console.log("c", result);
     return result;
 }
 
 export function addYears(date, years) {
     const result = new Date(date.getTime());
     const m = result.getMonth();
-    result.setUTCFullYear(result.getFullYear() + years);
+    result.setFullYear(result.getFullYear() + years);
     if (result.getMonth() != m) {
-        result.setUTCDate(result.getDate()-1);
+        result.setDate(result.getDate()-1);
     }
     return result;
 }

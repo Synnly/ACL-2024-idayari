@@ -136,7 +136,7 @@ export default class RendezVous extends Model {
         if (this.type == 'Simple' || this.idParent) {
             // s'il y a intersection (la condition sur la date de début est déjà vérifiée plus haut)
             if (this.dateFin > periodeDebut) {
-                return this.rendez_vous_donnees([{start: this.dateDebut, end: this.dateFin}]);
+                return this.rendez_vous_donnees([{start: this.dateDebut.valueOf(), end: this.dateFin.valueOf()}]);
             }
             return null;
         }
@@ -171,9 +171,11 @@ export default class RendezVous extends Model {
             debut = add_function(debut, iter * frequence);
         }
         while ((!finRec || debut < finRec) && debut < periodeFin) {
+            // fin.setHours(2, 0, 0);
+            // debut.setHours(2, 0, 0);
             if (excluded_dates == undefined || !excluded_dates.has(debut.valueOf())) {
                 console.log(this.titre, iter, debut, fin);
-                dates.push({start: debut, end: fin});
+                dates.push({start: debut.valueOf(), end: fin.valueOf()});
             }
             iter++;
             fin = add_function(this.dateFin, iter * frequence);

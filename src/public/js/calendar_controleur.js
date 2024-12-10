@@ -32,8 +32,8 @@ function get_event_source(agenda_id) {
                     delete rdv.dates;
                     for (const date of dates) {
                         const ev = {...rdv};
-                        ev.start = new Date(date.start);
-                        ev.end = new Date(date.end);
+                        ev.start = new Date(+date.start);
+                        ev.end = new Date(+date.end);
 						
 						ev.textColor = getTextColorFromBg(rdv.color);
                         events.push(ev);
