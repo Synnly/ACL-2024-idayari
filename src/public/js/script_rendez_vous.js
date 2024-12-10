@@ -330,13 +330,17 @@ searchButton.addEventListener("click", () => {
         .then((response) => response.json())
         .then(async (rendezVous) => {
             let allEvents = [];
-
+            const tenYears = 10* 365 * 24 * 60 * 60 * 1000;
+            const currentTime = new Date().getTime();
             rendezVous.forEach((rdv) => {
                 rdv.dates.forEach((date) => {
+                    const startTime = new Date(date.start).getTime();
+                    if (startTime >= currentTime - tenYears && startTime <= currentTime + tenYears) {
                     allEvents.push({
                         ...date,
                         ...rdv
-                    });
+                    })
+                };
                 });
             });
 

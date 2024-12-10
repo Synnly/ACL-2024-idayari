@@ -1,11 +1,11 @@
 <div class="modal fade" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="border: 2px solid <%= event.color %>; border-radius: 8px">
+    <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Informations</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="word-wrap: break-word; overflow-y: auto; max-height: 400px;">
                 <p><strong>Titre :</strong> <%= event.title %></p>
 
                 <p>
@@ -39,13 +39,10 @@
                         <% } %>
                     <% } %>
                 </p>
-                
-                  
 
                 <p><strong>Lieu :</strong> <%= event.lieu || 'Non spécifié' %></p>
 
                 <p><strong>Description :</strong> <%= event.description || 'Pas de description' %></p>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Fermer</button>

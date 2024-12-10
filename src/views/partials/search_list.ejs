@@ -1,12 +1,22 @@
 <div id="searchResults" class="p-3">
-    <button id="closeSearchView" class="btn btn-outline-secondary mb-3">Revenir à l'agenda</button>
-    <h1 class="fs-4 py-3">Voici les résultat de la recherche : <%= search %> (<%= allEvents.length %> résultats trouvés)</h1> 
+    <button id="closeSearchView" class="btn btn-outline-secondary rounded-circle ">
+        <i class="bi bi-arrow-left fs-4"></i>
+    </button>    
+    <h1 class="fs-4 py-3">Résultats (<%= allEvents.length %>)</h1> 
     <div id="resultsContainer" class="overflow-auto list-group list-group-flush" style="max-height: 75vh;">
         <% if (allEvents.length === 0) { %>
             <p class="text-center text-muted">Aucun résultat trouvé.</p>
         <% } else { %>
             <% allEvents.forEach(event => { %>
-                <div class="list-group-item d-flex align-items-center mb-3" data-event='<%= JSON.stringify(event) %>'
+                <div class="list-group-item d-flex align-items-center mb-3" data-event='<%= JSON.stringify({
+                    id: event.id,
+                    title: event.title,
+                    start: event.start,
+                    end: event.end,
+                    location: event.location,
+                    description: event.description,
+                    allDay: event.allDay
+                }) %>'
                     onclick="showInformation(this)" style="cursor: pointer;" title="Afficher plus d'informations">
 
                     <div class="d-flex align-items-center justify-content-between" style="flex: 2;">
