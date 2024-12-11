@@ -1,39 +1,41 @@
 import { Sequelize, Op } from "sequelize";
 import RendezVous from "../model/RendezVous.js";
+import User from '../model/User.js';
 import { monthDiff, yearDiff, ONE_DAY, THIS_EVENT, ALL_EVENTS, FUTURE_EVENTS } from "../public/js/utils.js";
-import { ALL } from "dns";
+
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
 export function calendarGetData(req, res) {
-    if (!res.locals.user) {
-        return res.status(403).json({err: "not auth"});
-    }
-    const dateStart = new Date(+req.query.start);
-    const dateEnd = new Date(+req.query.end);
-    RendezVous.findAll({ where: { idAgenda: +req.query.agenda } })
-    .then(rendez_vous => {
-        const infos = [];
-        const id_to_rdv = {};
-        for (const rdv of rendez_vous) {
-            if (rdv.idParent) {
-                if (id_to_rdv[rdv.idParent] != undefined) {
-                    id_to_rdv[rdv.idParent].add(rdv.dateDebutDansParent.valueOf());
-                } else {
-                    id_to_rdv[rdv.idParent] = new Set([rdv.dateDebut.valueOf()]);
-                }
-            }
-        }
-        for (const rdv of rendez_vous) {
-            const data = rdv.get_rendezVous(dateStart, dateEnd, id_to_rdv[rdv.id]);
-            if (data) {
-                data.readonly = !res.locals.agendas[+req.query.agenda].isOwner;
-                infos.push(data);
-            }
-        }
-        return res.json(infos);
-    }).catch(err => {
-        console.log(err);
-        res.status(500).json({ err: "Internal Server Error" });
-    });
+	if (!res.locals.user) {
+		return res.status(403).json({ err: 'not auth' });
+	}
+	const dateStart = new Date(+req.query.start);
+	const dateEnd = new Date(+req.query.end);
+	RendezVous.findAll({ where: { idAgenda: +req.query.agenda } })
+		.then((rendez_vous) => {
+			const infos = [];
+			const id_to_rdv = {};
+			for (const rdv of rendez_vous) {
+				if (rdv.idParent) {
+					if (id_to_rdv[rdv.idParent] != undefined) {
+						id_to_rdv[rdv.idParent].add(rdv.dateDebutDansParent.valueOf());
+					} else {
+						id_to_rdv[rdv.idParent] = new Set([rdv.dateDebut.valueOf()]);
+					}
+				}
+			}
+			for (const rdv of rendez_vous) {
+				const data = rdv.get_rendezVous(dateStart, dateEnd, id_to_rdv[rdv.id]);
+				if (data) {
+					data.readonly = !res.locals.agendas[+req.query.agenda].isOwner;
+					infos.push(data);
+				}
+			}
+			return res.json(infos);
+		})
+		.catch((err) => {
+			console.log(err);
+			res.status(500).json({ err: 'Internal Server Error' });
+		});
 }
 
 /**
@@ -42,71 +44,70 @@ export function calendarGetData(req, res) {
  * @param req La requête
  * @param res La réponse
  */
-export function creationRendezVousPOST(req, res){
-    if (!res.locals.user) {
-        return res.status(403).json({ message: 'Unauthorized access' });
-    }
-    const data = req.body;
-    data.startDate = new Date(+data.startDate);
-    data.endDate = new Date(+data.endDate);
-    if (data.date_fin_recurrence) {
-        data.date_fin_recurrence = new Date(+data.date_fin_recurrence);
-    }
+export function creationRendezVousPOST(req, res) {
+	if (!res.locals.user) {
+		return res.status(403).json({ message: 'Unauthorized access' });
+	}
+	const data = req.body;
+	data.startDate = new Date(+data.startDate);
+	data.endDate = new Date(+data.endDate);
+	if (data.date_fin_recurrence) {
+		data.date_fin_recurrence = new Date(+data.date_fin_recurrence);
+	}
 
-    RendezVous.create({
-        titre: data.titre,
-        lieu: data.lieu,
-        description: data.description,
-        dateDebut: data.startDate,
-        dateFin: data.endDate,
-        allDay: data.all_day,
-        type: data.type,
-        frequence: data.frequence,
-        finRecurrence: data.date_fin_recurrence,
-        nbOccurrences: data.nb_occurrence,
-        idAgenda: +data.agenda,
-        color: data.color
-    })
-    .then(rendez_vous => {
-        return res.status(200).json(rendez_vous.idAgenda);
-    })
+	RendezVous.create({
+		titre: data.titre,
+		lieu: data.lieu,
+		description: data.description,
+		dateDebut: data.startDate,
+		dateFin: data.endDate,
+		allDay: data.all_day,
+		type: data.type,
+		frequence: data.frequence,
+		finRecurrence: data.date_fin_recurrence,
+		nbOccurrences: data.nb_occurrence,
+		idAgenda: +data.agenda,
+		color: data.color,
+	}).then((rendez_vous) => {
+		return res.status(200).json(rendez_vous.idAgenda);
+	});
 }
 
 
 
 /*Fonction modifie un rendez vous */
 export async function modifierRendezVousCalendarPOST(req, res) {
-    if (!res.locals.user) {
-        return res.status(403).json({ message: 'Unauthorized access' });
-    }
-    const id = req.body.id;
-    delete req.body['id'];
+	if (!res.locals.user) {
+		return res.status(403).json({ message: 'Unauthorized access' });
+	}
+	const id = req.body.id;
+	delete req.body['id'];
 
-    const rec_changes = req.body.rec_changes;
-    delete req.body['rec_changes'];
+	const rec_changes = req.body.rec_changes;
+	delete req.body['rec_changes'];
 
-    const update_date_debut_dans_parent = req.body.update_spec_date;
-    delete req.body.update_spec_date;
+	const update_date_debut_dans_parent = req.body.update_spec_date;
+	delete req.body.update_spec_date;
 
-    const real_id = req.body.real_id;
-    delete req.body.real_id;
+	const real_id = req.body.real_id;
+	delete req.body.real_id;
 
-    if (req.body.startGap) {
-        const gap_in_seconds = req.body.startGap / 1000; 
-        delete req.body.startGap;
-        req.body.dateDebut = Sequelize.literal(`CASE
+	if (req.body.startGap) {
+		const gap_in_seconds = req.body.startGap / 1000;
+		delete req.body.startGap;
+		req.body.dateDebut = Sequelize.literal(`CASE
                                                     WHEN id = ${real_id} THEN DATE_ADD(dateDebut, INTERVAL ${gap_in_seconds} second)
                                                     ELSE dateDebut
                                                 END`);
-        if (update_date_debut_dans_parent) {
-            req.body.dateDebutDansParent = Sequelize.literal(`DATE_ADD(dateDebutDansParent, INTERVAL ${gap_in_seconds} second)`);
-        }
-    }
+		if (update_date_debut_dans_parent) {
+			req.body.dateDebutDansParent = Sequelize.literal(`DATE_ADD(dateDebutDansParent, INTERVAL ${gap_in_seconds} second)`);
+		}
+	}
 
-    if (req.body.endGap) {
-        const gap_in_seconds = req.body.endGap / 1000;
-        delete req.body.endGap;
-        req.body.dateFin = Sequelize.literal(`CASE
+	if (req.body.endGap) {
+		const gap_in_seconds = req.body.endGap / 1000;
+		delete req.body.endGap;
+		req.body.dateFin = Sequelize.literal(`CASE
                                                 WHEN id = ${real_id} THEN DATE_ADD(dateFin, INTERVAL ${gap_in_seconds} second)
                                                 ELSE dateFin
                                               END`);
@@ -148,22 +149,31 @@ export async function modifierRendezVousCalendarPOST(req, res) {
 }
 
 export function modifierRendezVousRecInstancePOST(req, res) {
-    if (!res.locals.user) {
-        return res.status(403).json({ message: 'Unauthorized access' });
-    }
-    //Récupération des champs du form
-    const { id, title, lieu, description, agenda, start, end, allDay, color, type, frequence, fin_recurrence, nbOccurrences, dateDebutDansParent } = req.body;
-    
-    RendezVous.create({
-        titre: title, lieu: lieu, description: description,
-        dateDebut: new Date(+start), dateFin: new Date(+end), allDay: allDay,
-        idAgenda: agenda,
-        color: color, type: type, nbOccurrences: nbOccurrences,
-        frequence: frequence, fin_recurrence: fin_recurrence ? new Date(+fin_recurrence) : null,
-        idParent: id, deleted: false, dateDebutDansParent: new Date(+dateDebutDansParent)
-    })
-    .then(_ => res.status(200).end())
-    .catch(_ => res.status(400).end())
+	if (!res.locals.user) {
+		return res.status(403).json({ message: 'Unauthorized access' });
+	}
+	//Récupération des champs du form
+	const { id, title, lieu, description, agenda, start, end, allDay, color, type, frequence, fin_recurrence, nbOccurrences, dateDebutDansParent } = req.body;
+
+	RendezVous.create({
+		titre: title,
+		lieu: lieu,
+		description: description,
+		dateDebut: new Date(+start),
+		dateFin: new Date(+end),
+		allDay: allDay,
+		idAgenda: agenda,
+		color: color,
+		type: type,
+		nbOccurrences: nbOccurrences,
+		frequence: frequence,
+		fin_recurrence: fin_recurrence ? new Date(+fin_recurrence) : null,
+		idParent: id,
+		deleted: false,
+		dateDebutDansParent: new Date(+dateDebutDansParent),
+	})
+		.then((_) => res.status(200).end())
+		.catch((_) => res.status(400).end());
 }
 
 export function supprimerRDVDELETE(req, res) {
@@ -242,19 +252,20 @@ function removeFutureRDV(id, start, res) {
 }
 
 function removeSimpleRDV(id, res) {
-    RendezVous.findByPk(id)
-    .then(rdv => {
-        if (rdv) {
-            if (res.locals.agendas[rdv.idAgenda].isOwner) {
-                rdv.destroy()
-                .then(_ => res.status(200).end())
-                .catch(_ => res.status(400).end())
-            } else {
-                res.status(400).end();
-            }
-        }
-
-    }).catch(_ => res.status(400).end())
+	RendezVous.findByPk(id)
+		.then((rdv) => {
+			if (rdv) {
+				if (res.locals.agendas[rdv.idAgenda].isOwner) {
+					rdv
+						.destroy()
+						.then((_) => res.status(200).end())
+						.catch((_) => res.status(400).end());
+				} else {
+					res.status(400).end();
+				}
+			}
+		})
+		.catch((_) => res.status(400).end());
 }
 
 function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
@@ -375,4 +386,72 @@ export function modifyFutureRecRDVPOST(req, res) {
             .catch(_ => res.status(400).end());
         });
     })
+}
+
+//Duplication du code pour inclure le terme recherché
+/**
+ * Recherche de rendezVous par le server (Récupération des Rdvs par Agendas lié à l'User)
+ */
+export function calendarGetDataBySearch(req, res) {
+	if (!res.locals.user) {
+		return res.status(403).json({ err: 'not auth' });
+	}
+
+	//Triche = Pour ne pas avoir à toucher RendezVous.get_rendezVous
+	const dateStart = new Date();
+	dateStart.setFullYear(dateStart.getFullYear() - 30);
+	const dateEnd = new Date();
+	dateEnd.setFullYear(dateEnd.getFullYear() + 30);
+
+	const requestedAgendas = req.query.agendas ? req.query.agendas.split(',').map(Number) : [];
+	User.findByPk(res.locals.user.id)
+		.then((user) =>
+			user.getAgendas().then((agendas) => {
+				const agendasMap = agendas.reduce((map, agenda) => {
+					map[agenda.id] = agenda;
+					return map;
+				}, {});
+
+				const agendasId = requestedAgendas.length > 0 ? agendas.filter((agenda) => requestedAgendas.includes(agenda.id)).map((agenda) => agenda.id) : agendas.map((agenda) => agenda.id);
+
+				RendezVous.findAll({
+					where: {
+						idAgenda: { [Op.in]: agendasId },
+						[Op.or]: [{ titre: { [Op.like]: `%${req.query.search}%` } }, { description: { [Op.like]: `%${req.query.search}%` } }, { lieu: { [Op.like]: `%${req.query.search}%` } }],
+					},
+				})
+					.then((rendez_vous) => {
+						const infos = [];
+						const id_to_rdv = {};
+						for (const rdv of rendez_vous) {
+							if (rdv.idParent) {
+								if (id_to_rdv[rdv.idParent] !== undefined) {
+									id_to_rdv[rdv.idParent].add(rdv.dateDebutDansParent.valueOf());
+								} else {
+									id_to_rdv[rdv.idParent] = new Set([rdv.dateDebutDansParent.valueOf()]);
+								}
+							}
+						}
+						for (const rdv of rendez_vous) {
+							const data = rdv.get_rendezVous(dateStart, dateEnd, id_to_rdv[rdv.id]);
+
+							if (data) {
+								data.readonly = !res.locals.agendas[+rdv.idAgenda].isOwner;
+								data.agendaName = agendasMap[rdv.idAgenda]?.nom;
+								infos.push(data);
+							}
+						}
+
+						return res.json(infos);
+					})
+					.catch((err) => {
+						console.log(err);
+						res.status(500).json({ err: 'Internal Server Error' });
+					});
+			})
+		)
+		.catch((err) => {
+			console.log(err);
+			res.status(500).json({ err: 'Internal Server Error' });
+		});
 }
