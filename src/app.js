@@ -8,7 +8,8 @@ import { updateAgendasCookie, updateViewCookies } from './routes/cookie.js';
 import {connexionGET, connexionPOST, deconnexion} from "./routes/connexion.js";
 import {inscriptionGET, inscriptionPOST} from "./routes/inscription.js";
 import {creationAgendaPOST, modifierAgendaPOST, supprimerAgendaDELETE} from "./routes/agenda.js";
-import {calendarGetData, modifierRendezVousCalendarPOST, modifierRendezVousRecInstancePOST, creationRendezVousPOST, supprimerRDVDELETE, calendarGetDataBySearch} from "./routes/rendezVous.js";
+import {calendarGetData, calendarGetDataBySearch, modifierRendezVousCalendarPOST, modifierRendezVousRecInstancePOST, 
+    creationRendezVousPOST, supprimerRDVDELETE, modifyFutureRecRDVPOST} from "./routes/rendezVous.js";
 import {modifierInfosPersoGET, modifierInfosPersoPOST} from "./routes/modifierInfosPerso.js";
 
 import { exportAgendaPOST } from './routes/export.js';
@@ -53,6 +54,7 @@ app
     .post("/rendezvous/new", creationRendezVousPOST)
     .post("/calendar-rdv", modifierRendezVousCalendarPOST)
     .post("/calendar-rdv-rec-instance", modifierRendezVousRecInstancePOST)
+    .post("/modifyRdvRecFuture", modifyFutureRecRDVPOST)
     .delete('/supprimerRDV', supprimerRDVDELETE)
 
     .get('/infos_perso', modifierInfosPersoGET)

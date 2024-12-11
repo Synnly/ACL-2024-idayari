@@ -1,6 +1,7 @@
-import { Sequelize, Op } from 'sequelize';
-import RendezVous from '../model/RendezVous.js';
+import { Sequelize, Op } from "sequelize";
+import RendezVous from "../model/RendezVous.js";
 import User from '../model/User.js';
+import { monthDiff, yearDiff, ONE_DAY, THIS_EVENT, ALL_EVENTS, FUTURE_EVENTS } from "../public/js/utils.js";
 
 /*Fonction gère et renvoie les rendez-vous simples pour des agendas donnés dans une période donnée */
 export function calendarGetData(req, res) {
@@ -72,6 +73,8 @@ export function creationRendezVousPOST(req, res) {
 	});
 }
 
+
+
 /*Fonction modifie un rendez vous */
 export async function modifierRendezVousCalendarPOST(req, res) {
 	if (!res.locals.user) {
@@ -108,26 +111,41 @@ export async function modifierRendezVousCalendarPOST(req, res) {
                                                 WHEN id = ${real_id} THEN DATE_ADD(dateFin, INTERVAL ${gap_in_seconds} second)
                                                 ELSE dateFin
                                               END`);
-	}
+    }
 
-	if (req.body.finRecurrence) {
-		req.body.finRecurrence = new Date(+req.body.finRecurrence);
-	}
+    if (req.body.start) {
+        req.body.dateDebut = new Date(+req.body.start);
+        delete req.body.start;
+    }
 
-	if (rec_changes) {
-		await RendezVous.destroy({ where: { idParent: id } });
-	}
+    if (req.body.end) {
+        req.body.dateFin = new Date(+req.body.end);
+        delete req.body.end;
+    }
 
-	RendezVous.update(req.body, {
-		where: {
-			[Op.or]: [{ id: id }, { idParent: id }],
-		},
-	})
-		.then((_) => res.status(200).json())
-		.catch((err) => {
-			console.log(err);
-			res.status(400).json();
-		});
+    if (req.body.finRecurrence != undefined) {
+        req.body.finRecurrence = new Date(+req.body.finRecurrence);
+        req.body.nbOccurrences = null;
+    }
+
+    if (req.body.nbOccurrences != undefined) {
+        req.body.finRecurrence = null;
+    }
+
+    if (rec_changes) {
+        await RendezVous.destroy({where: {idParent: id}});
+    }
+
+    RendezVous.update(req.body, {
+        where: {
+            [Op.or]: [{id: id}, {idParent: id}]
+        }
+    })
+    .then(_ => res.status(200).json())
+    .catch(err => {
+        console.log(err);
+        res.status(400).json();
+    });
 }
 
 export function modifierRendezVousRecInstancePOST(req, res) {
@@ -159,20 +177,78 @@ export function modifierRendezVousRecInstancePOST(req, res) {
 }
 
 export function supprimerRDVDELETE(req, res) {
-	if (!res.locals.user) {
-		return res.redirect('/connexion');
-	}
-	const id = req.body.id;
-	const which = req.body.which;
-	const start = req.body.start;
-	const end = req.body.end;
-	const idParent = req.body.idParent;
-	if (!which) removeSimpleRDV(id, res);
-	else if (which === 'this') {
-		removeInstanceRecRDV(id, start, end, idParent, res);
-	} else if (which === 'all') {
-		removeSimpleRDV(idParent ? idParent : id, res);
-	}
+    if (!res.locals.user) {
+        return res.redirect('/connexion');
+    }
+    const id = req.body.id;
+    const which = req.body.which;
+    const start = req.body.start;
+    const end = req.body.end;
+    const startNoHours = req.body.startNoHours;
+    const idParent = req.body.idParent;
+    if (!which)
+        removeSimpleRDV(id, res);
+    else if (which === THIS_EVENT) {
+        removeInstanceRecRDV(id, start, end, idParent, res);
+    } else if (which === ALL_EVENTS) {
+        removeSimpleRDV(idParent ? idParent : id, res);
+    } else if (which === FUTURE_EVENTS) {
+        removeFutureRDV(idParent ? idParent : id, startNoHours, res);
+    }  
+}
+
+function removeFutureRDV(id, start, res) {
+    RendezVous.findByPk(id)
+    .then(rdv => {
+        const modif = {};
+        const startDate = new Date(+start);
+        if (rdv.nbOccurrences != null) {
+            // on trouve le nouveau nombre d'occurrences si on compte jusqu'à l'évènement cliqué
+            const debut = rdv.dateDebut.valueOf();
+            let nbOccurrences;
+            if (start <= debut) {
+                nbOccurrences = 0;
+            } else {
+                if (rdv.type === 'Daily') {
+                    nbOccurrences = Math.ceil((start - debut)/(rdv.frequence * ONE_DAY));
+                } else if (rdv.type === 'Weekly') {
+                    nbOccurrences = Math.ceil((start - debut)/(rdv.frequence * ONE_DAY * 7));
+                } else if (rdv.type === 'Monthly') {
+                    let month_diff = monthDiff(rdv.dateDebut, startDate);
+                    if (startDate.getDate() > rdv.dateDebut.getDate()) {
+                        month_diff += 1;
+                    }
+                    nbOccurrences = Math.ceil(month_diff / rdv.frequence);
+                } else { // year
+                    let year_diff = yearDiff(rdv.dateDebut, startDate);
+                    if (startDate.getMonth() > rdv.dateDebut.getMonth() || (startDate.getMonth() === rdv.dateDebut.getMonth() && startDate.getDate() > rdv.dateDebut.getDate())) {
+                        year_diff += 1;
+                    }
+                    nbOccurrences = Math.ceil(year_diff / rdv.frequence);
+                }
+            }
+            modif['nbOccurrences'] = nbOccurrences;
+        } else {
+            modif['finRecurrence'] = startDate;
+        }
+        RendezVous.update(modif, {
+            where: {
+                [Op.or]: [{id: id}, {idParent: id}]
+            }
+        })
+        .then(_ => {
+            RendezVous.destroy({
+                where: {
+                    idParent: id, 
+                    dateDebut: {
+                        [Op.gte]: startDate
+                    }
+                }
+            })
+            .then(_ => res.status(200).end())
+            .catch(_ => res.status(400).end());
+        });
+    })
 }
 
 function removeSimpleRDV(id, res) {
@@ -193,45 +269,123 @@ function removeSimpleRDV(id, res) {
 }
 
 function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
-	RendezVous.findByPk(id)
-		.then((rdv) => {
-			if (rdv) {
-				if (res.locals.agendas[rdv.idAgenda].isOwner) {
-					if (existing_child) {
-						RendezVous.update({ deleted: true }, { where: { id: id } })
-							.then((_) => res.status(200).end())
-							.catch((_) => res.status(400).end());
-					} else {
-						startDate = new Date(+startDate);
-						endDate = new Date(+endDate);
-						RendezVous.findByPk(id).then((parent) => {
-							RendezVous.create({
-								titre: parent.titre,
-								lieu: parent.lieu,
-								description: parent.description,
-								dateDebut: startDate,
-								dateFin: endDate,
-								allDay: parent.all_day,
-								idAgenda: parent.idAgenda,
-								color: parent.color,
-								type: parent.type,
-								frequence: parent.frequence,
-								finRecurrence: parent.finRecurrence,
-								nbOccurrences: parent.nbOccurrences,
-								idParent: id,
-								deleted: true,
-								dateDebutDansParent: startDate,
-							})
-								.then((_) => res.status(200).end())
-								.catch((_) => res.status(400).end());
-						});
-					}
-				} else {
-					res.status(400).end();
-				}
-			}
-		})
-		.catch((_) => res.status(400).end());
+    RendezVous.findByPk(id)
+    .then(rdv => {
+        if (rdv) {
+            if (res.locals.agendas[rdv.idAgenda].isOwner) {
+                if (existing_child) {
+                    RendezVous.update({deleted: true}, {where: {id: id}})
+                    .then(_ => res.status(200).end())
+                    .catch(_ => res.status(400).end())
+                } else {
+                    startDate = new Date(+startDate);
+                    endDate = new Date(+endDate);
+                    RendezVous.findByPk(id)
+                    .then(parent => {
+                        RendezVous.create({
+                            titre: parent.titre, lieu: parent.lieu, description: parent.description,
+                            dateDebut: startDate, dateFin: endDate, allDay: parent.all_day,
+                            idAgenda: parent.idAgenda,
+                            color: parent.color,
+                            type: parent.type, frequence: parent.frequence, 
+                            finRecurrence: parent.finRecurrence, nbOccurrences: parent.nbOccurrences,
+                            idParent: id, deleted: true, dateDebutDansParent: startDate
+                        })
+                        .then(_ => res.status(200).end())
+                        .catch(_ => res.status(400).end())
+                    })
+                }
+            } else {
+                res.status(400).end();
+            }
+        }
+    }).catch(_ => res.status(400).end())
+}
+
+export function modifyFutureRecRDVPOST(req, res) {
+    if (!res.locals.user) {
+        return res.redirect('/connexion');
+    }
+    const id = req.body.id;
+    const start = req.body.start;
+    const fake_start = req.body.start;
+    const startNoHours = req.body.startNoHours;
+    const changes = req.body.changes;
+    RendezVous.findByPk(id)
+    .then(rdv => {
+        const modif = {};
+        const old_data = rdv.dataValues;
+        delete old_data.id;
+        const startDate = new Date(+startNoHours);
+        let nbOccurrences;
+        if (rdv.nbOccurrences != null) {
+            // on trouve le nouveau nombre d'occurrences si on compte jusqu'à l'évènement cliqué
+            const debut = rdv.dateDebut.valueOf();
+            if (startNoHours <= debut) {
+                nbOccurrences = 0;
+            } else {
+                if (rdv.type === 'Daily') {
+                    nbOccurrences = Math.ceil((startNoHours - debut)/(rdv.frequence * ONE_DAY));
+                } else if (rdv.type === 'Weekly') {
+                    nbOccurrences = Math.ceil((startNoHours - debut)/(rdv.frequence * ONE_DAY * 7));
+                } else if (rdv.type === 'Monthly') {
+                    let month_diff = monthDiff(rdv.dateDebut, startDate);
+                    if (startDate.getDate() > rdv.dateDebut.getDate()) {
+                        month_diff += 1;
+                    }
+                    nbOccurrences = Math.ceil(month_diff / rdv.frequence);
+                } else { // year
+                    let year_diff = yearDiff(rdv.dateDebut, startDate);
+                    if (startDate.getMonth() > rdv.dateDebut.getMonth() || (startDate.getMonth() === rdv.dateDebut.getMonth() && startDate.getDate() > rdv.dateDebut.getDate())) {
+                        year_diff += 1;
+                    }
+                    nbOccurrences = Math.ceil(year_diff / rdv.frequence);
+                }
+            }
+            modif['nbOccurrences'] = nbOccurrences;
+        } else {
+            modif['finRecurrence'] = startDate;
+        }
+        // on met à jour les rendez-vous
+        RendezVous.update(modif, {
+            where: {
+                [Op.or]: [{id: id}, {idParent: id}]
+            }
+        })
+        .then(_ => {
+            // on crée un nouveau rendez-vous pour représenter la recurrence
+            RendezVous.create(old_data)
+            .then(new_rdv => {
+                const new_start = new Date(+fake_start);
+                new_rdv.set('dateDebut', new_start);
+                new_rdv.set('dateFin', new Date(new_start.getTime() + (old_data.dateFin.getTime() - old_data.dateDebut.getTime())));
+                if (new_rdv.nbOccurrences != null) {
+                    console.log(old_data.nbOccurrences, nbOccurrences);
+                    new_rdv.set('nbOccurrences', old_data.nbOccurrences - nbOccurrences);
+                }
+                new_rdv.save()
+                .then(_ => {
+                    RendezVous.update({idParent: new_rdv.id}, {
+                        where: {
+                            idParent: id,
+                            dateDebut: {[Op.gte]: new Date(+start)}
+                        }
+                    })
+                    .then(_ => {
+                        changes['id'] = new_rdv.id;
+                        if (changes.real_id == id) {
+                            changes.real_id = new_rdv.id;
+                        }
+                        req.body = changes;
+                        modifierRendezVousCalendarPOST(req, res);
+                    })
+                    .catch(_ => res.status(400).end());
+                })
+                .catch(_ => res.status(400).end());
+            })
+            .catch(_ => res.status(400).end());
+        });
+    })
 }
 
 //Duplication du code pour inclure le terme recherché
@@ -301,4 +455,3 @@ export function calendarGetDataBySearch(req, res) {
 			res.status(500).json({ err: 'Internal Server Error' });
 		});
 }
-

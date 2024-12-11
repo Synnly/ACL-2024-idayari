@@ -1,5 +1,5 @@
 import {DataTypes, Model} from "sequelize";
-import { addDays, addMonths, addYears, daysDiff, monthDiff, yearDiff} from "../public/js/utils.js";
+import {addDays, addMonths, addYears, daysDiff, monthDiff, yearDiff} from "../public/js/utils.js";
 
 export default class RendezVous extends Model {
     /**
@@ -71,9 +71,9 @@ export default class RendezVous extends Model {
             type: DataTypes.INTEGER,
             allowNull: true,
             validate: {
-                nbOccurencesValidator(value){
-                    if ((value !==null) && value < 2)  {
-                        throw new Error(`nbOccurence doit être supérieur à 2 (nbOccurences : ${value})`);
+                nbOccurrencesValidator(value){
+                    if ((value !==null) && value < 0)  {
+                        throw new Error(`nbOccurrence doit être supérieur à 0 (nbOccurrences : ${value})`);
                     }
                 }
             },
@@ -136,7 +136,7 @@ export default class RendezVous extends Model {
         if (this.type == 'Simple' || this.idParent) {
             // s'il y a intersection (la condition sur la date de début est déjà vérifiée plus haut)
             if (this.dateFin > periodeDebut) {
-                return this.rendez_vous_donnees([{start: this.dateDebut, end: this.dateFin}]);
+                return this.rendez_vous_donnees([{start: this.dateDebut.valueOf(), end: this.dateFin.valueOf()}]);
             }
             return null;
         }
@@ -158,23 +158,25 @@ export default class RendezVous extends Model {
         const dates = [];
         let debut = this.dateDebut;
         let fin = this.dateFin;
+        const duree = fin.valueOf() - debut.valueOf();
+        let iter = 0;
         // le premier rendez vous récurrent ne rentre pas dans la période, au lieu de parcourir
         // tous les rendez vous récurrents qui ne rentreraient pas, on skip jusqu'au premier rendez-vous récurrent dans la période
         if (fin <= periodeDebut) {
             // si le skip est de 0 la différence n'est assez pas significative
             // ex fin = 12-Nov, periodeDebut = 24-Nov avec une fréquence mensuelle
             // la différence mensuelle est nulle (même mois) mais fin est toujours en arrière
-            let diff = Math.max(1, Math.ceil(diff_function(fin, periodeDebut)/frequence));
-            const skip = diff * frequence;
-            fin = add_function(fin, skip);
-            debut = add_function(debut, skip);
+            iter = Math.max(1, Math.ceil(diff_function(fin, periodeDebut) / frequence));
+            fin = add_function(fin, iter * frequence);
+            debut = add_function(debut, iter * frequence);
         }
         while ((!finRec || debut < finRec) && debut < periodeFin) {
             if (excluded_dates == undefined || !excluded_dates.has(debut.valueOf())) {
-                dates.push({start: debut, end: fin});
+                dates.push({start: debut.valueOf(), end: fin.valueOf()});
             }
-            debut = add_function(debut, frequence);
-            fin = add_function(fin, frequence);
+            iter++;
+            fin = add_function(this.dateFin, iter * frequence);
+            debut = add_function(this.dateDebut, iter * frequence);
         }
         return this.rendez_vous_donnees(dates);
     }

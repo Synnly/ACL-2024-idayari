@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { getRendezVousModal } from '/js/script_rendez_vous.js';
-import { json_fetch,normalizedStringComparaison } from './utils.js';
+import { ALL_EVENTS, FUTURE_EVENTS, json_fetch,normalizedStringComparaison, THIS_EVENT } from './utils.js';
 
 /* Script qui contient le model et fait execute les différentes requêtes aux server
 AgendaManager connait une instance de Data , c'est selon ces données que l'affichage est mis à jours*/
@@ -32,8 +32,8 @@ function get_event_source(agenda_id) {
                     delete rdv.dates;
                     for (const date of dates) {
                         const ev = {...rdv};
-                        ev.start = new Date(date.start);
-                        ev.end = new Date(date.end);
+                        ev.start = new Date(+date.start);
+                        ev.end = new Date(+date.end);
 						
 						ev.textColor = getTextColorFromBg(rdv.color);
                         events.push(ev);
@@ -150,7 +150,7 @@ class AgendaManager {
                 getRendezVousModal(data, (form_data, which) => {
 					if (!which) {
 						manager.update_event(event, form_data);
-					} else if (which == "this") {
+					} else if (which === THIS_EVENT) {
 						// if the event we modify is already special
 						if (idParent) {
 							manager.update_event(event, form_data, true);
@@ -164,14 +164,9 @@ class AgendaManager {
 							.then(_ => manager.calendrier.getEventSourceById(data.agenda).refetch())
 							.catch(error => console.log(error));
 						}
-					} else if (which == "all") {
-						if (idParent) {
-							manager.update_event(event, form_data, null, null, true);
-						} else {
-							manager.update_event(event, form_data, null, true);
-						}
+					} else {
+						manager.update_event(event, form_data, null, idParent == null, idParent != null, which === FUTURE_EVENTS);
 					}
-                    
                 }, () => event.remove());
             },
             datesSet: function(dateInfo) {
@@ -294,13 +289,16 @@ class AgendaManager {
 	}
 
 	/*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
-	update_event(old_event, new_event, noRec = false, children = false, parent = false) {
-
+	update_event(old_event, new_event, noRec = false, children = false, hasParent = false, future = false) {
 		const data_to_send = {}
 		let rec_modified = false;
+		let rec_removed = false;
 		if (!noRec) {
 			if (new_event.type !== old_event.extendedProps.type) {
 				data_to_send['type'] = new_event.type;
+				if (new_event.type === "Simple") {
+					rec_removed = true;
+				}
 				rec_modified = true;
 			}
 
@@ -321,19 +319,19 @@ class AgendaManager {
 			}
 		}
 		let modified = rec_modified;
-		let purged = false;
+		let purged = future;
 		const update_children_infos = {};
 		if (old_event.extendedProps.agenda != new_event.agenda) {
 			modified = purged = true;
 			data_to_send['idAgenda'] = new_event.agenda;
-			if (children || parent) {
+			if (children || hasParent) {
 				this.removeEventsByParent(children ? old_event.groupId : old_event.extendedProps.idParent);
 			} else {
 				this.remove_events(old_event.groupId);
 			}
 		}
 
-		if (new_event.titre != old_event.title) {
+		if (new_event.titre != old_event.title || rec_removed) {
 			modified = true;
 			data_to_send['titre'] = new_event.titre;
 			if (!rec_modified && !purged) {
@@ -343,17 +341,25 @@ class AgendaManager {
 		}
 
 		let date_modified = false;
-		if (new_event.startDate != old_event.start.valueOf()) {
+		if (new_event.startDate != old_event.start.valueOf() || rec_removed) {
 			modified = date_modified = true;
-			data_to_send['startGap'] = new_event.startDate - old_event.start.valueOf();
+			if (rec_removed) {
+				data_to_send['start'] = new_event.startDate;
+			} else {
+				data_to_send['startGap'] = new_event.startDate - old_event.start.valueOf();
+			}
 		}
 
-		if (new_event.endDate != old_event.end.valueOf()) {
+		if (new_event.endDate != old_event.end.valueOf() || rec_removed) {
 			modified = date_modified = true;
-			data_to_send['endGap'] = new_event.endDate - old_event.end.valueOf();
+			if (rec_removed) {
+				data_to_send['end'] = new_event.endDate;
+			} else {
+				data_to_send['endGap'] = new_event.endDate - old_event.end.valueOf();
+			}
 		}
 
-		if (new_event.all_day != old_event.allDay) {
+		if (new_event.all_day != old_event.allDay || rec_removed) {
 			modified = date_modified = true;
 			data_to_send['allDay'] = new_event.all_day;
 		}
@@ -364,7 +370,7 @@ class AgendaManager {
 			update_children_infos['dateDebutDansParent'] = ['E', data_to_send['startGap'] ?? 0];
 		}
 
-		if (new_event.lieu != old_event.extendedProps.lieu) {
+		if (new_event.lieu != old_event.extendedProps.lieu || rec_removed) {
 			modified = true;
 			data_to_send['lieu'] = new_event.lieu;
 			if (!rec_modified && !purged) {
@@ -373,7 +379,7 @@ class AgendaManager {
 			}
 		}
 
-		if (new_event.description != old_event.extendedProps.description) {
+		if (new_event.description != old_event.extendedProps.description || rec_removed) {
 			modified = true;
 			data_to_send['description'] = new_event.description;
 			if (!rec_modified && !purged) {
@@ -382,7 +388,7 @@ class AgendaManager {
 			}
 		}
 
-		if("#"+new_event.color !== old_event._def.ui.backgroundColor){
+		if("#"+new_event.color !== old_event._def.ui.backgroundColor || rec_removed){
 			modified = true;
 			data_to_send['color'] = new_event.color;
 			if (!rec_modified && !purged) {
@@ -397,11 +403,11 @@ class AgendaManager {
 		}
 		
 		// met à jour les rdv simples associés
-		if ((children || parent) && !rec_modified && !purged) {
+		if ((children || hasParent) && !rec_modified && !purged && !future) {
 			const visited = new Set();
 			for (const ev of this.calendrier.getEvents()) {
 				if (((children && ev.extendedProps.idParent == old_event.groupId) || 
-				(parent && ((ev.groupId == old_event.extendedProps.idParent) || (ev.idParent == old_event.extendedProps.idParent)))) && !visited.has(ev.groupId)) {
+				(hasParent && ((ev.groupId == old_event.extendedProps.idParent) || (ev.idParent == old_event.extendedProps.idParent)))) && !visited.has(ev.groupId)) {
 					for (const key of Object.keys(update_children_infos)) {
 						const val = update_children_infos[key];
 						if (val[0] == 'P') {
@@ -416,17 +422,31 @@ class AgendaManager {
 		}
 
 		if (modified) {
-			data_to_send['id'] = parent ? old_event.extendedProps.idParent : old_event.groupId;
+			data_to_send['id'] = hasParent ? old_event.extendedProps.idParent : old_event.groupId;
 			data_to_send['rec_changes'] = rec_modified;
-			data_to_send['update_spec_date'] = parent || children;
+			data_to_send['update_spec_date'] = hasParent || children;
 			data_to_send['real_id'] = old_event.groupId;
-			json_fetch('/calendar-rdv', 'POST', data_to_send)
-			.then(_ => {
-				if ((purged && this.agendas[new_event.agenda]) || rec_modified) {
-					this.calendrier.getEventSourceById(new_event.agenda).refetch();
-				}
-			})
-			.catch(error => console.log(error));
+			if (future) {
+				const startNoHours = old_event.start;
+				startNoHours.setHours(0, 0, 0);
+				const fake_start = hasParent ? old_event.extendedProps.dateDebutDansParent : old_event.start;
+				json_fetch('/modifyRdvRecFuture', 'POST', {id: data_to_send.id, start: old_event.start.valueOf(), fake_start: fake_start.valueOf(), startNoHours: startNoHours.valueOf(), changes: data_to_send})
+				.then(_ => {
+					if (this.agendas[new_event.agenda]) {
+						this.calendrier.getEventSourceById(new_event.agenda).refetch();
+					}
+				})
+				.catch(error => console.log(error));
+			} else {
+				json_fetch('/calendar-rdv', 'POST', data_to_send)
+				.then(_ => {
+					if ((purged && this.agendas[new_event.agenda]) || rec_modified) {
+						this.calendrier.getEventSourceById(new_event.agenda).refetch();
+					}
+				})
+				.catch(error => console.log(error));
+			}
+			
 		}
 	}
 
@@ -472,7 +492,14 @@ class AgendaManager {
 				ev.remove();
 			}
 		}
+	}
 
+	removeEventsByParentAfter(id, date) {
+		for (const ev of this.calendrier.getEvents()) {
+			if ((ev.id == id || ev.extendedProps.idParent == id) && ev.start.valueOf() >= date) {
+				ev.remove();
+			}
+		}
 	}
 	/**
 	 * Permet de récupérer l'interval affiché du calendrier
