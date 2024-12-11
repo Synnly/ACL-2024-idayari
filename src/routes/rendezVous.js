@@ -340,7 +340,24 @@ export function modifyFutureRecRDV(res, req) {
         .then(_ => {
             RendezVous.create(old_data)
             .then(new_rdv => {
-                new_rdv.set('dateDebut', new Date(+start));
+                const new_start = new Date(+start);
+                new_rdv.set('dateDebut', new_start);
+                new_rdv.set('dateFin', new Date(new_start.getTime() + (old_data.dateFin.getTime() - old_data.dateDebut.getTime())));
+                new_rdv.save()
+                .then(_ => {
+                    RendezVous.update({idParent: new_rdv.id}, {
+                        where: {
+                            idParent: id,
+                            dateDebut: {[Op.gte]: new_start}
+                        }
+                    })
+                    .then(_ => {
+                        req.body = changes;
+                        modifierRendezVousCalendarPOST(req, res);
+                    })
+                    .catch(_ => res.status(400).end());
+                })
+                .catch(_ => res.status(400).end());
             })
             .catch(_ => res.status(400).end());
         });
