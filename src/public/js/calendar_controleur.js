@@ -429,10 +429,10 @@ class AgendaManager {
 			data_to_send['update_spec_date'] = hasParent || children;
 			data_to_send['real_id'] = old_event.groupId;
 			if (future) {
-				const startNoHours = old_event.start;
-				startNoHours.setHours(0, 0, 0);
 				const fake_start = hasParent ? old_event.extendedProps.dateDebutDansParent : old_event.start;
-				json_fetch('/modifyRdvRecFuture', 'POST', {id: data_to_send.id, start: old_event.start.valueOf(), fake_start: fake_start.valueOf(), startNoHours: startNoHours.valueOf(), changes: data_to_send})
+				const startNoHours = fake_start;
+				startNoHours.setHours(0, 0, 0);
+				json_fetch('/modifyRdvRecFuture', 'POST', {id: data_to_send.id, start: fake_start.valueOf(), startNoHours: startNoHours.valueOf(), changes: data_to_send})
 				.then(_ => {
 					if (this.agendas[new_event.agenda]) {
 						this.calendrier.getEventSourceById(new_event.agenda).refetch();

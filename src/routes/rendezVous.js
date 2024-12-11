@@ -308,7 +308,6 @@ export function modifyFutureRecRDVPOST(req, res) {
     }
     const id = req.body.id;
     const start = req.body.start;
-    const fake_start = req.body.start;
     const startNoHours = req.body.startNoHours;
     const changes = req.body.changes;
     RendezVous.findByPk(id)
@@ -349,15 +348,15 @@ export function modifyFutureRecRDVPOST(req, res) {
         // on met à jour les rendez-vous
         RendezVous.update(modif, {
             where: {
-                [Op.or]: [{id: id}, {idParent: id}],
-                dateDebut: {[Op.lt]: new Date(+start)}
+                [Op.or]: [{id: id}, 
+                        {idParent: id, dateDebutDansParent: {[Op.lt]: new Date(+start)}}]
             }
         })
         .then(_ => {
             // on crée un nouveau rendez-vous pour représenter la recurrence
             RendezVous.create(old_data)
             .then(new_rdv => {
-                const new_start = new Date(+fake_start);
+                const new_start = new Date(+start);
                 new_rdv.set('dateDebut', new_start);
                 new_rdv.set('dateFin', new Date(new_start.getTime() + (old_data.dateFin.getTime() - old_data.dateDebut.getTime())));
                 if (new_rdv.nbOccurrences != null) {
@@ -369,7 +368,7 @@ export function modifyFutureRecRDVPOST(req, res) {
                     RendezVous.update({idParent: new_rdv.id}, {
                         where: {
                             idParent: id,
-                            dateDebut: {[Op.gte]: new Date(+start)}
+                            dateDebutDansParent: {[Op.gte]: new Date(+start)}
                         }
                     })
                     .then(_ => {
