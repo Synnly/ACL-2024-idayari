@@ -78,7 +78,7 @@ export function creationRendezVousPOST(req, res) {
 /*Fonction modifie un rendez vous */
 export async function modifierRendezVousCalendarPOST(req, res) {
 	if (!res.locals.user) {
-		return res.status(403).json({ message: 'Unauthorized access' });
+		return res.redirect("/");
 	}
 	const id = req.body.id;
 	delete req.body['id'];
@@ -150,7 +150,7 @@ export async function modifierRendezVousCalendarPOST(req, res) {
 
 export function modifierRendezVousRecInstancePOST(req, res) {
 	if (!res.locals.user) {
-		return res.status(403).json({ message: 'Unauthorized access' });
+		return res.redirect("/");
 	}
 	//Récupération des champs du form
 	const { id, title, lieu, description, agenda, start, end, allDay, color, type, frequence, fin_recurrence, nbOccurrences, dateDebutDansParent } = req.body;
@@ -394,14 +394,14 @@ export function modifyFutureRecRDVPOST(req, res) {
  */
 export function calendarGetDataBySearch(req, res) {
 	if (!res.locals.user) {
-		return res.status(403).json({ err: 'not auth' });
+		return res.redirect("/");
 	}
 
 	//Triche = Pour ne pas avoir à toucher RendezVous.get_rendezVous
 	const dateStart = new Date();
-	dateStart.setFullYear(dateStart.getFullYear() - 30);
-	const dateEnd = new Date();
-	dateEnd.setFullYear(dateEnd.getFullYear() + 30);
+    dateStart.setFullYear(dateStart.getFullYear() - 10);
+    const dateEnd = new Date();
+	dateEnd.setFullYear(dateEnd.getFullYear() + 10);
 
 	const requestedAgendas = req.query.agendas ? req.query.agendas.split(',').map(Number) : [];
 	User.findByPk(res.locals.user.id)

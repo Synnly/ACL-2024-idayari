@@ -35,7 +35,7 @@ export async function voirPartagesGET(req, res) {
 
 export async function creerPartageGET(req, res) {
 	if (!res.locals.user) {
-		return res.status(403).json({ message: 'Unauthorized access' });
+		return res.redirect("/");
 	}
 	try {
 		const id = req.params.id;
