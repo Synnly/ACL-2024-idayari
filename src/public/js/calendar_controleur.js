@@ -149,7 +149,6 @@ class AgendaManager {
 				const idParent = event.extendedProps.idParent;
 				const data = { id: event.groupId, titre: event.title, lieu: event.extendedProps.lieu, description: event.extendedProps.description, start: event.start, end: event.end, all_day: event.allDay, type: event.extendedProps.type, fin_recurrence: event.extendedProps.endRec, nbOccurrences: event.extendedProps.nbOccurrences, frequence: event.extendedProps.frequence, agenda: event.extendedProps.agenda, removeButton: true, readonly: event.extendedProps.readonly, color: event._def.ui.backgroundColor, idParent: idParent };
                 getRendezVousModal(data, (form_data, which) => {
-					alert(which);
 					if (!which) {
 						manager.update_event(event, form_data);
 					} else if (which === THIS_EVENT) {
@@ -168,7 +167,6 @@ class AgendaManager {
 							.catch(error => console.log(error));
 						}
 					} else {
-						alert("ok");
 						manager.update_event(event, form_data, null, idParent == null, idParent != null, which === FUTURE_EVENTS);
 					}
                 }, () => event.remove());
@@ -433,9 +431,7 @@ class AgendaManager {
 			if (future) {
 				const startNoHours = old_event.start;
 				startNoHours.setHours(0, 0, 0);
-				alert("gh");
 				const fake_start = hasParent ? old_event.extendedProps.dateDebutDansParent : old_event.start;
-				alert(old_event.extendedProps);
 				json_fetch('/modifyRdvRecFuture', 'POST', {id: data_to_send.id, start: old_event.start.valueOf(), fake_start: fake_start.valueOf(), startNoHours: startNoHours.valueOf(), changes: data_to_send})
 				.then(_ => {
 					if (this.agendas[new_event.agenda]) {
