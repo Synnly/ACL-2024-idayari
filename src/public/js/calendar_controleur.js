@@ -429,7 +429,7 @@ class AgendaManager {
 			data_to_send['real_id'] = old_event.groupId;
 			if (future) {
 				const fake_start = hasParent ? old_event.extendedProps.dateDebutDansParent : old_event.start;
-				const startNoHours = fake_start;
+				const startNoHours = hasParent ? old_event.extendedProps.dateDebutDansParent : old_event.start;
 				startNoHours.setHours(0, 0, 0);
 				json_fetch('/modifyRdvRecFuture', 'POST', {id: data_to_send.id, start: fake_start.valueOf(), startNoHours: startNoHours.valueOf(), changes: data_to_send})
 				.then(_ => {
