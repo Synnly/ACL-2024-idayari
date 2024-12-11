@@ -24,22 +24,39 @@ export async function importAgendaPOST(req,res){
             idAgenda: agenda.id
 
         }).then(userAgendaAccess => {
+            try{
+                const mapParent = {};
+                const rdvEnfant = [];
+           
+                req.body.rendezVous.forEach(async rdv => {
+                    let { id, ...rdvWithoutId } = rdv;
+                    rdvWithoutId.idAgenda = agenda.id;
+                    if(rdv.idParent){
+                        rdvEnfant.push(rdvWithoutId);
+                    }else{
+                        let newRdv = await RendezVous.create(rdvWithoutId);
+                        mapParent[rdv.id] = newRdv.id;
+                    }
+                    
+                    rdvEnfant.forEach(childRdv => {
+                        if(mapParent[childRdv.idParent]){
+                            childRdv.idParent = mapParent[childRdv.idParent];
+                            RendezVous.create(childRdv);
+                        }
+                    });
+                });
 
-            const tabRdvs = req.body.rendezVous.map(rdv => ({...rdv,idAgenda: agenda.id})); 
-
-            RendezVous.bulkCreate(tabRdvs, { validate: true }).then(rdvs => { //bulkCreate : Création de l'ensemble de rdv
-
-                const data = manageAddedAgenda(agenda,res); //Gestion cookie et récupération agenta exploitable par AgendaManager
-                renderAgendaEjs(data,res);  // Gestion réponse du serveur
-
-            }).catch(error => { //erreur création rdvs
-
+            }catch (error) {
+                // Gérer les erreurs pour toutes les créations
                 userAgendaAccess.destroy().finally(_ => {
-                        agenda.destroy().finally(_ => {
-                        console.log(error); res.status(400).send(error_message)})
-                        .catch(err => console.error('Error destroying Agenda:', err));    
+                    agenda.destroy().finally(_ => {
+                    console.log(error); res.status(400).send(error_message)})
+                    .catch(err => console.error('Error destroying Agenda:', err));    
                 }).catch(err => console.error('Error destroying userAgendaAccess:', err));
-            });
+            }
+            const data = manageAddedAgenda(agenda,res); //Gestion cookie et récupération agenta exploitable par AgendaManager
+            renderAgendaEjs(data,res);  // Gestion réponse du serveur
+
         }).catch(error => { //Erreur création userAgendaAccess
             
             agenda.destroy().finally(_ => {
