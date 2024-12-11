@@ -24,22 +24,48 @@ export async function importAgendaPOST(req,res){
             idAgenda: agenda.id
 
         }).then(userAgendaAccess => {
-
-            const tabRdvs = req.body.rendezVous.map(rdv => ({...rdv,idAgenda: agenda.id})); 
-
-            RendezVous.bulkCreate(tabRdvs, { validate: true }).then(rdvs => { //bulkCreate : Création de l'ensemble de rdv
-
-                const data = manageAddedAgenda(agenda,res); //Gestion cookie et récupération agenta exploitable par AgendaManager
-                renderAgendaEjs(data,res);  // Gestion réponse du serveur
-
-            }).catch(error => { //erreur création rdvs
-
-                userAgendaAccess.destroy().finally(_ => {
-                        agenda.destroy().finally(_ => {
-                        console.log(error); res.status(400).send(error_message)})
-                        .catch(err => console.error('Error destroying Agenda:', err));    
-                }).catch(err => console.error('Error destroying userAgendaAccess:', err));
+            try{
+                const mapParent = [];
+                const rdvEnfant = [];
+           
+            req.body.rendezVous.forEach(rdv => {
+                let { id, ...rdvWithoutId } = rdv;
+                rdvWithoutId.idAgenda = agenda.id;
+                if(rdv.idParent){
+                    console.log("IL EN EXISTE 111111111111111111111111111111111111",rdv.idParent);
+                    rdvEnfant.push(rdvWithoutId);
+                }else{
+                    // console.log('description rdv',rdv);
+                    // console.log('idParent ',rdv.idParent);
+                    // console.log('idParent ',rdvWithoutParentId);
+                    RendezVous.create(rdvWithoutId).then(newRdv => {
+                        console.log("est ce qu'on arrive iciiiiiiiiiiiiiiiiiii????? ,??????");
+                        console.log(rdv.id, newRdv.id);
+                        mapParent.push(rdv.id);
+                        mapParent[rdv.id] = newRdv.id;
+                    });
+                }
+                console.log("ET LES PARENTS DANS TOUS CA HEIN !! ",mapParent);
+                rdvEnfant.forEach(rdv => {
+                    if(mapParent[rdv.idParent]){
+                        let {id, updatedRdv }= { ...rdv, idParent: mapParent[rdv.idParent] };
+                        RendezVous.create(updatedRdv);
+                    }
+                }) 
             });
+        
+
+            }catch (error) {
+                // Gérer les erreurs pour toutes les créations
+                userAgendaAccess.destroy().finally(_ => {
+                    agenda.destroy().finally(_ => {
+                    console.log(error); res.status(400).send(error_message)})
+                    .catch(err => console.error('Error destroying Agenda:', err));    
+                }).catch(err => console.error('Error destroying userAgendaAccess:', err));
+            }
+            const data = manageAddedAgenda(agenda,res); //Gestion cookie et récupération agenta exploitable par AgendaManager
+            renderAgendaEjs(data,res);  // Gestion réponse du serveur
+
         }).catch(error => { //Erreur création userAgendaAccess
             
             agenda.destroy().finally(_ => {
