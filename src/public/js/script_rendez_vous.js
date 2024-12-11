@@ -294,7 +294,7 @@ export function getRendezVousModal(data, onsuccess, removeFunction) {
 
 
 
-//Recherche de rendez vous
+//Recherche de rendez vous (filtre)
 const inputSearch = document.getElementById("searchRdv");
 
 inputSearch.addEventListener("keyup",searchRdv);
@@ -314,4 +314,128 @@ function searchRdv(){
         agendaManager.filterByTerm(term);
     },300);
 }
+
+
+//Recherche RDV server
+const searchButton = document.getElementById("searchButton");
+const list_agendas = document.getElementById('agendaList');
+const agendaView = document.getElementById("calendar");
+
+
+function SearchRdvs() {
+    const checkedAgendas = Array.from(document.querySelectorAll('#agendaList .li_agenda')).filter((li) => {
+        const checkbox = li.querySelector('input[type="checkbox"]');
+        return checkbox && checkbox.checked;
+    }).map(li => {
+        return li.id.split("_")[1];
+    });       
+
+    const agendaQuery = checkedAgendas.join(","); 
+    const query = `/calendar-search?&search=${encodeURIComponent(inputSearch.value)}&agendas=${agendaQuery}`;
+    const { startDate, endDate } = agendaManager.getDisplayedDatInterval();
+
+    fetch(query)
+        .then(response => response.json())
+        .then(async (rendezVous) => {
+            let allEvents = [];
+            const tenYears = 315360000000;
+            const currentTime = new Date().getTime();
+            rendezVous.forEach((rdv) => {
+                rdv.dates.forEach((date) => {
+                    const startTime = new Date(date.start).getTime();
+                    if (startTime >= currentTime - tenYears && startTime <= currentTime + tenYears) {
+                    allEvents.push({
+                        ...date,
+                        ...rdv,
+                        agendaName: rdv.agendaName,
+                    })
+                };
+                });
+            });
+
+            allEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+            const templateResponse = await fetch('../views/partials/search_list.ejs');
+            const templateText = await templateResponse.text();
+
+            const compiledTemplate = ejs.render(templateText, {
+                allEvents: allEvents,
+                formatEventTime: formatEventTime,
+                formatDate: formatDate,
+                search: inputSearch.value
+            });
+            const existingSearchResultsView = document.getElementById("searchResultsView");
+
+            if (existingSearchResultsView) {
+                agendaContainer.removeChild(existingSearchResultsView);
+                
+            }
+        
+            const searchResultsView = document.createElement("div");
+            searchResultsView.id = "searchResultsView";
+            searchResultsView.innerHTML = compiledTemplate;
+
+            agendaContainer.appendChild(searchResultsView);
+            agendaView.style.display = "none";
+
+            const closeSearchView = document.getElementById("closeSearchView");
+            closeSearchView.addEventListener("click", () => {
+                agendaContainer.removeChild(searchResultsView);
+                agendaView.style.display = "flex";
+                agendaManager.calendrier.updateSize();
+                removeCheckboxListeners();
+            })
+        }).catch(err => console.error("Erreur lors de la recherche :", err));
+}
+
+/**
+ * Lance la recherche de rdv lors du clique sur boutton
+ */
+searchButton.addEventListener("click", () => {
+    SearchRdvs();
+});
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return getConvertedDate(date); 
+}
+function formatEventTime(startString, endString) {
+   return `${getConvertedTime(new Date(startString))}- ${getConvertedTime(new Date(endString))}`;
+}
+
+function addCheckboxListeners() {
+    Array.from(list_agendas.getElementsByTagName("INPUT")).forEach(input => {
+        input.addEventListener("change", SearchRdvs);
+    });
+
+    const selectAllCheckbox = document.getElementById("selectAll");
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener("change", SearchRdvs);
+    }
+}
+
+function removeCheckboxListeners() {
+    Array.from(list_agendas.getElementsByTagName("INPUT")).forEach(input => {
+        input.removeEventListener("change", SearchRdvs); 
+    });
+
+    const selectAllCheckbox = document.getElementById("selectAll");
+    if (selectAllCheckbox) {
+        selectAllCheckbox.removeEventListener("change", SearchRdvs);
+    }
+}
+
+// Si le dom change pour ajouter searchResultsView alors on à fait un recherche
+// Donc ça veut dire qu'il faut ajouter les écouteurs à ce moments
+const observer = new MutationObserver(() => {
+    const existingSearchResultsView = document.getElementById("searchResultsView");
+    if (existingSearchResultsView) {
+        addCheckboxListeners();
+        observer.disconnect(); 
+    }else {
+
+    }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
 

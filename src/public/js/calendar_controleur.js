@@ -474,6 +474,14 @@ class AgendaManager {
 		}
 
 	}
+	/**
+	 * Permet de récupérer l'interval affiché du calendrier
+	 * @returns interval affiché
+	 */
+	getDisplayedDatInterval(){
+		let view = this.calendrier.view;
+		return {startDate : view.currentStart,endDate:view.currentEnd}
+	}
 }
 
 /**
