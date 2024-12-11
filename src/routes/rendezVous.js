@@ -360,7 +360,6 @@ export function modifyFutureRecRDVPOST(req, res) {
                 new_rdv.set('dateDebut', new_start);
                 new_rdv.set('dateFin', new Date(new_start.getTime() + (old_data.dateFin.getTime() - old_data.dateDebut.getTime())));
                 if (new_rdv.nbOccurrences != null) {
-                    console.log(old_data.nbOccurrences, nbOccurrences);
                     new_rdv.set('nbOccurrences', old_data.nbOccurrences - nbOccurrences);
                 }
                 new_rdv.save()

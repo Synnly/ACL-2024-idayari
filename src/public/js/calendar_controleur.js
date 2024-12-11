@@ -152,7 +152,6 @@ class AgendaManager {
 					if (!which) {
 						manager.update_event(event, form_data);
 					} else if (which === THIS_EVENT) {
-						console.log("df");
 						// if the event we modify is already special
 						if (idParent) {
 							manager.update_event(event, form_data, true);
