@@ -291,22 +291,25 @@ function removeInstanceRecRDV(id, startDate, endDate, existing_child, res) {
     }).catch(_ => res.status(400).end())
 }
 
-export function modifyFutureRecRDV(res, req) {
+export function modifyFutureRecRDVPOST(req, res) {
     if (!res.locals.user) {
         return res.redirect('/connexion');
     }
     const id = req.body.id;
     const start = req.body.start;
+    const fake_start = req.body.start;
     const startNoHours = req.body.startNoHours;
     const changes = req.body.changes;
     RendezVous.findByPk(id)
     .then(rdv => {
+        const modif = {};
         const old_data = rdv.dataValues;
+        delete old_data.id;
         const startDate = new Date(+startNoHours);
+        let nbOccurrences;
         if (rdv.nbOccurrences != null) {
             // on trouve le nouveau nombre d'occurrences si on compte jusqu'à l'évènement cliqué
             const debut = rdv.dateDebut.valueOf();
-            let nbOccurrences;
             if (startNoHours <= debut) {
                 nbOccurrences = 0;
             } else {
@@ -332,26 +335,36 @@ export function modifyFutureRecRDV(res, req) {
         } else {
             modif['finRecurrence'] = startDate;
         }
+        // on met à jour les rendez-vous
         RendezVous.update(modif, {
             where: {
                 [Op.or]: [{id: id}, {idParent: id}]
             }
         })
         .then(_ => {
+            // on crée un nouveau rendez-vous pour représenter la recurrence
             RendezVous.create(old_data)
             .then(new_rdv => {
-                const new_start = new Date(+start);
+                const new_start = new Date(+fake_start);
                 new_rdv.set('dateDebut', new_start);
                 new_rdv.set('dateFin', new Date(new_start.getTime() + (old_data.dateFin.getTime() - old_data.dateDebut.getTime())));
+                if (new_rdv.nbOccurrences != null) {
+                    console.log(old_data.nbOccurrences, nbOccurrences);
+                    new_rdv.set('nbOccurrences', old_data.nbOccurrences - nbOccurrences);
+                }
                 new_rdv.save()
                 .then(_ => {
                     RendezVous.update({idParent: new_rdv.id}, {
                         where: {
                             idParent: id,
-                            dateDebut: {[Op.gte]: new_start}
+                            dateDebut: {[Op.gte]: new Date(+start)}
                         }
                     })
                     .then(_ => {
+                        changes['id'] = new_rdv.id;
+                        if (changes.real_id == id) {
+                            changes.real_id = new_rdv.id;
+                        }
                         req.body = changes;
                         modifierRendezVousCalendarPOST(req, res);
                     })

@@ -164,17 +164,9 @@ class AgendaManager {
 							.then(_ => manager.calendrier.getEventSourceById(data.agenda).refetch())
 							.catch(error => console.log(error));
 						}
-					} else if (which == ALL_EVENTS) {
-						if (idParent) {
-							manager.update_event(event, form_data, null, null, true);
-						} else {
-							manager.update_event(event, form_data, null, true);
-						}
-					} else if (which == FUTURE_EVENTS) {
-						const startDate = new Date(date.start);
-						startDate.setHours(0, 0, 0);
-						// A COMPLETER
-					}  
+					} else {
+						manager.update_event(event, form_data, null, idParent == null, idParent != null, which === FUTURE_EVENTS);
+					}
                 }, () => event.remove());
             },
             datesSet: function(dateInfo) {
@@ -297,7 +289,7 @@ class AgendaManager {
 	}
 
 	/*Mise à jour d'un rdv dans le fullcalendar (après sa modification) */
-	update_event(old_event, new_event, noRec = false, children = false, parent = false) {
+	update_event(old_event, new_event, noRec = false, children = false, hasParent = false, future = false) {
 		const data_to_send = {}
 		let rec_modified = false;
 		let rec_removed = false;
@@ -327,12 +319,12 @@ class AgendaManager {
 			}
 		}
 		let modified = rec_modified;
-		let purged = false;
+		let purged = future;
 		const update_children_infos = {};
 		if (old_event.extendedProps.agenda != new_event.agenda) {
 			modified = purged = true;
 			data_to_send['idAgenda'] = new_event.agenda;
-			if (children || parent) {
+			if (children || hasParent) {
 				this.removeEventsByParent(children ? old_event.groupId : old_event.extendedProps.idParent);
 			} else {
 				this.remove_events(old_event.groupId);
@@ -411,11 +403,11 @@ class AgendaManager {
 		}
 		
 		// met à jour les rdv simples associés
-		if ((children || parent) && !rec_modified && !purged) {
+		if ((children || hasParent) && !rec_modified && !purged && !future) {
 			const visited = new Set();
 			for (const ev of this.calendrier.getEvents()) {
 				if (((children && ev.extendedProps.idParent == old_event.groupId) || 
-				(parent && ((ev.groupId == old_event.extendedProps.idParent) || (ev.idParent == old_event.extendedProps.idParent)))) && !visited.has(ev.groupId)) {
+				(hasParent && ((ev.groupId == old_event.extendedProps.idParent) || (ev.idParent == old_event.extendedProps.idParent)))) && !visited.has(ev.groupId)) {
 					for (const key of Object.keys(update_children_infos)) {
 						const val = update_children_infos[key];
 						if (val[0] == 'P') {
@@ -430,17 +422,31 @@ class AgendaManager {
 		}
 
 		if (modified) {
-			data_to_send['id'] = parent ? old_event.extendedProps.idParent : old_event.groupId;
+			data_to_send['id'] = hasParent ? old_event.extendedProps.idParent : old_event.groupId;
 			data_to_send['rec_changes'] = rec_modified;
-			data_to_send['update_spec_date'] = parent || children;
+			data_to_send['update_spec_date'] = hasParent || children;
 			data_to_send['real_id'] = old_event.groupId;
-			json_fetch('/calendar-rdv', 'POST', data_to_send)
-			.then(_ => {
-				if ((purged && this.agendas[new_event.agenda]) || rec_modified) {
-					this.calendrier.getEventSourceById(new_event.agenda).refetch();
-				}
-			})
-			.catch(error => console.log(error));
+			if (future) {
+				const startNoHours = old_event.start;
+				startNoHours.setHours(0, 0, 0);
+				const fake_start = hasParent ? old_event.extendedProps.dateDebutDansParent : old_event.start;
+				json_fetch('/modifyRdvRecFuture', 'POST', {id: data_to_send.id, start: old_event.start.valueOf(), fake_start: fake_start.valueOf(), startNoHours: startNoHours.valueOf(), changes: data_to_send})
+				.then(_ => {
+					if (this.agendas[new_event.agenda]) {
+						this.calendrier.getEventSourceById(new_event.agenda).refetch();
+					}
+				})
+				.catch(error => console.log(error));
+			} else {
+				json_fetch('/calendar-rdv', 'POST', data_to_send)
+				.then(_ => {
+					if ((purged && this.agendas[new_event.agenda]) || rec_modified) {
+						this.calendrier.getEventSourceById(new_event.agenda).refetch();
+					}
+				})
+				.catch(error => console.log(error));
+			}
+			
 		}
 	}
 
