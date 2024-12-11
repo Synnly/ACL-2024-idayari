@@ -119,12 +119,13 @@ export default class RendezVous extends Model {
                 lieu: this.lieu,
                 description: this.description,
                 type: this.type,
-                endRec: this.finRecurrence,
+                endRec: this.finRecurrence != null ? this.finRecurrence.valueOf() : this.finRecurrence,
                 nbOccurrences: this.nbOccurrences,
                 frequence: this.frequence,
                 dates: dates,
                 color: '#'+this.color,
-                idParent: this.idParent
+                idParent: this.idParent,
+                dateDebutDansParent: this.dateDebutDansParent != null ? this.dateDebutDansParent.valueOf() : this.dateDebutDansParent
              };
     }
 

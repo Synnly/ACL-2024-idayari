@@ -79,7 +79,6 @@ function setRecRDVChangeModal(action, agenda_changed, onReady) {
         closeModal(document.getElementById('dialogRDVRec'));
         document.body.insertAdjacentHTML('beforeend', html);
         const dialog = document.getElementById('dialogRDVRec');
-        
         const vraieModale = new bootstrap.Modal(dialog);
 
         const form = document.getElementById('rec_rdv_form');
@@ -93,10 +92,6 @@ function setRecRDVChangeModal(action, agenda_changed, onReady) {
         vraieModale.show();
 
     });
-}
-
-function get_rdv_form_infos() {
-
 }
 
 function setRendezVousModal(html, id, idAgenda, initiallyRec, idParent, onsuccess, removeFunction) {
