@@ -349,7 +349,8 @@ export function modifyFutureRecRDVPOST(req, res) {
         // on met à jour les rendez-vous
         RendezVous.update(modif, {
             where: {
-                [Op.or]: [{id: id}, {idParent: id}]
+                [Op.or]: [{id: id}, {idParent: id}],
+                dateDebut: {[Op.lt]: new Date(+start)}
             }
         })
         .then(_ => {
