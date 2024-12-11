@@ -383,6 +383,7 @@ function SearchRdvs() {
                 agendaContainer.removeChild(searchResultsView);
                 agendaView.style.display = "flex";
                 agendaManager.calendrier.updateSize();
+                removeCheckboxListeners();
             })
         }).catch(err => console.error("Erreur lors de la recherche :", err));
 }
@@ -413,6 +414,17 @@ function addCheckboxListeners() {
     }
 }
 
+function removeCheckboxListeners() {
+    Array.from(list_agendas.getElementsByTagName("INPUT")).forEach(input => {
+        input.removeEventListener("change", SearchRdvs); 
+    });
+
+    const selectAllCheckbox = document.getElementById("selectAll");
+    if (selectAllCheckbox) {
+        selectAllCheckbox.removeEventListener("change", SearchRdvs);
+    }
+}
+
 // Si le dom change pour ajouter searchResultsView alors on à fait un recherche
 // Donc ça veut dire qu'il faut ajouter les écouteurs à ce moments
 const observer = new MutationObserver(() => {
@@ -420,6 +432,8 @@ const observer = new MutationObserver(() => {
     if (existingSearchResultsView) {
         addCheckboxListeners();
         observer.disconnect(); 
+    }else {
+
     }
 });
 
