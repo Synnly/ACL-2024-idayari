@@ -25,35 +25,26 @@ export async function importAgendaPOST(req,res){
 
         }).then(userAgendaAccess => {
             try{
-                const mapParent = [];
+                const mapParent = {};
                 const rdvEnfant = [];
            
-            req.body.rendezVous.forEach(rdv => {
-                let { id, ...rdvWithoutId } = rdv;
-                rdvWithoutId.idAgenda = agenda.id;
-                if(rdv.idParent){
-                    console.log("IL EN EXISTE 111111111111111111111111111111111111",rdv.idParent);
-                    rdvEnfant.push(rdvWithoutId);
-                }else{
-                    // console.log('description rdv',rdv);
-                    // console.log('idParent ',rdv.idParent);
-                    // console.log('idParent ',rdvWithoutParentId);
-                    RendezVous.create(rdvWithoutId).then(newRdv => {
-                        console.log("est ce qu'on arrive iciiiiiiiiiiiiiiiiiii????? ,??????");
-                        console.log(rdv.id, newRdv.id);
-                        mapParent.push(rdv.id);
+                req.body.rendezVous.forEach(async rdv => {
+                    let { id, ...rdvWithoutId } = rdv;
+                    rdvWithoutId.idAgenda = agenda.id;
+                    if(rdv.idParent){
+                        rdvEnfant.push(rdvWithoutId);
+                    }else{
+                        let newRdv = await RendezVous.create(rdvWithoutId);
                         mapParent[rdv.id] = newRdv.id;
-                    });
-                }
-                console.log("ET LES PARENTS DANS TOUS CA HEIN !! ",mapParent);
-                rdvEnfant.forEach(rdv => {
-                    if(mapParent[rdv.idParent]){
-                        let {id, updatedRdv }= { ...rdv, idParent: mapParent[rdv.idParent] };
-                        RendezVous.create(updatedRdv);
                     }
-                }) 
-            });
-        
+                    
+                    rdvEnfant.forEach(childRdv => {
+                        if(mapParent[childRdv.idParent]){
+                            childRdv.idParent = mapParent[childRdv.idParent];
+                            RendezVous.create(childRdv);
+                        }
+                    });
+                });
 
             }catch (error) {
                 // Gérer les erreurs pour toutes les créations
